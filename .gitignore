@@ -1,0 +1,15 @@
+# Ambientes Virtuais Python
+.venv/
+__pycache__/
+*.pyc
+
+# Dependências Node.js (Mobile e Web)
+node_modules/
+.expo/
+
+# Variáveis de Ambiente (Segurança)
+.env
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
