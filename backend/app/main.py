@@ -12,3 +12,4 @@ def health_check():
         "status": "online",
         "message": "Cérebro AtipicTouch rodando perfeitamente na nuvem!"
     }
+
