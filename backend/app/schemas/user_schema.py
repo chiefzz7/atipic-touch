@@ -18,3 +18,8 @@ class UsuarioResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UsuarioUpdate(BaseModel):
+    nome: Optional[str] = None
+    telefone: Optional[str] = None
