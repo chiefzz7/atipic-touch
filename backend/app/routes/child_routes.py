@@ -65,3 +65,26 @@ def atualizar_perfil_crianca(
     session.commit()
     session.refresh(crianca)
     return crianca
+
+@router.delete("/{crianca_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deletar_crianca(
+    crianca_id: str,
+    current_user: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Deleta o perfil de uma criança (apenas se pertencer ao usuário logado)."""
+    statement = select(Crianca).where(
+        Crianca.id == crianca_id, 
+        Crianca.usuarioId == current_user.id
+    )
+    crianca = session.exec(statement).first()
+    
+    if not crianca:
+        raise HTTPException(
+            status_code=404, 
+            detail="Criança não encontrada ou você não tem permissão para excluí-la."
+        )
+        
+    session.delete(crianca)
+    session.commit()
+    return None
