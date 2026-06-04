@@ -21,7 +21,7 @@ class Crianca(SQLModel, table=True):
     id: str = Field(primary_key=True)
     usuarioId: str = Field(foreign_key="usuarios.id")
     nome: str
-    datanascimento: date
+    dataNascimento: date
     temasPreferidos: List[str] = Field(sa_column=Column(ARRAY(String)))
     restricoesMedicas: Optional[str] = None
 
