@@ -1,8 +1,14 @@
-import React from 'react';
+import './global.css';
+import React, { useState } from 'react';
 import Login from './src/screens/Login';
 import Register from './src/screens/Register';
-import './global.css';
 
 export default function App() {
-  return <Register />;
+  const [currentScreen, setCurrentScreen] = useState('login');
+
+  if (currentScreen === 'register') {
+    return <Register onNavigate={setCurrentScreen} />
+  }
+
+  return <Login onNavigate={setCurrentScreen} />;
 }
