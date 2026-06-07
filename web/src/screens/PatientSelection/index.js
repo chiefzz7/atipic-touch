@@ -18,7 +18,7 @@ export default function PatientSelectionScreen() {
   ];
 
   const handleSelect = (id) => {
-    router.push('/dashboard'); 
+    router.push('/children');
   };
 
   return (
