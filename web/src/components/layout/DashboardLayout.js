@@ -15,11 +15,8 @@ export default function DashboardLayout({ children }) {
     { name: 'Configurações', icon: 'settings', route: '/settings' },
   ];
 
-  // A classe print:bg-white garante fundo branco na exportação de PDF
   return (
     <View className="flex-1 flex-row bg-[#FDFFF1] print:bg-white">
-      
-      {/* A classe print:hidden faz o menu lateral sumir na hora de imprimir o laudo */}
       <View 
         className={`print:hidden ${isExpanded ? 'w-64' : 'w-20'} bg-[#E2DCC8] transition-all duration-300 h-full flex-col justify-between py-6 border-r border-[#d4cea3] shadow-sm`}
       >
@@ -35,7 +32,6 @@ export default function DashboardLayout({ children }) {
 
           <View className="px-3">
             {menuItems.map((item, index) => {
-              // Validação dinâmica da rota atual
               const isActive = pathname === item.route || pathname.startsWith(item.route);
 
               return (
