@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, usePathname } from 'expo-router';
 
 export default function DashboardLayout({ children }) {
   const [isExpanded, setIsExpanded] = useState(Platform.OS === 'web' && Dimensions.get('window').width > 768);
+  
+  const pathname = usePathname();
 
   const menuItems = [
-    { name: 'Dashboard', icon: 'pie-chart', route: '/dashboard', active: true },
-    { name: 'Pacientes', icon: 'users', route: '#', active: false },
-    { name: 'Logs e Relatórios', icon: 'clipboard', route: '#', active: false },
-    { name: 'Configurações', icon: 'settings', route: '#', active: false },
+    { name: 'Dashboard', icon: 'pie-chart', route: '/dashboard' },
+    { name: 'Pacientes', icon: 'users', route: '/patients' },
+    { name: 'Logs e Relatórios', icon: 'clipboard', route: '/reports' },
+    { name: 'Configurações', icon: 'settings', route: '/settings' },
   ];
 
   return (
-    <View className="flex-1 flex-row bg-[#FDFFF1]">
+    <View className="flex-1 flex-row bg-[#FDFFF1] print:bg-white">
       <View 
-        className={`${isExpanded ? 'w-64' : 'w-20'} bg-[#E2DCC8] transition-all duration-300 h-full flex-col justify-between py-6 border-r border-[#d4cea3] shadow-sm`}
+        className={`print:hidden ${isExpanded ? 'w-64' : 'w-20'} bg-[#E2DCC8] transition-all duration-300 h-full flex-col justify-between py-6 border-r border-[#d4cea3] shadow-sm`}
       >
         <View>
           <View className="flex-row items-center px-5 mb-10 h-12">
@@ -29,19 +31,24 @@ export default function DashboardLayout({ children }) {
           </View>
 
           <View className="px-3">
-            {menuItems.map((item, index) => (
-              <TouchableOpacity 
-                key={index} 
-                className={`flex-row items-center px-4 h-12 mb-2 rounded-xl transition-colors ${item.active ? 'bg-[#D4CDA8] shadow-sm' : 'hover:bg-[#dcd6b6]'}`}
-              >
-                <Feather name={item.icon} size={22} color={item.active ? '#528F33' : '#6B7280'} />
-                {isExpanded && (
-                  <Text className={`ml-4 text-[15px] font-medium ${item.active ? 'text-[#212134]' : 'text-[#4B5563]'}`}>
-                    {item.name}
-                  </Text>
-                )}
-              </TouchableOpacity>
-            ))}
+            {menuItems.map((item, index) => {
+              const isActive = pathname === item.route || pathname.startsWith(item.route);
+
+              return (
+                <Link key={index} href={item.route} asChild>
+                  <TouchableOpacity 
+                    className={`flex-row items-center px-4 h-12 mb-2 rounded-xl transition-colors ${isActive ? 'bg-[#D4CDA8] shadow-sm' : 'hover:bg-[#dcd6b6]'}`}
+                  >
+                    <Feather name={item.icon} size={22} color={isActive ? '#528F33' : '#6B7280'} />
+                    {isExpanded && (
+                      <Text className={`ml-4 text-[15px] font-medium ${isActive ? 'text-[#212134]' : 'text-[#4B5563]'}`}>
+                        {item.name}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </Link>
+              );
+            })}
           </View>
         </View>
 
