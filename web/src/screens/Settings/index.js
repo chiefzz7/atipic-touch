@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 
 import ProfileTab from '../../components/settings/ProfileTab';
 import SignatureTab from '../../components/settings/SignatureTab';
+import SystemTab from '../../components/settings/SystemTab';
 
 export default function SettingsScreen() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -23,7 +24,7 @@ export default function SettingsScreen() {
           <View className="mb-8">
             <Text className="text-[32px] font-extrabold text-[#212134]">Configurações</Text>
             <Text className="text-[15px] text-[#6B7280] font-medium mt-1">
-              Gerencie seu perfil, laudos e parâmetros técnicos do sistema.
+              Faça a gestão do seu perfil, laudos e parâmetros técnicos do sistema.
             </Text>
           </View>
 
@@ -48,20 +49,13 @@ export default function SettingsScreen() {
             })}
           </View>
 
+          {/* Área de Conteúdo Renderizado Dinamicamente */}
           <View className="min-h-[500px]">
             {activeTab === 'profile' && <ProfileTab />}
             
             {activeTab === 'signature' && <SignatureTab />}
             
-            {activeTab === 'system' && (
-              <View className="flex-1 items-center justify-center border-2 border-dashed border-[#A3C78B] rounded-2xl p-10 bg-[#F2F7ED]">
-                <Feather name="settings" size={40} color="#528F33" className="mb-4" />
-                <Text className="text-[16px] font-bold text-[#528F33] uppercase">Aba de Sistema em desenvolvimento...</Text>
-                <Text className="text-[12px] text-[#6B7280] mt-2 text-center max-w-[300px]">
-                  Aqui definiremos os limiares de alertas analíticos e as regras de sincronização ponta a ponta.
-                </Text>
-              </View>
-            )}
+            {activeTab === 'system' && <SystemTab />}
           </View>
 
         </View>
