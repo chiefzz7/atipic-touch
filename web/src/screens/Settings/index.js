@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import DashboardLayout from '../../components/layout/DashboardLayout';
+
 import ProfileTab from '../../components/settings/ProfileTab';
+import SignatureTab from '../../components/settings/SignatureTab';
 
 export default function SettingsScreen() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -16,10 +18,13 @@ export default function SettingsScreen() {
   return (
     <DashboardLayout>
       <ScrollView className="flex-1 bg-[#FDFFF1] p-6 lg:p-10" showsVerticalScrollIndicator={false}>
-        <View className="max-w-[900px] w-full self-center">
+        
+        <View className="max-w-[900px] w-full self-center mb-20">
           <View className="mb-8">
             <Text className="text-[32px] font-extrabold text-[#212134]">Configurações</Text>
-            <Text className="text-[15px] text-[#6B7280] font-medium mt-1">Gerencie seu perfil, laudos e parâmetros do sistema.</Text>
+            <Text className="text-[15px] text-[#6B7280] font-medium mt-1">
+              Gerencie seu perfil, laudos e parâmetros técnicos do sistema.
+            </Text>
           </View>
 
           <View className="flex-row border-b border-gray-200 mb-8 overflow-hidden">
@@ -29,6 +34,7 @@ export default function SettingsScreen() {
                 <TouchableOpacity
                   key={tab.id}
                   onPress={() => setActiveTab(tab.id)}
+                  activeOpacity={0.7}
                   className={`flex-row items-center py-3 px-6 border-b-2 transition-colors ${
                     isActive ? 'border-[#528F33] bg-[#EAF3E2]' : 'border-transparent hover:bg-gray-50'
                   }`}
@@ -45,22 +51,20 @@ export default function SettingsScreen() {
           <View className="min-h-[500px]">
             {activeTab === 'profile' && <ProfileTab />}
             
-            {activeTab === 'signature' && (
-              <View className="flex-1 items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-10 bg-white">
-                <Feather name="pen-tool" size={40} color="#9CA3AF" className="mb-4" />
-                <Text className="text-[16px] font-bold text-[#4B5563]">Aba de Assinatura em desenvolvimento...</Text>
-              </View>
-            )}
+            {activeTab === 'signature' && <SignatureTab />}
             
             {activeTab === 'system' && (
-              <View className="flex-1 items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-10 bg-white">
-                <Feather name="settings" size={40} color="#9CA3AF" className="mb-4" />
-                <Text className="text-[16px] font-bold text-[#4B5563]">Aba de Sistema em desenvolvimento...</Text>
+              <View className="flex-1 items-center justify-center border-2 border-dashed border-[#A3C78B] rounded-2xl p-10 bg-[#F2F7ED]">
+                <Feather name="settings" size={40} color="#528F33" className="mb-4" />
+                <Text className="text-[16px] font-bold text-[#528F33] uppercase">Aba de Sistema em desenvolvimento...</Text>
+                <Text className="text-[12px] text-[#6B7280] mt-2 text-center max-w-[300px]">
+                  Aqui definiremos os limiares de alertas analíticos e as regras de sincronização ponta a ponta.
+                </Text>
               </View>
             )}
           </View>
-        </View>
 
+        </View>
       </ScrollView>
     </DashboardLayout>
   );
