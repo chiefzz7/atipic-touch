@@ -1,28 +1,64 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
 
-export default function HomeScreen() {
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { useRouter } from "expo-router";
+
+export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-[#FDFFF1] items-center justify-center p-6">
-      <View className="w-24 h-24 bg-[#528F33] rounded-2xl items-center justify-center shadow-sm mb-6">
-        <Text className="text-white font-bold text-4xl">AT</Text>
+    <View className="flex-1 bg-[#FFFCEF] overflow-hidden">
+
+      {/* Círculo bege */}
+      <View
+        className="absolute rounded-full bg-[#E5D8B0]"
+        style={{
+          width: 713,
+          height: 756,
+          left: -148,
+          top: -20,
+        }}
+      />
+
+      {/* Conteúdo */}
+      <View className="flex-1 items-center">
+
+        {/* Mascote */}
+        <Image
+    source={require("../../assets/images/welcome_brocolis.png")}
+    resizeMode="contain"
+    className="absolute"
+    style={{
+      width: 335,
+      height: 358,
+      top: 143,
+      left: 41,
+  }}
+/>
+
+        {/* Área inferior */}
+        <View className="absolute bottom-24 items-center">
+
+          <TouchableOpacity
+            className="w-[350px] h-[83px] bg-[#D6C48F] rounded-[7px] items-center justify-center"
+            onPress={() => router.push("/register")}
+          >
+            <Text className="text-white text-[34px] font-light">
+              Criar minha conta
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className="mt-5"
+            onPress={() => router.push("/login")}
+          >
+            <Text className="text-black text-[24px]">
+              Já tem conta? ENTRAR.
+            </Text>
+          </TouchableOpacity>
+
+        </View>
+
       </View>
-      <Text className="text-3xl font-extrabold text-[#212134] text-center mb-2">
-        Mobile Gateway
-      </Text>
-      <Text className="text-base text-[#6B7280] text-center mb-8">
-        Expo Router configurado com sucesso!
-      </Text>
-      
-      <TouchableOpacity 
-        className="bg-[#528F33] px-8 py-4 rounded-xl shadow-sm"
-        onPress={() => console.log('Pronto para navegar!')}
-      >
-        <Text className="text-white font-bold text-lg">Iniciar Sessão</Text>
-      </TouchableOpacity>
     </View>
   );
 }
