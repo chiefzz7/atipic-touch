@@ -26,7 +26,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "react-native-ble-plx"
+      "react-native-ble-plx",
+      "expo-router"
     ]
   }
 }
