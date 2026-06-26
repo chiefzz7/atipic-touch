@@ -45,3 +45,25 @@ def deletar_alimento(
     session.delete(alimento)
     session.commit()
     return None
+
+@router.patch("/{alimento_id}", response_model=AlimentoResponse)
+def atualizar_alimento(
+    alimento_id: int,
+    alimento_update: AlimentoUpdate,
+    current_user: Usuario = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Atualiza os atributos sensoriais ou informações de um alimento existente."""
+    alimento = session.get(Alimento, alimento_id)
+    if not alimento:
+        raise HTTPException(status_code=404, detail="Alimento não encontrado no catálogo.")
+    
+    update_data = alimento_update.model_dump(exclude_unset=True)
+    
+    for key, value in update_data.items():
+        setattr(alimento, key, value)
+        
+    session.add(alimento)
+    session.commit()
+    session.refresh(alimento)
+    return alimento
