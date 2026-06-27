@@ -8,7 +8,6 @@ export default function WelcomeScreen() {
   return (
     <View className="flex-1 bg-[#FFFCEF] overflow-hidden">
 
-  {/* Círculo */}
   <View
     className="absolute rounded-full bg-[#E5D8B0]"
     style={{
@@ -19,7 +18,6 @@ export default function WelcomeScreen() {
     }}
   />
 
-  {/* Mascote */}
   <Image
     source={require("../../../assets/images/welcome_brocolis.png")}
     resizeMode="contain"
@@ -32,7 +30,6 @@ export default function WelcomeScreen() {
     }}
   />
 
-  {/* Botão */}
   <TouchableOpacity
   className="absolute bg-[#D8C792] items-center justify-center rounded-[7px]"
   style={{
@@ -48,7 +45,6 @@ export default function WelcomeScreen() {
   </Text>
 </TouchableOpacity>
 
-{/* Login */}
 <TouchableOpacity
   className="absolute items-center"
   style={{
