@@ -11,6 +11,7 @@ dependencies = [
     "pydantic[email]>=2.13.3",
     "pyjwt>=2.12.1",
     "python-dotenv>=1.2.2",
+    "requests>=2.34.2",
     "sqlmodel>=0.0.38",
     "uvicorn[standard]>=0.46.0",
 ]
