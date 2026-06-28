@@ -1,21 +1,16 @@
 import React, { useState } from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { useRouter } from "expo-router";
+import {SafeAreaView, View, Text, TextInput, TouchableOpacity, Image} from "react-native";
 
 export default function LoginScreen() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
     <SafeAreaView className="flex-1 bg-[#FFFCEF] overflow-hidden">
 
-      {/* Círculo de fundo */}
       <View
         className="absolute rounded-full bg-[#E5D8B0]"
         style={{
@@ -26,7 +21,6 @@ export default function LoginScreen() {
         }}
       />
 
-      {/* Bem-vindo */}
       <Text
         className="absolute text-[#3F361E] text-[48px] font-bold italic"
         style={{
@@ -38,7 +32,6 @@ export default function LoginScreen() {
         Bem-Vindo(a)!
       </Text>
 
-      {/* Card */}
       <View
         className="absolute bg-[#C6BB9A] rounded-[7px] align-items-center "
         style={{
@@ -49,7 +42,6 @@ export default function LoginScreen() {
         }}
       >
 
-        {/* Título */}
         <Text
           className="text-white text-[36px] font-bold"
           style={{
@@ -60,7 +52,6 @@ export default function LoginScreen() {
           Login responsável
         </Text>
 
-        {/* Email */}
         <Text
           className="text-white text-[24px]"
           style={{
@@ -79,7 +70,6 @@ export default function LoginScreen() {
           className="self-center mt-2 w-[343px] h-[53px] rounded-[7px] bg-white px-4 text-[18px]"
         />
 
-        {/* Senha */}
         <Text
           className="text-white text-[24px]"
           style={{
@@ -97,8 +87,8 @@ export default function LoginScreen() {
           className="self-center mt-2 w-[343px] h-[53px] rounded-[7px] bg-white px-4 text-[18px]"
         />
 
-        {/* Botão */}
         <TouchableOpacity
+          onPress={() => router.push("/child-introduction")}
           className="self-center items-center justify-center rounded-[7px] bg-[#A3987B]"
           style={{
             width: 260,
@@ -113,7 +103,6 @@ export default function LoginScreen() {
 
       </View>
 
-      {/* Mascote */}
       <Image
   source={require("../../../assets/images/login_brocolis.png")}
   resizeMode="contain"
