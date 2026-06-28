@@ -1,10 +1,10 @@
-
 import React from "react";
-import {
-  View, Text, TextInput, TouchableOpacity, SafeAreaView,
-} from "react-native";
+import { useRouter } from "expo-router";
+import {View, Text, TextInput, TouchableOpacity, SafeAreaView} from "react-native";
 
 export default function RegisterScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView className="flex-1 bg-[#FFFCEF]">
 
@@ -63,6 +63,7 @@ export default function RegisterScreen() {
         />
 
         <TouchableOpacity
+          onPress={() => router.push("/child-introduction")}
           className="self-center mt-9 w-[329px] h-[72px] rounded-[7px] bg-[#A3987B] items-center justify-center">
           <Text className="text-[36px] font-bold text-white">
             Continuar
