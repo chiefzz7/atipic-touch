@@ -220,6 +220,7 @@ export default function ChildRegister() {
         {/* Salvar */}
 
         <TouchableOpacity
+          onPress={() => router.push("/home-introduction")}
           className="w-full h-[55px] bg-[#A3C78C] rounded-2xl items-center justify-center mt-6"
           activeOpacity={0.85}
         >
