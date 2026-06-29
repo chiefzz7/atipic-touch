@@ -1,15 +1,19 @@
 import React from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import {SafeAreaView, View, Text, TouchableOpacity, Image, ScrollView} from "react-native";
+import { useRouter } from "expo-router";
 
 export default function ChildIntroductionScreen() {
+  const router = useRouter();
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFCEF] overflow-hidden">
+  <View className="flex-1 bg-[#FFFCEF]">
+
+    <ScrollView
+      className="flex-1 px-6 pt-10"
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{
+        paddingBottom: 40
+      }}
+    >
 
       <View
         className="absolute rounded-full bg-[#E5D8B0]"
@@ -107,6 +111,7 @@ export default function ChildIntroductionScreen() {
       </Text>
 
       <TouchableOpacity
+        onPress={() => router.push("/child-register")}
         className="absolute items-center justify-center rounded-[7px] bg-[#A3987B]"
         style={{
           width: 351,
@@ -120,7 +125,8 @@ export default function ChildIntroductionScreen() {
           cadastrar criança
         </Text>
       </TouchableOpacity>
+    </ScrollView>
 
-    </SafeAreaView>
-  );
+  </View>
+);
 }
