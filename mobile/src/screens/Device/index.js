@@ -2,7 +2,7 @@ import React from "react";
 import { SafeAreaView, View, Text } from "react-native";
 
 import AvatarHeader from "../../components/AvatarHeader";
-import StatusCard from "../../components/StatusCard";
+import SectionCard from "../../components/SectionCard";
 import PowerButton from "../../components/PowerButton";
 import PrimaryButton from "../../components/PrimaryButton";
 import BottomNavigation from "../../components/BottomNavigation";
@@ -13,15 +13,15 @@ export default function Device() {
 
       <View className="flex-1 px-3 pt-7">
 
-        {/* Header */}
 
-        <AvatarHeader />
+        <AvatarHeader/>
 
-        {/* Card */}
 
         <View className="mt-5 flex-1">
 
-          <StatusCard>
+          <SectionCard
+            title="Dispositivo"
+          >
 
             <PowerButton />
 
@@ -31,11 +31,10 @@ export default function Device() {
               Auxiliador desconectado
             </Text>
 
-          </StatusCard>
+          </SectionCard>
 
         </View>
 
-        {/* Botão */}
 
         <View className="mb-6">
 
@@ -49,7 +48,7 @@ export default function Device() {
 
       </View>
 
-      <BottomNavigation />
+      <BottomNavigation active="device" />
 
     </SafeAreaView>
   );

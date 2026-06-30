@@ -2,11 +2,11 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function AvatarHeader() {
+export default function AvatarHeader({
+    variant = "device", greeting = "Bom dia", childName = "João", age = "3 anos",
+}) {
   return (
-    <View className="w-full bg-[#C6BB9A] rounded-[7px] px-4 py-4 flex-row items-center">
-
-      {/* Avatar */}
+    <View className="w-full bg-[#C6BB9A] rounded-[7px] px-4 py-4 mt-4 mb-4 flex-row items-center">
 
       <View className="w-[90px] h-[90px] rounded-full bg-[#AEA282] items-center justify-center">
 
@@ -18,27 +18,38 @@ export default function AvatarHeader() {
 
       </View>
 
-      {/* Dados */}
 
-      <View className="flex-1 ml-4">
+      <View className="flex-1 ml-4 ">
 
-        <Text className="text-white text-[22px] font-semibold">
-          Nome da criança,
-        </Text>
+        {variant === "dashboard" ? (
+          <>
+            <Text className="text-[#c7e0b7] font-semibold text-[22px]">
+              {greeting},
+            </Text>
+
+            <Text className="text-white text-[40px] font-bold mt-1">
+              {childName}!
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text className="text-white text-[40px] font-bold">
+              {childName}
+            </Text>
+
+            <Text className="text-[#FFFCEF] text-[22px] mt-1">
+              {age}
+            </Text>
+          </>
+        )}
 
       </View>
-
-      <Text className="text-[#7B715F] text-[22px] mr-3">
-        3 anos
-      </Text>
-
-      {/* Ações */}
 
       <View className="items-center">
 
         <TouchableOpacity
+          className="mb-3"
           activeOpacity={0.8}
-          className="mb-2"
         >
           <Ionicons
             name="notifications"
