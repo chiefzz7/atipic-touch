@@ -87,7 +87,7 @@ export default function HomeIntroduction() {
 
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() => router.push("/")}
+        onPress={() => router.push("/device")}
         className="absolute items-center justify-center bg-[#A3C78C] rounded-[17px]"
         style={{
           width: 351,
