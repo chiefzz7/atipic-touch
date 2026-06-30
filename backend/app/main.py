@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from app.routes import user_routes
 from app.routes import auth_routes
+from app.routes import child_routes
+from app.routes import food_routes
+from app.routes import log_routes
 
 app = FastAPI(
     title="AtipicTouch API",
@@ -10,6 +13,9 @@ app = FastAPI(
 
 app.include_router(user_routes.router)
 app.include_router(auth_routes.router)
+app.include_router(child_routes.router)
+app.include_router(food_routes.router)
+app.include_router(log_routes.router)
 
 @app.get("/")
 def health_check():
