@@ -3,59 +3,56 @@ import { View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-export default function BottomNavigation() {
+export default function BottomNavigation({
+  active = "",
+}) {
+
   const router = useRouter();
 
+  const color = (item) =>
+    active === item
+      ? "#A3C78C"
+      : "#EDE8D0";
+
   return (
-    <View
-      className="w-full h-[83px] bg-[#554B41] flex-row justify-around items-center"
-    >
+
+    <View className="w-full h-[83px] bg-[#554B41] flex-row justify-around items-center">
+
       <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => router.push("/home")}
+        onPress={() => router.push("/dashboard")}
       >
         <Ionicons
           name="home"
           size={30}
-          color="#EDE8D0"
+          color={color("dashboard")}
         />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => router.push("/device")}
-      >
+      <TouchableOpacity onPress={() => router.push("/device")}>
         <Ionicons
           name="hardware-chip"
           size={30}
-          color="#EDE8D0"
+          color={color("device")}
         />
       </TouchableOpacity>
 
-
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => router.push("/child-add")}
-      >
+      <TouchableOpacity onPress={() => router.push("/")}>
         <Ionicons
           name="people"
           size={30}
-          color="#EDE8D0"
+          color={color("children")}
         />
       </TouchableOpacity>
 
-
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => {}}
-      >
+      <TouchableOpacity onPress={() => {}}>
         <Ionicons
           name="settings"
           size={30}
-          color="#EDE8D0"
+          color={color("settings")}
         />
       </TouchableOpacity>
 
     </View>
+
   );
 }

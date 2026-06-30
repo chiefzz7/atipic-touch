@@ -95,7 +95,7 @@ export default function ChildIntroductionScreen() {
           left: 15,
         }}
       >
-        Tudo certo, (nome do responsável).
+        Tudo certo, Maria.
       </Text>
 
       <Text

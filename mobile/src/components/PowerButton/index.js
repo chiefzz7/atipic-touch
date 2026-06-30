@@ -10,14 +10,14 @@ export default function PowerButton() {
     >
 
       <View
-        className="w-[200px] h-[200px] rounded-full items-center justify-center"
+        className="w-[250px] h-[250px] rounded-full items-center justify-center"
         style={{
           backgroundColor: "#A3987B",
         }}
       >
 
         <View
-          className="w-[165px] h-[165px] rounded-full items-center justify-center"
+          className="w-[225px] h-[225px] rounded-full items-center justify-center"
           style={{
             backgroundColor: "#F25A4F",
           }}
@@ -25,7 +25,7 @@ export default function PowerButton() {
 
           <Ionicons
             name="power"
-            size={95}
+            size={120}
             color="#7A0000"
           />
 
