@@ -1,5 +1,3 @@
-// src/screens/HomeIntroduction/index.js
-
 import React from "react";
 import { View, Text, Image, TouchableOpacity, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
