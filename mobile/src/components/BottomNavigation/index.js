@@ -16,7 +16,7 @@ export default function BottomNavigation({
 
   return (
 
-    <View className="w-full h-[83px] bg-[#554B41] flex-row justify-around items-center">
+    <View className="absolute bottom-0 w-full h-[83px] bg-[#554B41] flex-row justify-around items-center">
 
       <TouchableOpacity
         onPress={() => router.push("/dashboard")}
@@ -44,11 +44,11 @@ export default function BottomNavigation({
         />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={() => router.push("/management-food")}>
         <Ionicons
-          name="settings"
+          name="fast-food"
           size={30}
-          color={color("settings")}
+          color={color("management-food")}
         />
       </TouchableOpacity>
 
