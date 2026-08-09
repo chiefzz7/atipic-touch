@@ -19,37 +19,32 @@ export default function BottomNavigation({
     <View className="absolute bottom-0 w-full h-[83px] bg-[#554B41] flex-row justify-around items-center">
 
       <TouchableOpacity
-        onPress={() => router.push("/dashboard")}
-      >
+        onPress={() => router.push("/dashboard")}>
         <Ionicons
           name="home"
           size={30}
-          color={color("dashboard")}
-        />
+          color={color("dashboard")} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push("/device")}>
         <Ionicons
           name="hardware-chip"
           size={30}
-          color={color("device")}
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => router.push("/")}>
-        <Ionicons
-          name="people"
-          size={30}
-          color={color("children")}
-        />
+          color={color("device")}/>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push("/management-food")}>
         <Ionicons
           name="fast-food"
           size={30}
-          color={color("management-food")}
-        />
+          color={color("management-food")}/>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.push("/profile")}>
+        <Ionicons
+          name="people"
+          size={30}
+          color={color("profile")}/>
       </TouchableOpacity>
 
     </View>
