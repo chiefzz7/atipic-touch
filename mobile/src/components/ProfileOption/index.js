@@ -12,9 +12,7 @@ export default function ProfileOption({
   icon,
   title,
   value,
-
   type = "default",
-
   onPress,
   onValueChange,
 }) {

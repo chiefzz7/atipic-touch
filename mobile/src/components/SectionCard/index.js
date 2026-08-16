@@ -11,7 +11,7 @@ export default function SectionCard({ title, subtitle, children }) {
       </Text>
 
       {subtitle && (
-        <Text className="text-[#80775C] text-lg mt-1">
+        <Text className="text-[#80775C] text-lg mt-1 text-center">
           {subtitle}
         </Text>
       )}

@@ -11,27 +11,38 @@ export default function Device() {
   return (
     <SafeAreaView className="flex-1 bg-[#FFFCEF]">
 
-      <View className="flex-1 w-full max-w-[600px] self-center px-3 pt-7 pb-[105px]">
-  <ScrollView>
-        <AvatarHeader/>
+      <View className="flex-1 w-full self-center px-3 pt-5">
 
-        <View className="mt-0">
-          <SectionCard title="Status do dispositivo auxiliador">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: 110,
+          }}
+        >
+          <AvatarHeader />
 
-            <PowerButton />
+          <View className="mt-0">
+            <SectionCard title="Status do dispositivo auxiliador">
 
-            <Text className="text-[#554B41] text-[30px] font-normal mt-8 text-center">
-              Auxiliador desconectado
-            </Text>
+              <PowerButton />
 
-          </SectionCard>
-        </View>
+              <Text className="text-[#554B41] text-[30px] font-normal mt-8 text-center">
+                Auxiliador desconectado
+              </Text>
 
-        <View className="mt-8">
-          <PrimaryButton title="Iniciar refeição" disabled onPress={() => {}} />
-        </View>
+              <View className="mt-8">
+                <PrimaryButton
+                  title="Iniciar refeição"
+                  disabled
+                  onPress={() => {}}
+                />
+              </View>
 
-  </ScrollView>
+            </SectionCard>
+          </View>
+
+        </ScrollView>
+
       </View>
 
       <BottomNavigation active="device" />

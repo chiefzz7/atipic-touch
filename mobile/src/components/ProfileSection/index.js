@@ -10,12 +10,9 @@ import { Ionicons } from "@expo/vector-icons";
 export default function ProfileSection({
   title,
   children,
-
   expandable = false,
   expanded = true,
-
   rightLabel = "",
-
   onPress,
 }) {
 
@@ -38,7 +35,7 @@ export default function ProfileSection({
             color="#FFFCEF"
           />
 
-          <Text className="ml-2 text-white text-[20px] font-bold">
+          <Text className="ml-0 mr-2 text-white text-[18px] font-bold">
             {title}
           </Text>
 
@@ -48,7 +45,7 @@ export default function ProfileSection({
 
           <View className="flex-row items-center">
 
-            <Text className="text-[#554B41] text-[16px] mr-2">
+            <Text className="text-[#554B41] text-[12px] mr-2">
 
               {rightLabel}
 
@@ -60,7 +57,7 @@ export default function ProfileSection({
                   ? "chevron-up"
                   : "chevron-down"
               }
-              size={20}
+              size={15}
               color="#554B41"
             />
 
@@ -72,7 +69,7 @@ export default function ProfileSection({
 
       {(!expandable || expanded) && (
 
-        <View className="pb-3">
+        <View className="pb-3 px-3">
 
           {children}
 
