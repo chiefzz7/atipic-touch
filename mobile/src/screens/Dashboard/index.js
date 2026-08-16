@@ -9,7 +9,7 @@ import ExperienceCard from "../../components/ExperienceCard";
 import InteractionModal from "../../components/InteractionModal";
 
 export default function DashboardScreen() {
-  const today = "Hoje, 30 de Junho";
+  const today = "Hoje, 13 de Agosto";
   const [modalVisible, setModalVisible] = useState(false);
   const experiences = [
     {
@@ -94,7 +94,7 @@ export default function DashboardScreen() {
 />
         <SectionCard
   title="Resumo do dia"
-  subtitle="Acompanhe as atividades de hoje."
+  subtitle="Acompanhe as atividades de hoje." subtitleAlign="center"
 >
 
   <DateBadge

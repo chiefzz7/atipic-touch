@@ -27,111 +27,119 @@ export default function ProfileScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingBottom: 120,
+          paddingBottom: 110,
         }}
       >
 
-        {/* ---------- HEADER ---------- */}
+        <View className="px-4 pt-6 pb-3">
 
-        <View className="px-4 pt-6">
+  <View
+    style={{
+      height: 130,
+      width: "100%",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
 
-          <View className="absolute right-0 top-0">
+    <Text className="text-[#554B41] text-[46px] font-bold">
+      Perfil
+    </Text>
 
-            <Image
-              source={require("../../../assets/images/profile_brocolis.png")}
-              style={{
-                width: 150,
-                height: 120,
-              }}
-              resizeMode="contain"
-            />
+    <Text className="text-[#80775C] text-[18px] leading-6 w-[58%]">
+      Gerencie as informações da criança e do responsável.
+    </Text>
 
-          </View>
+    <Image
+      source={require("../../../assets/images/profile_brocolis.png")}
+      resizeMode="contain"
+      style={{
+        position: "absolute",
+        width: 150,
+        height: 120,
+        right: -10,
+        top: 0,
+      }}
+    />
 
-          <Text className="text-[#554B41] text-[46px] font-bold">
-            Perfil
-          </Text>
+  </View>
 
-          <Text className="text-[#80775C] text-[18px] leading-6 w-[58%]">
-            Gerencie as informações da criança e do responsável.
-          </Text>
+</View>
 
-        </View>
+        <View className="mt-1">
 
-        {/* ---------- CRIANÇA ---------- */}
-
-        <ProfileSection
-          title="Informações da criança"
-          expandable
-          expanded={expanded}
-          rightLabel="1 crianças"
-          onPress={() => setExpanded(!expanded)}
-        >
-
-          <TouchableOpacity
-            activeOpacity={0.85}
-            className="mx-3 mt-3 bg-[#B9AE8D] rounded-[7px] px-4 py-4 flex-row items-center"
+          <ProfileSection
+            title="Informações da criança"
+            expandable
+            expanded={expanded}
+            rightLabel="1 criança"
+            onPress={() => setExpanded(!expanded)}
           >
 
-            <View className="w-[70px] h-[70px] rounded-full overflow-hidden">
+            <TouchableOpacity
+              activeOpacity={0.85}
+              className="mt-3 bg-[#B9AE8D] rounded-[7px] px-4 py-4 flex-row items-center w-full"
+            >
 
-              <Image
-                source={require("../../../assets/images/crianca_placeholder.png")}
-                className="w-full h-full"
-              />
+              <View className="w-[70px] h-[70px] rounded-full overflow-hidden">
 
-              <TouchableOpacity
-                className="absolute bottom-0 right-0 bg-[#6E6246] rounded-full p-1"
-              >
-
-                <Ionicons
-                  name="camera"
-                  size={12}
-                  color="white"
+                <Image
+                  source={require("../../../assets/images/crianca_placeholder.png")}
+                  className="w-full h-full"
+                  resizeMode="cover"
                 />
 
-              </TouchableOpacity>
+                <TouchableOpacity
+                  className="bottom-0 right-0 bg-[#6E6246] rounded-full p-1 absolute"
+                > 
+                  <Ionicons
+                    name="camera"
+                    size={20}
+                    color="white"
+                  />
+                </TouchableOpacity>
 
+              </View>
+
+              <View className="flex-1 ml-4">
+
+                <Text
+                  className="text-white text-[22px] font-bold"
+                  numberOfLines={1}
+                >
+                  João
+                </Text>
+
+                <Text className="text-[#FFFCEF] text-[14px] mt-1">
+                  3 anos • Masculino
+                </Text>
+
+              </View>
+
+              <Ionicons
+                name={expanded ? "chevron-up" : "chevron-down"}
+                size={28}
+                color="#5E543E"
+              />
+
+            </TouchableOpacity>
+
+            <View className="mt-2">
+              <ProfileOption
+                icon="create-outline"
+                title="Observações"
+                onPress={() => { }}
+              />
             </View>
 
-            <View className="flex-1 ml-4">
+          </ProfileSection>
 
-              <Text className="text-white text-[22px] font-bold">
-                Fulana
-              </Text>
-
-              <Text className="text-[#FFFCEF] text-[14px] mt-1">
-                3 anos • Feminino
-              </Text>
-
-            </View>
-
-            <Ionicons
-              name={
-                expanded
-                  ? "chevron-up"
-                  : "chevron-down"
-              }
-              size={28}
-              color="#5E543E"
-            />
-
-          </TouchableOpacity>
-
-          <ProfileOption
-            icon="create-outline"
-            title="Observações"
-            onPress={() => {}}
-          />
-
-        </ProfileSection>
-
-        {/* ---------- ADICIONAR ---------- */}
+        </View>
 
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => router.push("/child-register")}
-          className="mx-4 mt-5 border border-dashed border-[#6E6246] rounded-[7px] h-[86px] flex-row items-center px-5"
+          className="mx-4 mt-5 border border-dashed border-[#6E6246] rounded-[7px] h-[86px] flex-row items-center px-4"
         >
 
           <View className="w-[48px] h-[48px] rounded-full border-2 border-[#554B41] items-center justify-center">
@@ -144,70 +152,80 @@ export default function ProfileScreen() {
 
           </View>
 
-          <Text className="ml-4 text-[#554B41] text-[22px]">
+          <Text className="flex-1 ml-3 text-[#554B41] text-[20px]">
             Adicionar nova criança
           </Text>
 
         </TouchableOpacity>
 
-        <ProfileSection
-          title="Informações do responsável"
-        >
+        <View className="mt-5">
 
-          <View className="mx-3 my-3 bg-[#B9AE8D] rounded-[7px] px-4 py-5 flex-row items-center">
+          <ProfileSection
+            title="Informações do responsável"
+          >
 
-            <View className="w-[78px] h-[78px] rounded-full overflow-hidden">
+            <View className="mt-3 bg-[#B9AE8D] rounded-[7px] px-4 py-4 flex-row items-center w-full">
 
-              <Image
-                source={require("../../../assets/images/responsavel_placeholder.png")}
-                className="w-full h-full"
-              />
+              <View className="w-[78px] h-[78px] rounded-full overflow-hidden">
 
-              <TouchableOpacity
-                className="absolute bottom-0 right-0 bg-[#6E6246] rounded-full p-1"
-              >
-
-                <Ionicons
-                  name="camera"
-                  size={12}
-                  color="white"
+                <Image
+                  source={require("../../../assets/images/responsavel_placeholder.png")}
+                  className="w-full h-full"
+                  resizeMode="cover"
                 />
 
-              </TouchableOpacity>
+                <TouchableOpacity
+                  className="absolute bottom-0 right-0 bg-[#6E6246] rounded-full p-1"
+                >
+                  <Ionicons
+                    name="camera"
+                    size={20}
+                    color="white"
+                  />
+                </TouchableOpacity>
+
+              </View>
+
+              <Text
+                className="flex-1 ml-5 text-white text-[24px] font-bold"
+                numberOfLines={1}
+              >
+                Maria
+              </Text>
 
             </View>
 
-            <Text className="ml-5 text-white text-[24px] font-bold">
-              Maria
-            </Text>
+          </ProfileSection>
 
-          </View>
+        </View>
 
-        </ProfileSection>
-
-        <View className="mx-4 mt-4">
+        <View className="mx-4 mt-2">
 
           <ProfileOption
             icon="mail-outline"
             title="Gmail"
             value="maria123@gmail.com"
-            onPress={() => {}}
+            onPress={() => { }}
           />
 
-          <ProfileOption
-            icon="lock-closed-outline"
-            title="Senha"
-            value="********"
-            onPress={() => {}}
-          />
+          <View className="mt-0">
+            <ProfileOption
+              icon="lock-closed-outline"
+              title="Senha"
+              value="********"
+              onPress={() => { }}
+            />
+          </View>
 
-          <ProfileOption
-            icon="notifications-outline"
-            title="Notificações"
-            type="switch"
-            value={notifications}
-            onValueChange={setNotifications}
-          />
+          <View className="mt-0">
+            <ProfileOption
+              icon="notifications-outline"
+              title="Notificações"
+              type="switch"
+              value={notifications}
+              onValueChange={setNotifications}
+            />
+          </View>
 
         </View>
 

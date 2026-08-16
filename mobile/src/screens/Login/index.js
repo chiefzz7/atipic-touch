@@ -32,76 +32,55 @@ export default function LoginScreen() {
         Bem-Vindo(a)!
       </Text>
 
-      <View
-        className="absolute bg-[#C6BB9A] rounded-[7px] align-items-center "
-        style={{
-          width: 360,
-          height: 455,
-          top: 160,
-          left: 16,
-        }}
-      >
+<View
+  className="absolute w-[92%] self-center items-center bg-[#C6BB9A] rounded-[7px]"
+  style={{
+    height: 455,
+    top: 160,
+  }}
+>
+  <Text
+    className="text-white text-[36px] font-bold text-center mt-5"
+  >
+    Login responsável
+  </Text>
 
-        <Text
-          className="text-white text-[36px] font-bold"
-          style={{
-            marginTop: 20,
-            textAlign: "center",
-          }}
-        >
-          Login responsável
-        </Text>
+<Text
+  className="text-white text-[24px] text-center mt-12"
+>
+  Seu E-mail
+</Text>
 
-        <Text
-          className="text-white text-[24px]"
-          style={{
-            marginTop: 48,
-            textAlign: "center",
-          }}
-        >
-          Seu E-mail
-        </Text>
+<TextInput
+  value={email}
+  onChangeText={setEmail}
+  keyboardType="email-address"
+  autoCapitalize="none"
+  className="mt-2 w-[90%] h-[53px] rounded-[7px] bg-white px-4 text-[18px]"
+/>
 
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          className="self-center mt-2 w-[343px] h-[53px] rounded-[7px] bg-white px-4 text-[18px]"
-        />
+<Text
+  className="text-white text-[24px] text-center mt-4"
+>
+  Senha
+</Text>
 
-        <Text
-          className="text-white text-[24px]"
-          style={{
-            marginTop: 16,
-            textAlign: "center",
-          }}
-        >
-          Senha
-        </Text>
+<TextInput
+  value={password}
+  onChangeText={setPassword}
+  secureTextEntry
+  className="mt-2 w-[90%] h-[53px] rounded-[7px] bg-white px-4 text-[18px]"
+/>
 
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          className="self-center mt-2 w-[343px] h-[53px] rounded-[7px] bg-white px-4 text-[18px]"
-        />
-
-        <TouchableOpacity
-          onPress={() => router.push("/child-introduction")}
-          className="self-center items-center justify-center rounded-[7px] bg-[#A3987B]"
-          style={{
-            width: 260,
-            height: 83,
-            marginTop: 37,
-          }}
-        >
-          <Text className="text-white text-[34px] font-bold">
-            Continuar
-          </Text>
-        </TouchableOpacity>
-
-      </View>
+  <TouchableOpacity
+    onPress={() => router.push("/child-introduction")}
+    className="items-center justify-center rounded-[7px] bg-[#A3987B] w-[260px] h-[83px] mt-[37px]"
+  >
+    <Text className="text-white text-[34px] font-bold">
+      Continuar
+    </Text>
+  </TouchableOpacity>
+</View>
 
       <Image
   source={require("../../../assets/images/login_brocolis.png")}
@@ -112,7 +91,6 @@ export default function LoginScreen() {
     height: 280,
     bottom: -43,
     left: -30,
-    zIndex: 1,
   }}
 />
 
