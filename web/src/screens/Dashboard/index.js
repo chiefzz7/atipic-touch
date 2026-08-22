@@ -6,8 +6,9 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import StatCard from '../../components/ui/StatCard';
 import AlertsWidget from '../../components/dashboard/AlertsWidget';
 import CombosWidget from '../../components/dashboard/CombosWidget';
-import LogsTableWidget from '../../components/dashboard/LogsTableWidget'; // <- Nova importação!
+import LogsTableWidget from '../../components/dashboard/LogsTableWidget';
 import { BarChartCor, RadarChartTextura, LineChartEvolucao, ProgressSaudaveis } from '../../components/dashboard/ChartWidgets';
+import Footer from '../../components/ui/Footer';
 
 export default function DashboardScreen() {
   return (
@@ -24,7 +25,7 @@ export default function DashboardScreen() {
               <Feather name="calendar" size={16} color="#4B5563" />
               <Text className="ml-2 text-[14px] font-bold text-[#4B5563]">Maio de 2026</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity className="flex-row items-center bg-[#528F33] px-4 py-2.5 rounded-xl shadow-sm hover:bg-[#457a2a] transition-colors">
               <Feather name="file-text" size={16} color="#fff" />
               <Text className="ml-2 text-[14px] font-bold text-white">Gerar Relatório</Text>
@@ -46,7 +47,7 @@ export default function DashboardScreen() {
 
         <View className="mb-10">
           <Text className="text-[20px] font-bold text-[#212134] mb-4">Análise Sensorial e Consumo</Text>
-          
+
           <View className="flex-col lg:flex-row gap-4 mb-6">
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
               <LineChartEvolucao />
@@ -63,7 +64,7 @@ export default function DashboardScreen() {
             <View className="flex-[2] bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <ProgressSaudaveis />
             </View>
-            
+
             <View className="flex-[1] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 justify-center">
               <Text className="text-[13px] font-bold text-[#212134] mb-4">Taxa Geral de Aceitação</Text>
               <View className="flex-row items-center justify-between">
@@ -80,6 +81,7 @@ export default function DashboardScreen() {
         </View>
         <LogsTableWidget />
 
+        <Footer />
       </ScrollView>
     </DashboardLayout>
   );

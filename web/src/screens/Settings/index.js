@@ -6,6 +6,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import ProfileTab from '../../components/settings/ProfileTab';
 import SignatureTab from '../../components/settings/SignatureTab';
 import SystemTab from '../../components/settings/SystemTab';
+import Footer from '../../components/ui/Footer';
 
 export default function SettingsScreen() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -19,7 +20,7 @@ export default function SettingsScreen() {
   return (
     <DashboardLayout>
       <ScrollView className="flex-1 bg-[#FDFFF1] p-6 lg:p-10" showsVerticalScrollIndicator={false}>
-        
+
         <View className="max-w-[900px] w-full self-center mb-20">
           <View className="mb-8">
             <Text className="text-[32px] font-extrabold text-[#212134]">Configurações</Text>
@@ -36,9 +37,8 @@ export default function SettingsScreen() {
                   key={tab.id}
                   onPress={() => setActiveTab(tab.id)}
                   activeOpacity={0.7}
-                  className={`flex-row items-center py-3 px-6 border-b-2 transition-colors ${
-                    isActive ? 'border-[#528F33] bg-[#EAF3E2]' : 'border-transparent hover:bg-gray-50'
-                  }`}
+                  className={`flex-row items-center py-3 px-6 border-b-2 transition-colors ${isActive ? 'border-[#528F33] bg-[#EAF3E2]' : 'border-transparent hover:bg-gray-50'
+                    }`}
                 >
                   <Feather name={tab.icon} size={16} color={isActive ? '#528F33' : '#6B7280'} />
                   <Text className={`ml-2 text-[14px] font-bold ${isActive ? 'text-[#528F33]' : 'text-[#6B7280]'}`}>
@@ -49,16 +49,16 @@ export default function SettingsScreen() {
             })}
           </View>
 
-          {/* Área de Conteúdo Renderizado Dinamicamente */}
           <View className="min-h-[500px]">
             {activeTab === 'profile' && <ProfileTab />}
-            
+
             {activeTab === 'signature' && <SignatureTab />}
-            
+
             {activeTab === 'system' && <SystemTab />}
           </View>
 
         </View>
+        <Footer />
       </ScrollView>
     </DashboardLayout>
   );
