@@ -23,7 +23,8 @@ def criar_usuario(session: Session, user_in: UsuarioCreate) -> Usuario:
         nome=user_in.nome,
         email=user_in.email,
         telefone=user_in.telefone,
-        senhaHash=get_password_hash(user_in.senha)
+        senhaHash=get_password_hash(user_in.senha),
+        perfil=user_in.perfil 
     )
 
     session.add(db_usuario)
