@@ -7,6 +7,7 @@ class UsuarioCreate(BaseModel):
     email: EmailStr
     telefone: str
     senha: str
+    perfil: str = "RESPONSAVEL" 
 
 
 class UsuarioResponse(BaseModel):
@@ -14,6 +15,7 @@ class UsuarioResponse(BaseModel):
     nome: str
     email: EmailStr
     telefone: str
+    perfil: str 
     criadoEm: datetime
 
     class Config:
@@ -23,3 +25,4 @@ class UsuarioResponse(BaseModel):
 class UsuarioUpdate(BaseModel):
     nome: Optional[str] = None
     telefone: Optional[str] = None
+    

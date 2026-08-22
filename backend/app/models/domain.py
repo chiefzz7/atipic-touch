@@ -6,25 +6,29 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 class Usuario(SQLModel, table=True):
     __tablename__ = "usuarios"
-
+    
     id: str = Field(primary_key=True)
     nome: str
     email: str
     telefone: str
     senhaHash: str
+    perfil: str = Field(default="RESPONSAVEL") 
     criadoEm: datetime = Field(default_factory=datetime.utcnow)
 
+class ProfissionalPaciente(SQLModel, table=True):
+    __tablename__ = "profissional_paciente"
+    profissionalId: str = Field(foreign_key="usuarios.id", primary_key=True)
+    criancaId: str = Field(foreign_key="criancas.id", primary_key=True)
 
 class Crianca(SQLModel, table=True):
     __tablename__ = "criancas"
 
     id: str = Field(primary_key=True)
-    usuarioId: str = Field(foreign_key="usuarios.id")
+    usuarioId: str = Field(foreign_key="usuarios.id") 
     nome: str
     dataNascimento: date
     temasPreferidos: List[str] = Field(sa_column=Column(ARRAY(String)))
     restricoesMedicas: Optional[str] = None
-
 
 class Alimento(SQLModel, table=True):
     __tablename__ = "alimentos"
