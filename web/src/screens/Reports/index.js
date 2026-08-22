@@ -3,18 +3,19 @@ import { View, Text, ScrollView, TouchableOpacity, Platform } from 'react-native
 import { Feather } from '@expo/vector-icons';
 
 import DashboardLayout from '../../components/layout/DashboardLayout';
-import { 
-  ReportCard, 
-  PatientSummaryWidget, 
-  QuickMetricsGrid, 
+import {
+  ReportCard,
+  PatientSummaryWidget,
+  QuickMetricsGrid,
   SensoryMatrixWidget,
-  HorizontalBarChart, 
+  HorizontalBarChart,
   RepertoireWidget,
   EditableNotesWidget
 } from '../../components/report/ReportWidgets';
+import Footer from '../../components/ui/Footer';
 
 export default function ReportsScreen() {
-  
+
   const handlePrint = () => {
     if (Platform.OS === 'web') {
       window.print();
@@ -41,14 +42,14 @@ export default function ReportsScreen() {
             <Text className="text-[32px] font-extrabold text-[#212134]">Relatório Clínico</Text>
             <Text className="text-[15px] text-[#6B7280] font-medium mt-1">Visão estruturada para prontuário</Text>
           </View>
-          
+
           <View className="flex-row gap-3">
             <TouchableOpacity className="flex-row items-center bg-white border border-[#A3C78B] px-4 py-2.5 rounded-xl shadow-sm">
               <Feather name="calendar" size={16} color="#528F33" />
               <Text className="ml-2 text-[14px] font-bold text-[#528F33]">Maio de 2026</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               onPress={handlePrint}
               className="flex-row items-center bg-[#528F33] px-5 py-2.5 rounded-xl shadow-sm hover:bg-[#457a2a] transition-colors"
             >
@@ -65,7 +66,7 @@ export default function ReportsScreen() {
             <ReportCard title="1. Métricas de Exposição" flexClass="flex-[1]">
               <QuickMetricsGrid />
             </ReportCard>
-            
+
             <ReportCard title="2. Matriz de Aceitação Sensorial" flexClass="flex-[2]">
               <SensoryMatrixWidget />
             </ReportCard>
@@ -82,9 +83,9 @@ export default function ReportsScreen() {
 
             <ReportCard title="5. Fatores Comportamentais" flexClass="flex-[1.2]">
               <View className="flex-col gap-3 mt-1">
-                <View className="flex-row items-start"><View className="w-2 h-2 rounded-full bg-red-400 mt-1.5 mr-2"/><Text className="text-[13px] text-[#4B5563] flex-1">Maior rejeição em <Text className="font-bold">casa</Text> (Comparado à clínica).</Text></View>
-                <View className="flex-row items-start"><View className="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 mr-2"/><Text className="text-[13px] text-[#4B5563] flex-1">Picos de crise sensorial identificados no horário do <Text className="font-bold">jantar</Text>.</Text></View>
-                <View className="flex-row items-start"><View className="w-2 h-2 rounded-full bg-green-500 mt-1.5 mr-2"/><Text className="text-[13px] text-[#4B5563] flex-1">Aceitação aumenta em 30% quando ofertado pela <Text className="font-bold">mãe</Text>.</Text></View>
+                <View className="flex-row items-start"><View className="w-2 h-2 rounded-full bg-red-400 mt-1.5 mr-2" /><Text className="text-[13px] text-[#4B5563] flex-1">Maior rejeição em <Text className="font-bold">casa</Text> (Comparado à clínica).</Text></View>
+                <View className="flex-row items-start"><View className="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 mr-2" /><Text className="text-[13px] text-[#4B5563] flex-1">Picos de crise sensorial identificados no horário do <Text className="font-bold">jantar</Text>.</Text></View>
+                <View className="flex-row items-start"><View className="w-2 h-2 rounded-full bg-green-500 mt-1.5 mr-2" /><Text className="text-[13px] text-[#4B5563] flex-1">Aceitação aumenta em 30% quando ofertado pela <Text className="font-bold">mãe</Text>.</Text></View>
               </View>
             </ReportCard>
           </View>
@@ -96,7 +97,7 @@ export default function ReportsScreen() {
             <ReportCard flexClass="flex-[2]">
               <EditableNotesWidget />
             </ReportCard>
-            
+
             <ReportCard title="7. Assinatura Eletrônica" flexClass="flex-[1] justify-center items-center bg-[#F2F7ED]">
               <Feather name="check-circle" size={32} color="#528F33" className="mb-3" />
               <Text className="text-[14px] font-bold text-[#212134]">Dra. Camila Nogueira</Text>
@@ -107,6 +108,8 @@ export default function ReportsScreen() {
             </ReportCard>
           </View>
         </View>
+
+        <Footer />
       </ScrollView>
     </DashboardLayout>
   );
