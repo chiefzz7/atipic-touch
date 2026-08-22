@@ -2,12 +2,20 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
+
 class UsuarioCreate(BaseModel):
     nome: str
     email: EmailStr
     telefone: str
     senha: str
-    perfil: str = "RESPONSAVEL" 
+    perfil: str = "RESPONSAVEL"
+
+
+class ProfissionalCreate(BaseModel):
+    nome: str
+    email: EmailStr
+    telefone: str
+    senha: str
 
 
 class UsuarioResponse(BaseModel):
@@ -15,7 +23,7 @@ class UsuarioResponse(BaseModel):
     nome: str
     email: EmailStr
     telefone: str
-    perfil: str 
+    perfil: str
     criadoEm: datetime
 
     class Config:
