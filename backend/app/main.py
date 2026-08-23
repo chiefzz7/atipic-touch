@@ -6,6 +6,8 @@ from app.routes import auth_routes
 from app.routes import child_routes
 from app.routes import food_routes
 from app.routes import log_routes
+from app.routes import professional_routes
+
 
 app = FastAPI(
     title="AtipicTouch API",
@@ -13,11 +15,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
 app.include_router(user_routes.router)
 app.include_router(auth_routes.router)
 app.include_router(child_routes.router)
 app.include_router(food_routes.router)
 app.include_router(log_routes.router)
+app.include_router(professional_routes.router)
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,11 +32,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def health_check():
     return {
         "status": "online",
         "message": "Cérebro AtipicTouch rodando perfeitamente na nuvem!"
     }
-
-
