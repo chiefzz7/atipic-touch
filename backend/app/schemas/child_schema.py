@@ -1,29 +1,33 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import date
-import uuid
+
 
 class CriancaBase(BaseModel):
     nome: str
     dataNascimento: date
-    temasPreferidos: List[str] = [] 
+    temasPreferidos: List[str] = Field(default_factory=list)
     restricoesMedicas: Optional[str] = None
 
+
 class CriancaCreate(CriancaBase):
-    """Dados necessários para cadastrar (Input)"""
+    """Dados necessários para cadastrar (Input)."""
     pass
 
+
 class CriancaUpdate(BaseModel):
-    """Dados para edição parcial (Patch)"""
+    """Dados para edição parcial (Patch)."""
     nome: Optional[str] = None
     dataNascimento: Optional[date] = None
     temasPreferidos: Optional[List[str]] = None
     restricoesMedicas: Optional[str] = None
 
+
 class CriancaResponse(CriancaBase):
-    """Dados que saem para o Mobile (Output)"""
+    """Dados que saem para o Mobile/Web."""
     id: str
     usuarioId: str
 
     class Config:
         from_attributes = True
+        

@@ -24,10 +24,13 @@ class Crianca(SQLModel, table=True):
     __tablename__ = "criancas"
 
     id: str = Field(primary_key=True)
-    usuarioId: str = Field(foreign_key="usuarios.id") 
+    usuarioId: str = Field(foreign_key="usuarios.id")
     nome: str
     dataNascimento: date
-    temasPreferidos: List[str] = Field(sa_column=Column(ARRAY(String)))
+    temasPreferidos: List[str] = Field(
+        default_factory=list,
+        sa_column=Column(ARRAY(String), nullable=False)
+    )
     restricoesMedicas: Optional[str] = None
 
 class Alimento(SQLModel, table=True):
