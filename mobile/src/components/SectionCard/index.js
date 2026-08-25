@@ -5,7 +5,7 @@ export default function SectionCard({ title, subtitle, children }) {
 
   return (
 
-    <View className="flex-0 w-full bg-[#C6BB9A] rounded-[7px] px-4 py-9">
+    <View className="flex-0 w-full bg-[#E5DCC4] rounded-[7px] px-4 py-7">
       <Text className="text-[20px] font-bold text-[#fff] text-center">
         {title}
       </Text>
@@ -16,7 +16,7 @@ export default function SectionCard({ title, subtitle, children }) {
         </Text>
       )}
 
-      <View className="mt-6">
+      <View className="mt-2">
         {children}
       </View>
 
