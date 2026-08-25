@@ -20,7 +20,7 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
     },
     {
       value: "Neutro",
-      icon: "remove-circle",
+      icon: "remove-circle-outline",
       color: "#F2C94C",
     },
     {
@@ -85,8 +85,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
           }}
         >
 
-          {/* Cabeçalho */}
-
           <View className="px-4 pt-3 flex-row items-center">
 
             <TouchableOpacity
@@ -124,9 +122,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
           <Text className="px-4 mt-2 text-[#555555] text-[17px]">
             Reveja e confirme as informações antes de salvar.
           </Text>
-
-
-          {/* REAÇÃO DA CRIANÇA */}
 
           <View className="mx-4 mt-5 rounded-[10px] border border-[#E5DCC4] overflow-hidden">
 
@@ -225,17 +220,12 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
           </View>
 
-
-          {/* ALIMENTO */}
-
           <View className="mx-4 mt-5 rounded-[10px] border border-[#E5DCC4] overflow-hidden">
 
-            {/* Cabeçalho da seção */}
             <View className="bg-[#F7F0DC] px-4 py-4">
 
               <View className="flex-row items-center">
 
-                {/* Título ocupa apenas o espaço disponível */}
                 <View className="flex-1 min-w-0 pr-2">
 
                   <Text
@@ -255,7 +245,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
                 </View>
 
-                {/* Botão não encolhe nem desaparece */}
                 <TouchableOpacity
                   activeOpacity={0.8}
                   className="shrink-0 border border-[#E5DCC4] rounded-[10px] px-3 py-2 flex-row items-center"
@@ -280,7 +269,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
             </View>
 
-            {/* Conteúdo do alimento */}
             <View className="px-4 py-4 flex-row items-center">
 
               <View
@@ -302,7 +290,7 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                   numberOfLines={2}
                   className="text-[#554B41] text-[18px] font-bold"
                 >
-                  Arroz, feijão e carne moída
+                  Feijão
                 </Text>
 
                 <View className="self-start mt-2 px-3 py-1 rounded-full bg-[#F1E6CA]">
@@ -318,8 +306,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
             </View>
 
           </View>
-
-          {/* ASPECTO AVALIADO */}
 
           <View className="mx-4 mt-5">
 
@@ -393,9 +379,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
           </View>
 
-
-          {/* RESUMO DA INTERAÇÃO */}
-
           <View className="mx-4 mt-5 rounded-[10px] border border-[#E5DCC4] overflow-hidden">
 
             <View className="bg-[#F7F0DC] px-4 py-4">
@@ -466,14 +449,11 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                     numberOfLines={4}
                     className="flex-1 min-w-0 ml-1 text-[#554B41] text-[10px] font-bold"
                   >
-                    Arroz, feijão e carne moída
+                    Feijão
                   </Text>
 
                 </View>
               </View>
-
-
-              {/* DATA */}
 
               <View className="flex-row items-center mt-5">
 
@@ -514,9 +494,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
               </View>
 
-
-              {/* OBSERVAÇÕES */}
-
               <View className="mt-5">
 
                 <Text className="text-[#554B41] text-[16px] font-bold">
@@ -545,9 +522,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
           </View>
 
-
-          {/* CONFIRMAR */}
-
           <View className="mx-4 mt-5">
 
             <TouchableOpacity
@@ -568,9 +542,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
             </TouchableOpacity>
 
-
-            {/* CANCELAR */}
-
             <TouchableOpacity
               onPress={onClose}
               activeOpacity={0.85}
@@ -586,9 +557,6 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
           </View>
 
         </ScrollView>
-
-
-        {/* Navegação inferior */}
 
         <BottomNavigation active="dashboard" />
 
