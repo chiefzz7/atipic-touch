@@ -41,7 +41,7 @@ def login_autenticar(
         data={
             "sub": usuario.email,
             "id": usuario.id,
-            "perfil": usuario.perfil,
+            "perfil": usuario.perfil
         },
         expires_delta=access_token_expires
     )
@@ -49,4 +49,6 @@ def login_autenticar(
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "usuario_id": usuario.id,
+        "perfil": usuario.perfil
     }
