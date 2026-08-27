@@ -56,7 +56,7 @@ export default function LoginScreen() {
 
       if (data.perfil !== 'PROFISSIONAL') {
         window.alert(
-          'Acesso Restrito\n\nEste portal é exclusivo para profissionais. Seu perfil é do tipo: ' + data.perfil
+          'Acesso Restrito\n\nEste portal é exclusivo para profissionais'
         );
         return;
       }
