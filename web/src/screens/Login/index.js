@@ -48,13 +48,6 @@ export default function LoginScreen() {
 
       const data = await response.json();
 
-      if (response.status === 403) {
-        window.alert(
-          'Acesso Restrito\n\nEste portal é exclusivo para profissionais.'
-        );
-        return;
-      }
-
       if (!response.ok) {
         throw new Error(
           data.detail || 'Erro ao realizar login.'
@@ -63,7 +56,7 @@ export default function LoginScreen() {
 
       if (data.perfil !== 'PROFISSIONAL') {
         window.alert(
-          'Acesso Restrito\n\nEste portal é exclusivo para profissionais.'
+          'Acesso Restrito\n\nEste portal é exclusivo para profissionais. Seu perfil é do tipo: ' + data.perfil
         );
         return;
       }
