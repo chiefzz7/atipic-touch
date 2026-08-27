@@ -49,5 +49,6 @@ def login_autenticar(
     return {
         "access_token": access_token,
         "token_type": "bearer",
+        "usuario_id": usuario.id,
         "perfil": usuario.perfil
     }
