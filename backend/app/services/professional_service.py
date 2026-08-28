@@ -73,10 +73,4 @@ def listar_criancas_do_paciente(
 
     criancas = session.exec(statement).all()
 
-    if not criancas:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Nenhuma criança vinculada a este responsável foi encontrada."
-        )
-
     return criancas
