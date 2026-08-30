@@ -1,31 +1,32 @@
 from sqlmodel import Session, select
+
 from fastapi import HTTPException, status
 
 from app.models.domain import (
     Usuario,
     Crianca,
-    ProfissionalPaciente
+    ProfissionalPaciente,
 )
 
 
 def listar_pacientes_do_profissional(
     session: Session,
-    profissional: Usuario
+    profissional: Usuario,
 ):
     """
-    Retorna os responsáveis que possuem crianças vinculadas
-    ao profissional autenticado.
+    Retorna os responsáveis que possuem crianças
+    vinculadas ao profissional autenticado.
     """
 
     statement = (
         select(Crianca, Usuario)
         .join(
             ProfissionalPaciente,
-            ProfissionalPaciente.criancaId == Crianca.id
+            ProfissionalPaciente.criancaId == Crianca.id,
         )
         .join(
             Usuario,
-            Usuario.id == Crianca.usuarioId
+            Usuario.id == Crianca.usuarioId,
         )
         .where(
             ProfissionalPaciente.profissionalId == profissional.id
@@ -41,7 +42,7 @@ def listar_pacientes_do_profissional(
             pacientes[responsavel.id] = {
                 "id": responsavel.id,
                 "nome": responsavel.nome,
-                "childrenCount": 0
+                "childrenCount": 0,
             }
 
         pacientes[responsavel.id]["childrenCount"] += 1
@@ -52,22 +53,22 @@ def listar_pacientes_do_profissional(
 def listar_criancas_do_paciente(
     session: Session,
     profissional: Usuario,
-    responsavel_id: str
+    responsavel_id: str,
 ):
     """
-    Retorna somente as crianças do responsável que estão
-    vinculadas ao profissional autenticado.
+    Retorna somente as crianças do responsável
+    que estão vinculadas ao profissional autenticado.
     """
 
     statement = (
         select(Crianca)
         .join(
             ProfissionalPaciente,
-            ProfissionalPaciente.criancaId == Crianca.id
+            ProfissionalPaciente.criancaId == Crianca.id,
         )
         .where(
             ProfissionalPaciente.profissionalId == profissional.id,
-            Crianca.usuarioId == responsavel_id
+            Crianca.usuarioId == responsavel_id,
         )
     )
 
