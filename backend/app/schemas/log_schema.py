@@ -47,6 +47,24 @@ class FeedingLogCreate(FeedingLogBase):
     ] = []
 
 
+class AlimentoLogResponse(BaseModel):
+    """
+    Dados do alimento relacionados ao registro alimentar.
+    """
+
+    id: int
+    nome: str
+    categoria: str
+    cor: str
+    textura: str
+    sabor: str
+    cheiro: str
+    temperatura: str
+
+    class Config:
+        from_attributes = True
+
+
 class FeedingLogResponse(FeedingLogBase):
     """
     Resposta completa devolvida pela API.
@@ -55,6 +73,8 @@ class FeedingLogResponse(FeedingLogBase):
     id: str
     timestamp: datetime
     usuarioId: str
+
+    alimento: Optional[AlimentoLogResponse] = None
 
     feedbacks: List[
         SensoryFeedbackResponse

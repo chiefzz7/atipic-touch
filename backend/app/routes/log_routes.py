@@ -183,6 +183,13 @@ def listar_logs_da_crianca(
     for log in logs:
         log_resp = FeedingLogResponse.model_validate(log)
 
+        alimento = session.get(
+            Alimento,
+            log.alimentoId
+        )
+
+        log_resp.alimento = alimento
+
         feedbacks = session.exec(
             select(SensoryFeedback).where(
                 SensoryFeedback.feedingLogId == log.id
