@@ -1,14 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
-
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import StatCard from '../../components/ui/StatCard';
 import AlertsWidget from '../../components/dashboard/AlertsWidget';
@@ -18,45 +12,32 @@ import {
   BarChartCor,
   RadarChartTextura,
   LineChartEvolucao,
-  ProgressSaudaveis,
+  ProgressSaudaveis
 } from '../../components/dashboard/ChartWidgets';
-
 import Footer from '../../components/ui/Footer';
 
-import {
-  getDashboardData,
-} from '../../services/feedingLogService';
-
-
-const CHILD_KEY = '@atipictouch:selected_child';
-
+const API_URL = 'http://localhost:8000';
 
 export default function DashboardScreen() {
   const [selectedChild, setSelectedChild] = useState(null);
-
   const [logs, setLogs] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
-  const [error, setError] = useState(null);
-
-
   useEffect(() => {
-    carregarDashboard();
+    carregarDados();
   }, []);
 
-
-  const carregarDashboard = async () => {
+  const carregarDados = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       const childStorage = await AsyncStorage.getItem(
-        CHILD_KEY
+        '@atipictouch:selected_child'
       );
 
-      if (!childStorage) {
-        setError('Nenhuma criança foi selecionada.');
+      const token = await AsyncStorage.getItem(
+        '@atipictouch:token'
+      );
+
+      if (!childStorage || !token) {
         return;
       }
 
@@ -64,114 +45,57 @@ export default function DashboardScreen() {
 
       setSelectedChild(child);
 
-      const data = await getDashboardData(child.id);
-
-      setLogs(data.logs || []);
-    } catch (err) {
-      console.error(
-        'Erro ao carregar dashboard:',
-        err
+      const response = await fetch(
+        `${API_URL}/api/feeding-logs/crianca/${child.id}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      setError(
-        err?.message ||
-        'Não foi possível carregar os dados do dashboard.'
+      if (!response.ok) {
+        throw new Error(
+          `Erro ao buscar logs: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      setLogs(data);
+    } catch (error) {
+      console.error(
+        'Erro ao carregar dados do dashboard:',
+        error
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const tentativas = logs.length;
 
-  const metrics = useMemo(() => {
-    const attempts = logs.length;
+  const aceitacoes = logs.filter(
+    log => log.reacao === 1
+  ).length;
 
-    const accepted = logs.filter(
-      (log) => log.reacao === 1
-    ).length;
+  const rejeicoes = logs.filter(
+    log => log.reacao === 2
+  ).length;
 
-    const rejected = logs.filter(
-      (log) => log.reacao === 2
-    ).length;
+  const neutros = logs.filter(
+    log => log.reacao === 3
+  ).length;
 
-    const crises = logs.filter(
-      (log) => log.reacao === 3
-    ).length;
-
-    const acceptanceRate =
-      attempts > 0
-        ? ((accepted / attempts) * 100).toFixed(1)
-        : '0.0';
-
-    return {
-      attempts,
-      accepted,
-      rejected,
-      crises,
-      acceptanceRate,
-    };
-  }, [logs]);
-
-
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator
-            size="large"
-            color="#528F33"
-          />
-
-          <Text className="mt-4 text-[14px] text-[#6B7280]">
-            Carregando dados do paciente...
-          </Text>
-        </View>
-      </DashboardLayout>
-    );
-  }
-
-
-  if (error) {
-    return (
-      <DashboardLayout>
-        <View className="flex-1 items-center justify-center px-6">
-          <Feather
-            name="alert-circle"
-            size={42}
-            color="#D9534F"
-          />
-
-          <Text className="text-[20px] font-bold text-[#212134] mt-4 text-center">
-            Não foi possível carregar o dashboard
-          </Text>
-
-          <Text className="text-[14px] text-[#6B7280] mt-2 text-center">
-            {error}
-          </Text>
-
-          <TouchableOpacity
-            onPress={carregarDashboard}
-            className="mt-5 bg-[#528F33] px-5 py-3 rounded-xl"
-          >
-            <Text className="text-white font-bold">
-              Tentar novamente
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </DashboardLayout>
-    );
-  }
-
+  const taxaAceitacao =
+    tentativas > 0
+      ? ((aceitacoes / tentativas) * 100).toFixed(1)
+      : '0.0';
 
   return (
     <DashboardLayout>
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          padding: 24,
-        }}
-      >
-
+      <ScrollView className="flex-1 p-6">
         <View className="flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <View>
             <Text className="text-[32px] font-extrabold text-[#212134]">
@@ -182,16 +106,13 @@ export default function DashboardScreen() {
               Resumo do paciente{' '}
 
               <Text className="font-bold text-[#212134]">
-                {selectedChild?.nome || 'Paciente'}
+                {selectedChild?.nome || 'Carregando...'}
               </Text>
             </Text>
           </View>
 
-
           <View className="flex-row gap-3">
-            <TouchableOpacity
-              className="flex-row items-center bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm"
-            >
+            <TouchableOpacity className="flex-row items-center bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm">
               <Feather
                 name="calendar"
                 size={16}
@@ -199,13 +120,11 @@ export default function DashboardScreen() {
               />
 
               <Text className="ml-2 text-[14px] font-bold text-[#4B5563]">
-                Dados disponíveis
+                Maio de 2026
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              className="flex-row items-center bg-[#528F33] px-4 py-2.5 rounded-xl shadow-sm"
-            >
+            <TouchableOpacity className="flex-row items-center bg-[#528F33] px-4 py-2.5 rounded-xl shadow-sm hover:bg-[#457a2a] transition-colors">
               <Feather
                 name="file-text"
                 size={16}
@@ -221,39 +140,40 @@ export default function DashboardScreen() {
         </View>
 
         <View className="flex-row flex-wrap gap-4 mb-6">
+
           <StatCard
             title="Tentativas"
-            value={metrics.attempts}
+            value={loading ? '...' : tentativas}
             icon="layers"
             color="#528F33"
           />
 
           <StatCard
             title="Aceitações"
-            value={metrics.accepted}
+            value={loading ? '...' : aceitacoes}
             icon="check-circle"
             color="#528F33"
           />
 
           <StatCard
             title="Rejeições"
-            value={metrics.rejected}
+            value={loading ? '...' : rejeicoes}
             icon="x-circle"
             color="#D9534F"
           />
 
           <StatCard
-            title="Taxa de Aceitação"
-            value={`${metrics.acceptanceRate}%`}
-            icon="activity"
-            color="#3B82F6"
+            title="Neutros"
+            value={loading ? '...' : neutros}
+            icon="minus-circle"
+            color="#F59E0B"
           />
+
         </View>
 
         <View className="flex-col lg:flex-row gap-6 mb-10">
-          <AlertsWidget logs={logs} />
-
-          <CombosWidget logs={logs} />
+          <AlertsWidget />
+          <CombosWidget />
         </View>
 
         <View className="mb-10">
@@ -262,6 +182,7 @@ export default function DashboardScreen() {
           </Text>
 
           <View className="flex-col lg:flex-row gap-4 mb-6">
+
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
               <LineChartEvolucao logs={logs} />
             </View>
@@ -287,36 +208,32 @@ export default function DashboardScreen() {
 
               <View className="flex-row items-center justify-between">
                 <View className="items-center justify-center relative">
-
                   <Feather
                     name="pie-chart"
                     size={64}
                     color="#D4CDA8"
                   />
-
                 </View>
 
-
                 <View className="ml-4 flex-1">
+
                   <Text className="text-[24px] font-extrabold text-[#528F33]">
-                    {metrics.acceptanceRate}%
+                    {loading ? '...' : `${taxaAceitacao}%`}
                   </Text>
 
                   <Text className="text-[11px] text-[#6B7280]">
-                    {metrics.accepted} refeições aceitas de {metrics.attempts} tentativas.
+                    {aceitacoes} refeições aceitas de {tentativas} tentativas.
                   </Text>
+
                 </View>
               </View>
             </View>
           </View>
         </View>
 
-
         <LogsTableWidget logs={logs} />
 
-
         <Footer />
-
       </ScrollView>
     </DashboardLayout>
   );
