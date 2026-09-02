@@ -5,7 +5,7 @@ export function BarChartCor({ logs = [] }) {
   const cores = {};
 
   logs.forEach(log => {
-    const cor = log.cor;
+    const cor = log.alimento?.cor;
 
     if (!cor) {
       return;
@@ -85,9 +85,7 @@ export function BarChartCor({ logs = [] }) {
               </View>
             );
           })}
-
         </View>
-
       )}
 
       <View className="flex-row justify-between pl-2 mt-1">
@@ -99,7 +97,6 @@ export function BarChartCor({ logs = [] }) {
             {item.label}
           </Text>
         ))}
-
       </View>
     </View>
   );
@@ -168,7 +165,6 @@ export function RadarChartTextura({ logs = [] }) {
           <Text className="text-[10px] text-[#6B7280]">
             {naoGostou} não gostaram
           </Text>
-
         </View>
       )}
     </View>
@@ -242,7 +238,6 @@ export function LineChartEvolucao({ logs = [] }) {
                 Aceitações
               </Text>
             </View>
-
           </View>
 
           <View className="flex-row items-end justify-between h-20 border-b border-l border-gray-100 px-2 pb-1">
@@ -285,7 +280,6 @@ export function LineChartEvolucao({ logs = [] }) {
                 </View>
               );
             })}
-
           </View>
         </View>
       )}

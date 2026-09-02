@@ -116,11 +116,9 @@ export default function LogsTableWidget({ logs = [] }) {
               size={14}
               color="#9CA3AF"
             />
-
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-row items-center bg-white border border-gray-200 px-3 py-2.5 rounded-lg shadow-sm">
-
             <Feather
               name="filter"
               size={14}
@@ -136,7 +134,6 @@ export default function LogsTableWidget({ logs = [] }) {
               size={14}
               color="#9CA3AF"
             />
-
           </TouchableOpacity>
         </View>
       </View>
@@ -178,7 +175,6 @@ export default function LogsTableWidget({ logs = [] }) {
               className="flex-col md:flex-row border border-gray-100 md:border-t-0 md:border-x-0 md:border-b-gray-100 p-4 md:py-3 md:px-2 rounded-xl md:rounded-none bg-white hover:bg-gray-50 transition-colors shadow-sm md:shadow-none"
             >
               <View className="flex-[1.5] flex-row md:flex-col justify-between items-center md:items-start mb-2 md:mb-0">
-
                 <Text className="md:hidden text-[11px] font-bold text-[#9CA3AF] uppercase">
                   Data/Hora
                 </Text>
@@ -194,7 +190,7 @@ export default function LogsTableWidget({ logs = [] }) {
                 </Text>
 
                 <Text className="text-[14px] font-bold text-[#212134] md:mt-1">
-                  Alimento #{log.alimentoId}
+                  {log.alimento?.nome || `Alimento #${log.alimentoId}`}
                 </Text>
               </View>
 
@@ -234,7 +230,6 @@ export default function LogsTableWidget({ logs = [] }) {
                 </Text>
 
                 <View className={`px-4 py-1.5 rounded-full ${reaction.color}`}>
-
                   <Text
                     className={`text-[12px] font-bold ${reaction.color.split(' ')[1]}`}
                   >
@@ -259,7 +254,6 @@ export default function LogsTableWidget({ logs = [] }) {
             </Text>
           </View>
         )}
-
       </View>
     </View>
   );
