@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -22,6 +28,9 @@ export default function DashboardScreen() {
   const [selectedChild, setSelectedChild] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [periodType, setPeriodType] = useState('month');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showPeriodModal, setShowPeriodModal] = useState(false);
 
   useEffect(() => {
     carregarDados();
@@ -64,6 +73,19 @@ export default function DashboardScreen() {
       const data = await response.json();
 
       setLogs(data);
+
+      if (data.length > 0) {
+        const latestLog = [...data]
+          .filter(log => log.timestamp)
+          .sort(
+            (a, b) =>
+              new Date(b.timestamp) - new Date(a.timestamp)
+          )[0];
+
+        if (latestLog) {
+          setSelectedDate(new Date(latestLog.timestamp));
+        }
+      }
     } catch (error) {
       console.error(
         'Erro ao carregar dados do dashboard:',
@@ -74,17 +96,153 @@ export default function DashboardScreen() {
     }
   };
 
-  const tentativas = logs.length;
+  const getStartOfWeek = (date) => {
+    const result = new Date(date);
+    const day = result.getDay();
 
-  const aceitacoes = logs.filter(
+    const difference = day === 0 ? -6 : 1 - day;
+
+    result.setDate(result.getDate() + difference);
+    result.setHours(0, 0, 0, 0);
+
+    return result;
+  };
+
+  const getEndOfWeek = (date) => {
+    const result = getStartOfWeek(date);
+
+    result.setDate(result.getDate() + 6);
+    result.setHours(23, 59, 59, 999);
+
+    return result;
+  };
+
+  const getStartOfDay = (date) => {
+    const result = new Date(date);
+
+    result.setHours(0, 0, 0, 0);
+
+    return result;
+  };
+
+  const getEndOfDay = (date) => {
+    const result = new Date(date);
+
+    result.setHours(23, 59, 59, 999);
+
+    return result;
+  };
+
+  const getStartOfMonth = (date) => {
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      1,
+      0,
+      0,
+      0,
+      0
+    );
+  };
+
+  const getEndOfMonth = (date) => {
+    return new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+  };
+
+  const logsFiltrados = useMemo(() => {
+    if (periodType === 'all' || !selectedDate) {
+      return logs;
+    }
+
+    let startDate;
+    let endDate;
+
+    if (periodType === 'day') {
+      startDate = getStartOfDay(selectedDate);
+      endDate = getEndOfDay(selectedDate);
+    }
+
+    if (periodType === 'week') {
+      startDate = getStartOfWeek(selectedDate);
+      endDate = getEndOfWeek(selectedDate);
+    }
+
+    if (periodType === 'month') {
+      startDate = getStartOfMonth(selectedDate);
+      endDate = getEndOfMonth(selectedDate);
+    }
+
+    return logs.filter(log => {
+      if (!log.timestamp) {
+        return false;
+      }
+
+      const timestamp = new Date(log.timestamp);
+
+      return timestamp >= startDate && timestamp <= endDate;
+    });
+  }, [logs, periodType, selectedDate]);
+
+  const formatPeriod = () => {
+    if (periodType === 'all') {
+      return 'Todos os registros';
+    }
+
+    if (!selectedDate) {
+      return 'Selecionar período';
+    }
+
+    if (periodType === 'day') {
+      return selectedDate.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    }
+
+    if (periodType === 'week') {
+      const start = getStartOfWeek(selectedDate);
+      const end = getEndOfWeek(selectedDate);
+
+      return `${start.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+      })} – ${end.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+      })}`;
+    }
+
+    return selectedDate.toLocaleDateString('pt-BR', {
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
+  const selecionarPeriodo = (type) => {
+    setPeriodType(type);
+    setShowPeriodModal(false);
+  };
+
+  const tentativas = logsFiltrados.length;
+
+  const aceitacoes = logsFiltrados.filter(
     log => log.reacao === 1
   ).length;
 
-  const rejeicoes = logs.filter(
+  const rejeicoes = logsFiltrados.filter(
     log => log.reacao === 2
   ).length;
 
-  const neutros = logs.filter(
+  const neutros = logsFiltrados.filter(
     log => log.reacao === 3
   ).length;
 
@@ -112,7 +270,10 @@ export default function DashboardScreen() {
           </View>
 
           <View className="flex-row gap-3">
-            <TouchableOpacity className="flex-row items-center bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm">
+            <TouchableOpacity
+              onPress={() => setShowPeriodModal(true)}
+              className="flex-row items-center bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm"
+            >
               <Feather
                 name="calendar"
                 size={16}
@@ -120,8 +281,15 @@ export default function DashboardScreen() {
               />
 
               <Text className="ml-2 text-[14px] font-bold text-[#4B5563]">
-                Maio de 2026
+                {formatPeriod()}
               </Text>
+
+              <Feather
+                name="chevron-down"
+                size={14}
+                color="#9CA3AF"
+                style={{ marginLeft: 8 }}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity className="flex-row items-center bg-[#528F33] px-4 py-2.5 rounded-xl shadow-sm hover:bg-[#457a2a] transition-colors">
@@ -135,12 +303,161 @@ export default function DashboardScreen() {
                 Gerar Relatório
               </Text>
             </TouchableOpacity>
-
           </View>
         </View>
 
-        <View className="flex-row flex-wrap gap-4 mb-6">
+        <Modal
+          visible={showPeriodModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowPeriodModal(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setShowPeriodModal(false)}
+            className="flex-1 bg-black/30 items-center justify-center p-6"
+          >
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {}}
+              className="bg-white rounded-2xl w-full max-w-[420px] p-6 shadow-lg"
+            >
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-[18px] font-bold text-[#212134]">
+                  Selecionar período
+                </Text>
 
+                <TouchableOpacity
+                  onPress={() => setShowPeriodModal(false)}
+                >
+                  <Feather
+                    name="x"
+                    size={20}
+                    color="#6B7280"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => selecionarPeriodo('day')}
+                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
+                  periodType === 'day'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="calendar"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Dia
+                  </Text>
+                </View>
+
+                {periodType === 'day' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => selecionarPeriodo('week')}
+                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
+                  periodType === 'week'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="calendar"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Semana
+                  </Text>
+                </View>
+
+                {periodType === 'week' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => selecionarPeriodo('month')}
+                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
+                  periodType === 'month'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="calendar"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Mês
+                  </Text>
+                </View>
+
+                {periodType === 'month' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => selecionarPeriodo('all')}
+                className={`flex-row items-center justify-between p-4 rounded-xl border ${
+                  periodType === 'all'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="list"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Todos os registros
+                  </Text>
+                </View>
+
+                {periodType === 'all' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </Modal>
+
+        <View className="flex-row flex-wrap gap-4 mb-6">
           <StatCard
             title="Tentativas"
             value={loading ? '...' : tentativas}
@@ -168,12 +485,11 @@ export default function DashboardScreen() {
             icon="minus-circle"
             color="#F59E0B"
           />
-
         </View>
 
         <View className="flex-col lg:flex-row gap-6 mb-10">
-          <AlertsWidget />
-          <CombosWidget />
+          <AlertsWidget logs={logsFiltrados} />
+          <CombosWidget logs={logsFiltrados} />
         </View>
 
         <View className="mb-10">
@@ -182,23 +498,22 @@ export default function DashboardScreen() {
           </Text>
 
           <View className="flex-col lg:flex-row gap-4 mb-6">
-
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <LineChartEvolucao logs={logs} />
+              <LineChartEvolucao logs={logsFiltrados} />
             </View>
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <BarChartCor logs={logs} />
+              <BarChartCor logs={logsFiltrados} />
             </View>
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <RadarChartTextura logs={logs} />
+              <RadarChartTextura logs={logsFiltrados} />
             </View>
           </View>
 
           <View className="flex-col lg:flex-row gap-4">
             <View className="flex-[2] bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <ProgressSaudaveis logs={logs} />
+              <ProgressSaudaveis logs={logsFiltrados} />
             </View>
 
             <View className="flex-[1] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 justify-center">
@@ -216,7 +531,6 @@ export default function DashboardScreen() {
                 </View>
 
                 <View className="ml-4 flex-1">
-
                   <Text className="text-[24px] font-extrabold text-[#528F33]">
                     {loading ? '...' : `${taxaAceitacao}%`}
                   </Text>
@@ -224,14 +538,13 @@ export default function DashboardScreen() {
                   <Text className="text-[11px] text-[#6B7280]">
                     {aceitacoes} refeições aceitas de {tentativas} tentativas.
                   </Text>
-
                 </View>
               </View>
             </View>
           </View>
         </View>
 
-        <LogsTableWidget logs={logs} />
+        <LogsTableWidget logs={logsFiltrados} />
 
         <Footer />
       </ScrollView>
