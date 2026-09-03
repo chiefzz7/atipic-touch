@@ -16,39 +16,87 @@ import {
 } from '../../components/dashboard/ChartWidgets';
 import Footer from '../../components/ui/Footer';
 
+const API_URL = 'http://localhost:8000';
+
 export default function DashboardScreen() {
   const [selectedChild, setSelectedChild] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    carregarCriancaSelecionada();
+    carregarDados();
   }, []);
 
-  const carregarCriancaSelecionada = async () => {
+  const carregarDados = async () => {
     try {
       const childStorage = await AsyncStorage.getItem(
         '@atipictouch:selected_child'
       );
 
-      if (childStorage) {
-        setSelectedChild(JSON.parse(childStorage));
+      const token = await AsyncStorage.getItem(
+        '@atipictouch:token'
+      );
+
+      if (!childStorage || !token) {
+        return;
       }
+
+      const child = JSON.parse(childStorage);
+
+      setSelectedChild(child);
+
+      const response = await fetch(
+        `${API_URL}/api/feeding-logs/crianca/${child.id}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Erro ao buscar logs: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      setLogs(data);
     } catch (error) {
       console.error(
-        'Erro ao carregar criança selecionada:',
+        'Erro ao carregar dados do dashboard:',
         error
       );
+    } finally {
+      setLoading(false);
     }
   };
 
+  const tentativas = logs.length;
+
+  const aceitacoes = logs.filter(
+    log => log.reacao === 1
+  ).length;
+
+  const rejeicoes = logs.filter(
+    log => log.reacao === 2
+  ).length;
+
+  const neutros = logs.filter(
+    log => log.reacao === 3
+  ).length;
+
+  const taxaAceitacao =
+    tentativas > 0
+      ? ((aceitacoes / tentativas) * 100).toFixed(1)
+      : '0.0';
+
   return (
     <DashboardLayout>
-      <ScrollView
-        className="flex-1 bg-[#F9F8F3] p-6 lg:p-8"
-        showsVerticalScrollIndicator={false}
-      >
-
+      <ScrollView className="flex-1 p-6">
         <View className="flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-
           <View>
             <Text className="text-[32px] font-extrabold text-[#212134]">
               Dashboard Clínico
@@ -64,7 +112,6 @@ export default function DashboardScreen() {
           </View>
 
           <View className="flex-row gap-3">
-
             <TouchableOpacity className="flex-row items-center bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm">
               <Feather
                 name="calendar"
@@ -93,41 +140,35 @@ export default function DashboardScreen() {
         </View>
 
         <View className="flex-row flex-wrap gap-4 mb-6">
-          <StatCard
-            title="Qualidade"
-            value="7.6 / 10"
-            icon="activity"
-            color="#3B82F6"
-            trend="up"
-            trendValue="↑ +0.4 pts"
-          />
 
           <StatCard
             title="Tentativas"
-            value="248"
+            value={loading ? '...' : tentativas}
             icon="layers"
             color="#528F33"
-            trend="up"
-            trendValue="↑ 10% vs anterior"
           />
 
           <StatCard
             title="Aceitações"
-            value="128"
+            value={loading ? '...' : aceitacoes}
             icon="check-circle"
             color="#528F33"
-            trend="down"
-            trendValue="↓ 4% vs anterior"
           />
 
           <StatCard
             title="Rejeições"
-            value="112"
+            value={loading ? '...' : rejeicoes}
             icon="x-circle"
             color="#D9534F"
-            trend="down"
-            trendValue="↓ 12% vs anterior"
           />
+
+          <StatCard
+            title="Neutros"
+            value={loading ? '...' : neutros}
+            icon="minus-circle"
+            color="#F59E0B"
+          />
+
         </View>
 
         <View className="flex-col lg:flex-row gap-6 mb-10">
@@ -136,7 +177,6 @@ export default function DashboardScreen() {
         </View>
 
         <View className="mb-10">
-
           <Text className="text-[20px] font-bold text-[#212134] mb-4">
             Análise Sensorial e Consumo
           </Text>
@@ -144,33 +184,29 @@ export default function DashboardScreen() {
           <View className="flex-col lg:flex-row gap-4 mb-6">
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <LineChartEvolucao />
+              <LineChartEvolucao logs={logs} />
             </View>
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <BarChartCor />
+              <BarChartCor logs={logs} />
             </View>
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <RadarChartTextura />
+              <RadarChartTextura logs={logs} />
             </View>
-
           </View>
 
           <View className="flex-col lg:flex-row gap-4">
-
             <View className="flex-[2] bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <ProgressSaudaveis />
+              <ProgressSaudaveis logs={logs} />
             </View>
 
             <View className="flex-[1] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 justify-center">
-
               <Text className="text-[13px] font-bold text-[#212134] mb-4">
                 Taxa Geral de Aceitação
               </Text>
 
               <View className="flex-row items-center justify-between">
-
                 <View className="items-center justify-center relative">
                   <Feather
                     name="pie-chart"
@@ -182,26 +218,22 @@ export default function DashboardScreen() {
                 <View className="ml-4 flex-1">
 
                   <Text className="text-[24px] font-extrabold text-[#528F33]">
-                    51.6%
+                    {loading ? '...' : `${taxaAceitacao}%`}
                   </Text>
 
                   <Text className="text-[11px] text-[#6B7280]">
-                    128 refeições aceitas de 248 tentativas.
+                    {aceitacoes} refeições aceitas de {tentativas} tentativas.
                   </Text>
 
                 </View>
-
               </View>
-
             </View>
-
           </View>
         </View>
 
-        <LogsTableWidget />
+        <LogsTableWidget logs={logs} />
 
         <Footer />
-
       </ScrollView>
     </DashboardLayout>
   );
