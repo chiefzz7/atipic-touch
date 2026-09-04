@@ -18,7 +18,7 @@ import {
   BarChartCor,
   RadarChartTextura,
   LineChartEvolucao,
-  ProgressSaudaveis
+  ProgressReacoes
 } from '../../components/dashboard/ChartWidgets';
 import Footer from '../../components/ui/Footer';
 import usePeriodFilter from '../../hooks/usePeriodFilter';
@@ -389,7 +389,7 @@ export default function DashboardScreen() {
 
           <View className="flex-col lg:flex-row gap-4">
             <View className="flex-[2] bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <ProgressSaudaveis logs={logsFiltrados} />
+              <ProgressReacoes logs={logsFiltrados} />
             </View>
 
             <View className="flex-[1] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 justify-center">
