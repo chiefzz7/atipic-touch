@@ -1,15 +1,14 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { normalizeFoodColor } from '../../utils/food';
 
 export function BarChartCor({ logs = [] }) {
   const cores = {};
 
   logs.forEach(log => {
-    const cor = log.alimento?.cor;
+    const cor = normalizeFoodColor(log.alimento?.cor);
 
-    if (!cor) {
-      return;
-    }
+    if (cor === 'Desconhecida') return;
 
     if (!cores[cor]) {
       cores[cor] = {
@@ -25,12 +24,18 @@ export function BarChartCor({ logs = [] }) {
     }
   });
 
-  const data = Object.entries(cores).map(([label, values]) => ({
-    label,
-    value: values.total > 0
-      ? Math.round((values.aceitos / values.total) * 100)
-      : 0,
-  }));
+  const data = Object.entries(cores)
+    .map(([label, values]) => ({
+      label,
+      total: values.total,
+      value:
+        values.total > 0
+          ? Math.round(
+              (values.aceitos / values.total) * 100
+            )
+          : 0,
+    }))
+    .sort((a, b) => b.total - a.total);
 
   const maxValue = Math.max(
     ...data.map(item => item.value),
@@ -48,56 +53,42 @@ export function BarChartCor({ logs = [] }) {
       </Text>
 
       {data.length === 0 ? (
-
         <View className="h-24 items-center justify-center">
           <Text className="text-[11px] text-[#9CA3AF]">
             Dados de cor ainda não disponíveis.
           </Text>
         </View>
-
       ) : (
-
         <View className="flex-row items-end justify-between h-24 border-b border-l border-gray-100 pb-1 pl-2">
           {data.map((item, index) => {
-
-            const height =
-              Math.max(
-                (item.value / maxValue) * 100,
-                item.value > 0 ? 5 : 0
-              );
+            const height = Math.max(
+              (item.value / maxValue) * 100,
+              item.value > 0 ? 5 : 0
+            );
 
             return (
-              <View
-                key={index}
-                className="items-center flex-1"
-              >
-
+              <View key={index} className="items-center flex-1">
                 <Text className="text-[9px] text-[#6B7280] mb-1">
                   {item.value}%
                 </Text>
 
                 <View
                   className="w-6 bg-[#528F33] rounded-t-sm"
-                  style={{
-                    height: `${height}%`,
-                  }}
+                  style={{ height: `${height}%` }}
                 />
+
+                <Text className="text-[8px] font-medium text-[#4B5563] mt-1">
+                  {item.label}
+                </Text>
+
+                <Text className="text-[7px] text-[#9CA3AF]">
+                  n={item.total}
+                </Text>
               </View>
             );
           })}
         </View>
       )}
-
-      <View className="flex-row justify-between pl-2 mt-1">
-        {data.map((item, index) => (
-          <Text
-            key={index}
-            className="text-[8px] font-medium text-[#4B5563] flex-1 text-center"
-          >
-            {item.label}
-          </Text>
-        ))}
-      </View>
     </View>
   );
 }
@@ -320,16 +311,19 @@ export function ProgressReacoes({ logs = [] }) {
       label: 'Aceitações',
       valor: aceitacoes,
       percentual: calcularPercentual(aceitacoes),
+      color: '#528F33',
     },
     {
       label: 'Rejeições',
       valor: rejeicoes,
       percentual: calcularPercentual(rejeicoes),
+      color: '#D9534F',
     },
     {
       label: 'Neutros',
       valor: neutros,
       percentual: calcularPercentual(neutros),
+      color: '#F59E0B',
     },
   ];
 
@@ -344,15 +338,12 @@ export function ProgressReacoes({ logs = [] }) {
       </Text>
 
       {tentativas === 0 ? (
-
         <View className="h-16 w-full rounded-md bg-gray-100 items-center justify-center">
           <Text className="text-[11px] text-[#6B7280]">
             Nenhum registro disponível no período.
           </Text>
         </View>
-
       ) : (
-
         <View className="gap-3">
           {dados.map(item => (
             <View key={item.label}>
@@ -368,9 +359,10 @@ export function ProgressReacoes({ logs = [] }) {
 
               <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <View
-                  className="h-full bg-[#528F33] rounded-full"
+                  className="h-full rounded-full"
                   style={{
                     width: `${item.percentual}%`,
+                    backgroundColor: item.color,
                   }}
                 />
               </View>
