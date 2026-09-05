@@ -320,16 +320,19 @@ export function ProgressReacoes({ logs = [] }) {
       label: 'Aceitações',
       valor: aceitacoes,
       percentual: calcularPercentual(aceitacoes),
+      color: '#528F33',
     },
     {
       label: 'Rejeições',
       valor: rejeicoes,
       percentual: calcularPercentual(rejeicoes),
+      color: '#D9534F',
     },
     {
       label: 'Neutros',
       valor: neutros,
       percentual: calcularPercentual(neutros),
+      color: '#F59E0B',
     },
   ];
 
@@ -344,15 +347,12 @@ export function ProgressReacoes({ logs = [] }) {
       </Text>
 
       {tentativas === 0 ? (
-
         <View className="h-16 w-full rounded-md bg-gray-100 items-center justify-center">
           <Text className="text-[11px] text-[#6B7280]">
             Nenhum registro disponível no período.
           </Text>
         </View>
-
       ) : (
-
         <View className="gap-3">
           {dados.map(item => (
             <View key={item.label}>
@@ -368,9 +368,10 @@ export function ProgressReacoes({ logs = [] }) {
 
               <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <View
-                  className="h-full bg-[#528F33] rounded-full"
+                  className="h-full rounded-full"
                   style={{
                     width: `${item.percentual}%`,
+                    backgroundColor: item.color,
                   }}
                 />
               </View>

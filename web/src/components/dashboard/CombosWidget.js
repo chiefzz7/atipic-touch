@@ -1,36 +1,17 @@
 import React, { useMemo } from 'react';
+import { View, Text } from 'react-native';
 
-import {
-  View,
-  Text,
-} from 'react-native';
-
-
-export default function CombosWidget({
-  logs = [],
-}) {
-
+export default function CombosWidget({ logs = [] }) {
   const combos = useMemo(() => {
-
     const stats = {};
 
     logs.forEach((log) => {
-
       const food = log.alimento;
+      if (!food) return;
 
-      if (!food) {
-        return;
-      }
-
-      const texture =
-        food.textura || 'Desconhecida';
-
-      const color =
-        food.cor || 'Desconhecida';
-
-      const key =
-        `${texture} + ${color}`;
-
+      const texture = food.textura || 'Desconhecida';
+      const foodColor = food.cor || 'Desconhecida';
+      const key = `${texture} + ${foodColor}`;
 
       if (!stats[key]) {
         stats[key] = {
@@ -39,7 +20,6 @@ export default function CombosWidget({
           accepted: 0,
         };
       }
-
 
       stats[key].total += 1;
 
@@ -50,13 +30,11 @@ export default function CombosWidget({
       if (log.reacao === 2) {
         stats[key].rejected += 1;
       }
-
     });
 
-
     return Object.entries(stats)
+      .filter(([, data]) => data.total >= 2)
       .map(([name, data]) => {
-
         const acceptance =
           data.total > 0
             ? (data.accepted / data.total) * 100
@@ -67,35 +45,27 @@ export default function CombosWidget({
             ? (data.rejected / data.total) * 100
             : 0;
 
-
         let percentage = acceptance;
         let label = 'Aceitação';
-        let color = '#528F33';
-
+        let statusColor = '#528F33';
 
         if (rejection > acceptance) {
           percentage = rejection;
           label = 'Rejeição';
-          color = '#D9534F';
+          statusColor = '#D9534F';
         }
-
 
         return {
           name,
           percentage,
           label,
-          color,
+          statusColor,
           total: data.total,
         };
       })
-      .sort(
-        (a, b) =>
-          b.percentage - a.percentage
-      )
+      .sort((a, b) => b.percentage - a.percentage)
       .slice(0, 3);
-
   }, [logs]);
-
 
   return (
     <View className="flex-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -108,44 +78,32 @@ export default function CombosWidget({
       </Text>
 
       {combos.length === 0 ? (
-
         <View className="py-5">
           <Text className="text-[13px] text-[#6B7280] text-center">
             Ainda não existem dados suficientes para identificar combinações.
           </Text>
         </View>
-
       ) : (
-
         <View className="flex-col gap-4">
-
           {combos.map((combo, index) => (
-
             <View
               key={index}
               className="flex-row justify-between items-center border-b border-gray-100 pb-3"
             >
-
               <View className="flex-row items-center gap-2 flex-1">
                 <View
                   className="w-2.5 h-2.5 rounded-full"
-                  style={{
-                    backgroundColor:
-                      combo.color,
-                  }}
+                  style={{ backgroundColor: combo.statusColor }}
                 />
 
                 <Text className="text-[14px] font-medium text-[#4B5563]">
                   {combo.name}
                 </Text>
-
               </View>
 
               <Text
                 className="text-[14px] font-bold"
-                style={{
-                  color: combo.color,
-                }}
+                style={{ color: combo.statusColor }}
               >
                 {combo.percentage.toFixed(0)}% {combo.label}
               </Text>
