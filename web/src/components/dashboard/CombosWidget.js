@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
+import { normalizeFoodColor } from '../../utils/food';
 
 export default function CombosWidget({ logs = [] }) {
   const combos = useMemo(() => {
@@ -7,10 +8,12 @@ export default function CombosWidget({ logs = [] }) {
 
     logs.forEach((log) => {
       const food = log.alimento;
+
       if (!food) return;
 
-      const texture = food.textura || 'Desconhecida';
-      const foodColor = food.cor || 'Desconhecida';
+      const texture = food.textura?.trim() || 'Desconhecida';
+      const foodColor = normalizeFoodColor(food.cor);
+
       const key = `${texture} + ${foodColor}`;
 
       if (!stats[key]) {
@@ -93,17 +96,27 @@ export default function CombosWidget({ logs = [] }) {
               <View className="flex-row items-center gap-2 flex-1">
                 <View
                   className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: combo.statusColor }}
+                  style={{
+                    backgroundColor: combo.statusColor,
+                  }}
                 />
 
-                <Text className="text-[14px] font-medium text-[#4B5563]">
-                  {combo.name}
-                </Text>
+                <View className="flex-1">
+                  <Text className="text-[14px] font-medium text-[#4B5563]">
+                    {combo.name}
+                  </Text>
+
+                  <Text className="text-[9px] text-[#9CA3AF] mt-0.5">
+                    {combo.total} registros
+                  </Text>
+                </View>
               </View>
 
               <Text
                 className="text-[14px] font-bold"
-                style={{ color: combo.statusColor }}
+                style={{
+                  color: combo.statusColor,
+                }}
               >
                 {combo.percentage.toFixed(0)}% {combo.label}
               </Text>
