@@ -1,24 +1,104 @@
 import React, { useMemo } from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { normalizeFoodColor } from '../../utils/food';
 
-export const ReportCard = ({ title, children, flexClass = "flex-1" }) => (
-  <View className={`bg-white border border-[#A3C78B] rounded-2xl p-5 shadow-sm ${flexClass}`}>
-    {title && <Text className="text-[15px] font-extrabold text-[#528F33] mb-4 uppercase tracking-wide">{title}</Text>}
+const getFoodEmoji = (category) => {
+  if (!category) return '🍽️';
+
+  const normalized = category.trim().toLowerCase();
+
+  const emojis = {
+    fruta: '🍎',
+    frutas: '🍎',
+    cereal: '🌾',
+    cereais: '🌾',
+    laticínio: '🥛',
+    laticinios: '🥛',
+    legume: '🥕',
+    legumes: '🥕',
+    verdura: '🥬',
+    verduras: '🥬',
+    proteína: '🍗',
+    proteina: '🍗',
+    carnes: '🍗',
+    carne: '🍗',
+    bebida: '🥤',
+    bebidas: '🥤',
+    doce: '🍰',
+    doces: '🍰',
+  };
+
+  return emojis[normalized] || '🍽️';
+};
+
+const formatarOrigem = (origem) => {
+  if (!origem) return 'Origem não informada';
+
+  const normalized = origem.trim().toUpperCase();
+
+  const labels = {
+    MANUAL: 'Registro manual',
+    IOT: 'Registro IoT',
+    SENSOR: 'Registro por sensor',
+  };
+
+  return labels[normalized] || origem;
+};
+
+const formatarAtributo = (atributo) => {
+  if (!atributo) return 'Atributo não informado';
+
+  const normalized = atributo.trim().toUpperCase();
+
+  const labels = {
+    TEXTURA: 'Textura',
+    SABOR: 'Sabor',
+    CHEIRO: 'Cheiro',
+    TEMPERATURA: 'Temperatura',
+    COR: 'Cor',
+  };
+
+  return labels[normalized] || atributo;
+};
+
+export const ReportCard = ({
+  title,
+  children,
+  flexClass = 'flex-1'
+}) => (
+  <View
+    className={`bg-white border border-[#A3C78B] rounded-2xl p-5 shadow-sm ${flexClass}`}
+  >
+    {title && (
+      <Text className="text-[15px] font-extrabold text-[#528F33] mb-4 uppercase tracking-wide">
+        {title}
+      </Text>
+    )}
+
     {children}
   </View>
 );
 
-export const PatientSummaryWidget = ({ child, logs = [] }) => {
+export const PatientSummaryWidget = ({
+  child,
+  logs = []
+}) => {
   const idade = useMemo(() => {
     if (!child?.dataNascimento) return '—';
 
-    const nascimento = new Date(`${child.dataNascimento}T00:00:00`);
+    const nascimento = new Date(
+      `${child.dataNascimento}T00:00:00`
+    );
+
     const hoje = new Date();
 
-    let anos = hoje.getFullYear() - nascimento.getFullYear();
-    let meses = hoje.getMonth() - nascimento.getMonth();
+    let anos =
+      hoje.getFullYear() -
+      nascimento.getFullYear();
+
+    let meses =
+      hoje.getMonth() -
+      nascimento.getMonth();
 
     if (hoje.getDate() < nascimento.getDate()) {
       meses -= 1;
@@ -29,18 +109,30 @@ export const PatientSummaryWidget = ({ child, logs = [] }) => {
       meses += 12;
     }
 
-    return `${anos} ${anos === 1 ? 'Ano' : 'Anos'} e ${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+    return `${anos} ${anos === 1 ? 'Ano' : 'Anos'
+      } e ${meses} ${meses === 1 ? 'mês' : 'meses'
+      }`;
   }, [child]);
 
   const resumo = useMemo(() => {
     const total = logs.length;
-    const aceitos = logs.filter((log) => log.reacao === 1).length;
-    const rejeitados = logs.filter((log) => log.reacao === 2).length;
-    const neutros = logs.filter((log) => log.reacao === 3).length;
 
-    const taxaAceitacao = total > 0
-      ? ((aceitos / total) * 100).toFixed(1)
-      : '0.0';
+    const aceitos = logs.filter(
+      (log) => log.reacao === 1
+    ).length;
+
+    const rejeitados = logs.filter(
+      (log) => log.reacao === 2
+    ).length;
+
+    const neutros = logs.filter(
+      (log) => log.reacao === 3
+    ).length;
+
+    const taxaAceitacao =
+      total > 0
+        ? ((aceitos / total) * 100).toFixed(1)
+        : '0.0';
 
     return {
       total,
@@ -55,7 +147,11 @@ export const PatientSummaryWidget = ({ child, logs = [] }) => {
     <View className="flex-col md:flex-row bg-[#F2F7ED] border border-[#A3C78B] rounded-2xl mb-4 shadow-sm">
       <View className="flex-1 p-5 border-b md:border-b-0 md:border-r border-[#A3C78B] flex-row items-center">
         <View className="w-16 h-16 bg-gray-300 rounded-full items-center justify-center mr-4 border-2 border-white shadow-sm overflow-hidden">
-          <Feather name="user" size={24} color="#fff" />
+          <Feather
+            name="user"
+            size={24}
+            color="#fff"
+          />
         </View>
 
         <View>
@@ -74,7 +170,12 @@ export const PatientSummaryWidget = ({ child, logs = [] }) => {
       </View>
 
       <View className="flex-1 p-5 flex-row items-start">
-        <Feather name="activity" size={20} color="#528F33" className="mr-3 mt-1" />
+        <Feather
+          name="activity"
+          size={20}
+          color="#528F33"
+          className="mr-3 mt-1"
+        />
 
         <View className="flex-1">
           <Text className="text-[12px] font-bold text-[#528F33] uppercase tracking-wider mb-1">
@@ -83,11 +184,28 @@ export const PatientSummaryWidget = ({ child, logs = [] }) => {
 
           {resumo.total > 0 ? (
             <Text className="text-[13px] text-[#4B5563] leading-relaxed">
-              Foram registrados {resumo.total} {resumo.total === 1 ? 'registro' : 'registros'} no período, com {resumo.aceitos} {resumo.aceitos === 1 ? 'aceitação' : 'aceitações'}, {resumo.rejeitados} {resumo.rejeitados === 1 ? 'rejeição' : 'rejeições'} e {resumo.neutros} {resumo.neutros === 1 ? 'registro neutro' : 'registros neutros'}. A taxa geral de aceitação foi de {resumo.taxaAceitacao}%.
+              Foram registrados {resumo.total}{' '}
+              {resumo.total === 1
+                ? 'registro'
+                : 'registros'} no período, com{' '}
+              {resumo.aceitos}{' '}
+              {resumo.aceitos === 1
+                ? 'aceitação'
+                : 'aceitações'},{' '}
+              {resumo.rejeitados}{' '}
+              {resumo.rejeitados === 1
+                ? 'rejeição'
+                : 'rejeições'}{' '}
+              e {resumo.neutros}{' '}
+              {resumo.neutros === 1
+                ? 'registro neutro'
+                : 'registros neutros'}
+              . A taxa geral de aceitação foi de{' '}
+              {resumo.taxaAceitacao}%.
             </Text>
           ) : (
             <Text className="text-[13px] text-[#4B5563] leading-relaxed">
-              Não existem registros alimentares no período selecionado.
+              Não existem registros alimentares no período.
             </Text>
           )}
         </View>
@@ -96,28 +214,43 @@ export const PatientSummaryWidget = ({ child, logs = [] }) => {
   );
 };
 
-export const QuickMetricsGrid = ({ logs = [] }) => {
+export const QuickMetricsGrid = ({
+  logs = []
+}) => {
   const metrics = useMemo(() => {
     const total = logs.length;
-    const aceitos = logs.filter((log) => log.reacao === 1).length;
 
-    const feedbacksTextura = logs.flatMap((log) =>
-      (log.feedbacks || []).filter(
-        (feedback) => feedback.atributo?.toUpperCase() === 'TEXTURA'
-      )
-    );
-
-    const texturaNaoGostou = feedbacksTextura.filter(
-      (feedback) => feedback.gostou === false
+    const aceitos = logs.filter(
+      (log) => log.reacao === 1
     ).length;
 
-    const taxaAceitacao = total > 0
-      ? ((aceitos / total) * 100).toFixed(1)
-      : '0.0';
+    const feedbacksTextura = logs.flatMap(
+      (log) =>
+        (log.feedbacks || []).filter(
+          (feedback) =>
+            feedback.atributo?.toUpperCase() ===
+            'TEXTURA'
+        )
+    );
 
-    const taxaRejeicaoTextura = feedbacksTextura.length > 0
-      ? ((texturaNaoGostou / feedbacksTextura.length) * 100).toFixed(1)
-      : '0.0';
+    const texturaNaoGostou =
+      feedbacksTextura.filter(
+        (feedback) => feedback.gostou === false
+      ).length;
+
+    const taxaAceitacao =
+      total > 0
+        ? ((aceitos / total) * 100).toFixed(1)
+        : '0.0';
+
+    const taxaRejeicaoTextura =
+      feedbacksTextura.length > 0
+        ? (
+          (texturaNaoGostou /
+            feedbacksTextura.length) *
+          100
+        ).toFixed(1)
+        : '0.0';
 
     return [
       {
@@ -146,9 +279,16 @@ export const QuickMetricsGrid = ({ logs = [] }) => {
   return (
     <View className="flex-row flex-wrap gap-4 h-full content-center">
       {metrics.map((item, i) => (
-        <View key={i} className="w-[45%] flex-row items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+        <View
+          key={i}
+          className="w-[45%] flex-row items-center bg-gray-50 p-2 rounded-lg border border-gray-100"
+        >
           <View className="w-8 h-8 rounded-full bg-[#EAF3E2] items-center justify-center mr-2">
-            <Feather name={item.icon} size={14} color="#528F33" />
+            <Feather
+              name={item.icon}
+              size={14}
+              color="#528F33"
+            />
           </View>
 
           <View>
@@ -166,12 +306,15 @@ export const QuickMetricsGrid = ({ logs = [] }) => {
   );
 };
 
-export const SensoryMatrixWidget = ({ logs = [] }) => {
+export const SensoryMatrixWidget = ({
+  logs = []
+}) => {
   const rows = useMemo(() => {
     const stats = {};
 
     logs.forEach((log) => {
-      const textura = log.alimento?.textura?.trim();
+      const textura =
+        log.alimento?.textura?.trim();
 
       if (!textura) return;
 
@@ -194,9 +337,14 @@ export const SensoryMatrixWidget = ({ logs = [] }) => {
         tex: textura,
         exp: data.exposure,
         aceit: data.accepted,
-        taxa: data.exposure > 0
-          ? `${((data.accepted / data.exposure) * 100).toFixed(1)}%`
-          : '0.0%',
+        taxa:
+          data.exposure > 0
+            ? `${(
+              (data.accepted /
+                data.exposure) *
+              100
+            ).toFixed(1)}%`
+            : '0.0%',
       }))
       .sort((a, b) => b.exp - a.exp);
   }, [logs]);
@@ -253,13 +401,21 @@ export const SensoryMatrixWidget = ({ logs = [] }) => {
   );
 };
 
-export const HorizontalBarChart = ({ data = [], positive }) => (
+export const HorizontalBarChart = ({
+  data = [],
+  positive
+}) => (
   <View className="flex-col gap-3">
     {data.length > 0 ? (
       data.map((item, i) => (
-        <View key={i} className="flex-row items-center justify-between">
+        <View
+          key={i}
+          className="flex-row items-center justify-between"
+        >
           <View className="flex-row items-center w-20">
-            <Text className="text-[14px] mr-2">{item.emoji}</Text>
+            <Text className="text-[14px] mr-2">
+              {getFoodEmoji(item.category)}
+            </Text>
 
             <Text className="text-[12px] font-medium text-[#4B5563]">
               {item.name}
@@ -268,8 +424,13 @@ export const HorizontalBarChart = ({ data = [], positive }) => (
 
           <View className="flex-1 mx-3 h-2.5 bg-gray-100 rounded-full overflow-hidden">
             <View
-              className={`h-full ${positive ? 'bg-[#528F33]' : 'bg-[#D9534F]'}`}
-              style={{ width: item.value }}
+              className={`h-full ${positive
+                  ? 'bg-[#528F33]'
+                  : 'bg-[#D9534F]'
+                }`}
+              style={{
+                width: item.value,
+              }}
             />
           </View>
 
@@ -286,7 +447,183 @@ export const HorizontalBarChart = ({ data = [], positive }) => (
   </View>
 );
 
-export const RepertoireWidget = ({ logs = [] }) => {
+export const BehavioralFactorsWidget = ({
+  logs = []
+}) => {
+  const factors = useMemo(() => {
+    const resultado = [];
+
+    if (!logs.length) return resultado;
+
+    const origemStats = {};
+
+    logs.forEach((log) => {
+      const origem =
+        log.origem?.trim() || 'Não informada';
+
+      if (!origemStats[origem]) {
+        origemStats[origem] = {
+          total: 0,
+          rejected: 0,
+        };
+      }
+
+      origemStats[origem].total += 1;
+
+      if (log.reacao === 2) {
+        origemStats[origem].rejected += 1;
+      }
+    });
+
+    const origemComMaiorRejeicao =
+      Object.entries(origemStats)
+        .map(([origem, data]) => ({
+          origem,
+          taxa:
+            data.total > 0
+              ? (data.rejected / data.total) * 100
+              : 0,
+        }))
+        .sort((a, b) => b.taxa - a.taxa)[0];
+
+    if (
+      origemComMaiorRejeicao &&
+      origemComMaiorRejeicao.taxa > 0
+    ) {
+      resultado.push({
+        color: 'red',
+        text: `Maior taxa de rejeição na origem ${formatarOrigem(
+          origemComMaiorRejeicao.origem
+        )}: ${origemComMaiorRejeicao.taxa.toFixed(1)}%.`,
+      });
+    }
+
+    const horarioStats = {};
+
+    logs.forEach((log) => {
+      if (log.reacao !== 2) return;
+
+      const date = new Date(log.timestamp);
+
+      if (Number.isNaN(date.getTime())) return;
+
+      const hora = date.getHours();
+
+      if (!horarioStats[hora]) {
+        horarioStats[hora] = 0;
+      }
+
+      horarioStats[hora] += 1;
+    });
+
+    const horarioMaiorRejeicao =
+      Object.entries(horarioStats).sort(
+        (a, b) => b[1] - a[1]
+      )[0];
+
+    if (horarioMaiorRejeicao) {
+      const hora = Number(horarioMaiorRejeicao[0]);
+
+      resultado.push({
+        color: 'yellow',
+        text: `Maior concentração de rejeições registrada por volta das ${String(
+          hora
+        ).padStart(2, '0')}h.`,
+      });
+    }
+
+    const feedbackStats = {};
+
+    logs.forEach((log) => {
+      (log.feedbacks || []).forEach((feedback) => {
+        const atributo =
+          feedback.atributo?.trim();
+
+        if (!atributo) return;
+
+        const key = atributo.toUpperCase();
+
+        if (!feedbackStats[key]) {
+          feedbackStats[key] = {
+            total: 0,
+            rejected: 0,
+          };
+        }
+
+        feedbackStats[key].total += 1;
+
+        if (feedback.gostou === false) {
+          feedbackStats[key].rejected += 1;
+        }
+      });
+    });
+
+    const maiorRejeicaoSensorial =
+      Object.entries(feedbackStats)
+        .map(([atributo, data]) => ({
+          atributo,
+          taxa:
+            data.total > 0
+              ? (data.rejected / data.total) * 100
+              : 0,
+        }))
+        .sort((a, b) => b.taxa - a.taxa)[0];
+
+    if (
+      maiorRejeicaoSensorial &&
+      maiorRejeicaoSensorial.taxa > 0
+    ) {
+      resultado.push({
+        color: 'green',
+        text: `O atributo sensorial com maior taxa de rejeição foi ${formatarAtributo(
+          maiorRejeicaoSensorial.atributo
+        )}, com ${maiorRejeicaoSensorial.taxa.toFixed(1)}%.`,
+      });
+    }
+
+    return resultado.slice(0, 3);
+  }, [logs]);
+
+  if (!factors.length) {
+    return (
+      <Text className="text-[13px] text-[#6B7280] text-center py-4">
+        Não existem dados comportamentais suficientes para gerar indicadores.
+      </Text>
+    );
+  }
+
+  return (
+    <View className="flex-col gap-3 mt-1">
+      {factors.map((factor, index) => {
+        const dotClass =
+          factor.color === 'red'
+            ? 'bg-red-400'
+            : factor.color === 'yellow'
+              ? 'bg-yellow-500'
+              : 'bg-green-500';
+
+        return (
+          <View
+            key={index}
+            className="flex-row items-start"
+          >
+            <View
+              className={`w-2 h-2 rounded-full mt-1.5 mr-2 ${dotClass}`}
+            />
+
+            <Text className="text-[13px] text-[#4B5563] flex-1">
+              {factor.text}
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+};
+
+export const RepertoireWidget = ({
+  logs = []
+}) => {
   const repertoire = useMemo(() => {
     const foods = {};
 
@@ -298,6 +635,7 @@ export const RepertoireWidget = ({ logs = [] }) => {
       if (!foods[food.id]) {
         foods[food.id] = {
           name: food.nome,
+          category: food.categoria,
           accepted: 0,
           rejected: 0,
           total: 0,
@@ -319,11 +657,15 @@ export const RepertoireWidget = ({ logs = [] }) => {
   }, [logs]);
 
   const conforto = repertoire.filter(
-    (food) => food.total > 0 && food.accepted === food.total
+    (food) =>
+      food.total > 0 &&
+      food.accepted === food.total
   );
 
   const rejeitados = repertoire.filter(
-    (food) => food.rejected === food.total
+    (food) =>
+      food.total > 0 &&
+      food.rejected === food.total
   );
 
   return (
@@ -341,6 +683,7 @@ export const RepertoireWidget = ({ logs = [] }) => {
                 className="bg-[#EAF3E2] px-3 py-1.5 rounded-lg border border-[#A3C78B]"
               >
                 <Text className="text-[11px] font-bold text-[#528F33]">
+                  {getFoodEmoji(food.category)}{' '}
                   {food.name}
                 </Text>
               </View>
@@ -366,6 +709,7 @@ export const RepertoireWidget = ({ logs = [] }) => {
                 className="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200"
               >
                 <Text className="text-[11px] font-bold text-blue-600">
+                  {getFoodEmoji(food.category)}{' '}
                   {food.name}
                 </Text>
               </View>
@@ -391,6 +735,7 @@ export const RepertoireWidget = ({ logs = [] }) => {
                 className="bg-white px-3 py-1.5 rounded-lg border border-red-200"
               >
                 <Text className="text-[11px] font-bold text-[#D9534F]">
+                  {getFoodEmoji(food.category)}{' '}
                   {food.name}
                 </Text>
               </View>
@@ -409,7 +754,11 @@ export const RepertoireWidget = ({ logs = [] }) => {
 export const EditableNotesWidget = () => (
   <View className="flex-1">
     <View className="flex-row items-center mb-3">
-      <Feather name="edit-3" size={16} color="#528F33" />
+      <Feather
+        name="edit-3"
+        size={16}
+        color="#528F33"
+      />
 
       <Text className="text-[12px] font-bold text-[#528F33] uppercase ml-2">
         Parecer Clínico e Conduta
@@ -425,3 +774,37 @@ export const EditableNotesWidget = () => (
     />
   </View>
 );
+
+export const SignatureWidget = ({
+  professional
+}) => {
+  const nome =
+    professional?.nome ||
+    professional?.name ||
+    'Profissional não identificado';
+
+  return (
+    <>
+      <Feather
+        name="check-circle"
+        size={32}
+        color="#528F33"
+        className="mb-3"
+      />
+
+      <Text className="text-[14px] font-bold text-[#212134] text-center">
+        {nome}
+      </Text>
+
+      <Text className="text-[12px] text-[#6B7280] mb-3 text-center">
+        Profissional responsável
+      </Text>
+
+      <View className="bg-white px-3 py-1.5 rounded border border-[#A3C78B]">
+        <Text className="text-[10px] font-bold text-[#528F33]">
+          AtipicTouch
+        </Text>
+      </View>
+    </>
+  );
+};
