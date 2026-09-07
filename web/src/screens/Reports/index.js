@@ -98,17 +98,58 @@ export default function ReportsScreen() {
     }
   };
 
-  const maisAceitos = [
-    { emoji: '🍌', name: 'Banana', value: '92%' },
-    { emoji: '🍎', name: 'Maçã', value: '87%' },
-    { emoji: '🍚', name: 'Arroz', value: '83%' },
-  ];
+  const calcularAceitacao = (logs) => {
+    const stats = {};
 
-  const menosAceitos = [
-    { emoji: '🥦', name: 'Brócolis', value: '82%' },
-    { emoji: '🫑', name: 'Pimentão', value: '58%' },
-    { emoji: '🥔', name: 'Purê', value: '95%' },
-  ];
+    logs.forEach((log) => {
+      const food = log.alimento;
+
+      if (!food?.id) return;
+
+      if (!stats[food.id]) {
+        stats[food.id] = {
+          name: food.nome,
+          total: 0,
+          accepted: 0,
+          rejected: 0,
+        };
+      }
+
+      stats[food.id].total += 1;
+
+      if (log.reacao === 1) {
+        stats[food.id].accepted += 1;
+      }
+
+      if (log.reacao === 2) {
+        stats[food.id].rejected += 1;
+      }
+    });
+
+    return Object.values(stats);
+  };
+
+  const foodStats = calcularAceitacao(logs);
+
+  const maisAceitos = foodStats
+    .filter((food) => food.accepted > 0)
+    .map((food) => ({
+      emoji: '🍽️',
+      name: food.name,
+      value: `${((food.accepted / food.total) * 100).toFixed(1)}%`,
+    }))
+    .sort((a, b) => parseFloat(b.value) - parseFloat(a.value))
+    .slice(0, 3);
+
+  const menosAceitos = foodStats
+    .filter((food) => food.rejected > 0)
+    .map((food) => ({
+      emoji: '🍽️',
+      name: food.name,
+      value: `${((food.rejected / food.total) * 100).toFixed(1)}%`,
+    }))
+    .sort((a, b) => parseFloat(b.value) - parseFloat(a.value))
+    .slice(0, 3);
 
   if (loading) {
     return (
@@ -182,15 +223,18 @@ export default function ReportsScreen() {
         </View>
 
         <View className="w-full max-w-[1200px] self-center flex-col gap-5 mb-20">
-          <PatientSummaryWidget />
+          <PatientSummaryWidget
+            child={selectedChild}
+            logs={logs}
+          />
 
           <View className="flex-col lg:flex-row gap-5">
             <ReportCard title="1. Métricas de Exposição" flexClass="flex-[1]">
-              <QuickMetricsGrid />
+              <QuickMetricsGrid logs={logs} />
             </ReportCard>
 
             <ReportCard title="2. Matriz de Aceitação Sensorial" flexClass="flex-[2]">
-              <SensoryMatrixWidget />
+              <SensoryMatrixWidget logs={logs} />
             </ReportCard>
           </View>
 
@@ -230,7 +274,7 @@ export default function ReportsScreen() {
           </View>
 
           <ReportCard title="6. Mapeamento do Repertório Alimentar">
-            <RepertoireWidget />
+            <RepertoireWidget logs={logs} />
           </ReportCard>
 
           <View className="flex-col lg:flex-row gap-5">
