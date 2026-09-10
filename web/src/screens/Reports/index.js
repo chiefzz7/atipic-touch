@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Platform,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
@@ -24,9 +25,9 @@ import {
 import Footer from '../../components/ui/Footer';
 
 import useReportData from '../../hooks/useReportData';
+import usePeriodFilter from '../../hooks/usePeriodFilter';
 
 import {
-  calcularPeriodo,
   calcularFoodStats,
   calcularMaisAceitos,
   calcularMenosAceitos,
@@ -42,21 +43,77 @@ export default function ReportsScreen() {
     carregarDados,
   } = useReportData();
 
-  const periodo = calcularPeriodo(logs);
+  const {
+    periodType,
+    selectedDate,
+    logsFiltrados,
+    setSelectedDate,
+    formatPeriod,
+    selecionarPeriodo,
+  } = usePeriodFilter(logs);
 
-  const foodStats =
-    calcularFoodStats(logs);
+  const [showPeriodModal, setShowPeriodModal] = useState(false);
 
-  const maisAceitos =
-    calcularMaisAceitos(foodStats);
+  useEffect(() => {
+    if (logs.length === 0) {
+      return;
+    }
 
-  const menosAceitos =
-    calcularMenosAceitos(foodStats);
+    const latestLog = [...logs]
+      .filter(log => log.timestamp)
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp) - new Date(a.timestamp)
+      )[0];
+
+    if (latestLog) {
+      setSelectedDate(new Date(latestLog.timestamp));
+    }
+  }, [logs, setSelectedDate]);
+
+  const foodStats = calcularFoodStats(logsFiltrados);
+
+  const maisAceitos = calcularMaisAceitos(foodStats);
+
+  const menosAceitos = calcularMenosAceitos(foodStats);
 
   const handlePrint = () => {
     if (Platform.OS === 'web') {
       window.print();
     }
+  };
+
+  const selecionarPeriodoReports = type => {
+    selecionarPeriodo(type);
+    setShowPeriodModal(false);
+  };
+
+  const navegarPeriodo = direction => {
+    if (periodType === 'all' || !selectedDate) {
+      return;
+    }
+
+    const nextDate = new Date(selectedDate);
+
+    if (periodType === 'day') {
+      nextDate.setDate(
+        nextDate.getDate() + direction
+      );
+    }
+
+    if (periodType === 'week') {
+      nextDate.setDate(
+        nextDate.getDate() + direction * 7
+      );
+    }
+
+    if (periodType === 'month') {
+      nextDate.setMonth(
+        nextDate.getMonth() + direction
+      );
+    }
+
+    setSelectedDate(nextDate);
   };
 
   if (loading) {
@@ -125,7 +182,10 @@ export default function ReportsScreen() {
           </View>
 
           <View className="flex-row gap-3">
-            <View className="flex-row items-center bg-white border border-[#A3C78B] px-4 py-2.5 rounded-xl shadow-sm">
+            <TouchableOpacity
+              onPress={() => setShowPeriodModal(true)}
+              className="flex-row items-center bg-white border border-[#A3C78B] px-4 py-2.5 rounded-xl shadow-sm"
+            >
               <Feather
                 name="calendar"
                 size={16}
@@ -133,9 +193,16 @@ export default function ReportsScreen() {
               />
 
               <Text className="ml-2 text-[14px] font-bold text-[#528F33]">
-                {periodo}
+                {formatPeriod()}
               </Text>
-            </View>
+
+              <Feather
+                name="chevron-down"
+                size={14}
+                color="#528F33"
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handlePrint}
@@ -154,10 +221,223 @@ export default function ReportsScreen() {
           </View>
         </View>
 
+        <View className="flex-row items-center justify-center gap-2 mb-6 print:hidden">
+          <TouchableOpacity
+            onPress={() => navegarPeriodo(-1)}
+            disabled={periodType === 'all'}
+            className={`w-10 h-10 rounded-xl items-center justify-center border ${
+              periodType === 'all'
+                ? 'bg-gray-100 border-gray-200'
+                : 'bg-white border-gray-200'
+            }`}
+          >
+            <Feather
+              name="chevron-left"
+              size={20}
+              color={
+                periodType === 'all'
+                  ? '#D1D5DB'
+                  : '#528F33'
+              }
+            />
+          </TouchableOpacity>
+
+          <View className="min-w-[220px] items-center px-4 py-2">
+            <Text className="text-[15px] font-bold text-[#212134]">
+              {formatPeriod()}
+            </Text>
+
+            {periodType !== 'all' && (
+              <Text className="text-[11px] text-[#6B7280] mt-1">
+                Use as setas para navegar entre períodos
+              </Text>
+            )}
+          </View>
+
+          <TouchableOpacity
+            onPress={() => navegarPeriodo(1)}
+            disabled={periodType === 'all'}
+            className={`w-10 h-10 rounded-xl items-center justify-center border ${
+              periodType === 'all'
+                ? 'bg-gray-100 border-gray-200'
+                : 'bg-white border-gray-200'
+            }`}
+          >
+            <Feather
+              name="chevron-right"
+              size={20}
+              color={
+                periodType === 'all'
+                  ? '#D1D5DB'
+                  : '#528F33'
+              }
+            />
+          </TouchableOpacity>
+        </View>
+
+        <Modal
+          visible={showPeriodModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowPeriodModal(false)}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => setShowPeriodModal(false)}
+            className="flex-1 bg-black/30 items-center justify-center p-6"
+          >
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => {}}
+              className="bg-white rounded-2xl w-full max-w-[420px] p-6 shadow-lg"
+            >
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="text-[18px] font-bold text-[#212134]">
+                  Selecionar período
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setShowPeriodModal(false)}
+                >
+                  <Feather
+                    name="x"
+                    size={20}
+                    color="#6B7280"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                onPress={() =>
+                  selecionarPeriodoReports('day')
+                }
+                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
+                  periodType === 'day'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="calendar"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Dia
+                  </Text>
+                </View>
+
+                {periodType === 'day' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() =>
+                  selecionarPeriodoReports('week')
+                }
+                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
+                  periodType === 'week'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="calendar"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Semana
+                  </Text>
+                </View>
+
+                {periodType === 'week' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() =>
+                  selecionarPeriodoReports('month')
+                }
+                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
+                  periodType === 'month'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="calendar"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Mês
+                  </Text>
+                </View>
+
+                {periodType === 'month' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() =>
+                  selecionarPeriodoReports('all')
+                }
+                className={`flex-row items-center justify-between p-4 rounded-xl border ${
+                  periodType === 'all'
+                    ? 'bg-[#F1F7EC] border-[#528F33]'
+                    : 'bg-white border-gray-200'
+                }`}
+              >
+                <View className="flex-row items-center">
+                  <Feather
+                    name="list"
+                    size={18}
+                    color="#528F33"
+                  />
+
+                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
+                    Todos os registros
+                  </Text>
+                </View>
+
+                {periodType === 'all' && (
+                  <Feather
+                    name="check"
+                    size={18}
+                    color="#528F33"
+                  />
+                )}
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </Modal>
+
         <View className="w-full max-w-[1200px] self-center flex-col gap-5 mb-20">
           <PatientSummaryWidget
             child={selectedChild}
-            logs={logs}
+            logs={logsFiltrados}
           />
 
           <View className="flex-col lg:flex-row gap-5">
@@ -166,7 +446,7 @@ export default function ReportsScreen() {
               flexClass="flex-[1]"
             >
               <QuickMetricsGrid
-                logs={logs}
+                logs={logsFiltrados}
               />
             </ReportCard>
 
@@ -175,7 +455,7 @@ export default function ReportsScreen() {
               flexClass="flex-[2]"
             >
               <SensoryMatrixWidget
-                logs={logs}
+                logs={logsFiltrados}
               />
             </ReportCard>
           </View>
@@ -206,14 +486,14 @@ export default function ReportsScreen() {
               flexClass="flex-[1.2]"
             >
               <BehavioralFactorsWidget
-                logs={logs}
+                logs={logsFiltrados}
               />
             </ReportCard>
           </View>
 
           <ReportCard title="6. Mapeamento do Repertório Alimentar">
             <RepertoireWidget
-              logs={logs}
+              logs={logsFiltrados}
             />
           </ReportCard>
 
