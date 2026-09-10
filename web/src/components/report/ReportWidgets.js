@@ -1,11 +1,21 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+
+import {
+  calcularIdade,
+  calcularResumo,
+  calcularMetricas,
+  calcularMatrizSensorial,
+  calcularFatoresComportamentais,
+  calcularRepertorio,
+} from '../../utils/reports';
 
 const getFoodEmoji = (category) => {
   if (!category) return '🍽️';
 
-  const normalized = category.trim().toLowerCase();
+  const normalized =
+    category.trim().toLowerCase();
 
   const emojis = {
     fruta: '🍎',
@@ -31,40 +41,10 @@ const getFoodEmoji = (category) => {
   return emojis[normalized] || '🍽️';
 };
 
-const formatarOrigem = (origem) => {
-  if (!origem) return 'Origem não informada';
-
-  const normalized = origem.trim().toUpperCase();
-
-  const labels = {
-    MANUAL: 'Registro manual',
-    IOT: 'Registro IoT',
-    SENSOR: 'Registro por sensor',
-  };
-
-  return labels[normalized] || origem;
-};
-
-const formatarAtributo = (atributo) => {
-  if (!atributo) return 'Atributo não informado';
-
-  const normalized = atributo.trim().toUpperCase();
-
-  const labels = {
-    TEXTURA: 'Textura',
-    SABOR: 'Sabor',
-    CHEIRO: 'Cheiro',
-    TEMPERATURA: 'Temperatura',
-    COR: 'Cor',
-  };
-
-  return labels[normalized] || atributo;
-};
-
 export const ReportCard = ({
   title,
   children,
-  flexClass = 'flex-1'
+  flexClass = 'flex-1',
 }) => (
   <View
     className={`bg-white border border-[#A3C78B] rounded-2xl p-5 shadow-sm ${flexClass}`}
@@ -81,67 +61,13 @@ export const ReportCard = ({
 
 export const PatientSummaryWidget = ({
   child,
-  logs = []
+  logs = [],
 }) => {
-  const idade = useMemo(() => {
-    if (!child?.dataNascimento) return '—';
+  const idade = calcularIdade(
+    child?.dataNascimento
+  );
 
-    const nascimento = new Date(
-      `${child.dataNascimento}T00:00:00`
-    );
-
-    const hoje = new Date();
-
-    let anos =
-      hoje.getFullYear() -
-      nascimento.getFullYear();
-
-    let meses =
-      hoje.getMonth() -
-      nascimento.getMonth();
-
-    if (hoje.getDate() < nascimento.getDate()) {
-      meses -= 1;
-    }
-
-    if (meses < 0) {
-      anos -= 1;
-      meses += 12;
-    }
-
-    return `${anos} ${anos === 1 ? 'Ano' : 'Anos'
-      } e ${meses} ${meses === 1 ? 'mês' : 'meses'
-      }`;
-  }, [child]);
-
-  const resumo = useMemo(() => {
-    const total = logs.length;
-
-    const aceitos = logs.filter(
-      (log) => log.reacao === 1
-    ).length;
-
-    const rejeitados = logs.filter(
-      (log) => log.reacao === 2
-    ).length;
-
-    const neutros = logs.filter(
-      (log) => log.reacao === 3
-    ).length;
-
-    const taxaAceitacao =
-      total > 0
-        ? ((aceitos / total) * 100).toFixed(1)
-        : '0.0';
-
-    return {
-      total,
-      aceitos,
-      rejeitados,
-      neutros,
-      taxaAceitacao,
-    };
-  }, [logs]);
+  const resumo = calcularResumo(logs);
 
   return (
     <View className="flex-col md:flex-row bg-[#F2F7ED] border border-[#A3C78B] rounded-2xl mb-4 shadow-sm">
@@ -215,66 +141,9 @@ export const PatientSummaryWidget = ({
 };
 
 export const QuickMetricsGrid = ({
-  logs = []
+  logs = [],
 }) => {
-  const metrics = useMemo(() => {
-    const total = logs.length;
-
-    const aceitos = logs.filter(
-      (log) => log.reacao === 1
-    ).length;
-
-    const feedbacksTextura = logs.flatMap(
-      (log) =>
-        (log.feedbacks || []).filter(
-          (feedback) =>
-            feedback.atributo?.toUpperCase() ===
-            'TEXTURA'
-        )
-    );
-
-    const texturaNaoGostou =
-      feedbacksTextura.filter(
-        (feedback) => feedback.gostou === false
-      ).length;
-
-    const taxaAceitacao =
-      total > 0
-        ? ((aceitos / total) * 100).toFixed(1)
-        : '0.0';
-
-    const taxaRejeicaoTextura =
-      feedbacksTextura.length > 0
-        ? (
-          (texturaNaoGostou /
-            feedbacksTextura.length) *
-          100
-        ).toFixed(1)
-        : '0.0';
-
-    return [
-      {
-        icon: 'calendar',
-        label: 'Registros',
-        value: total,
-      },
-      {
-        icon: 'clock',
-        label: 'Tempo Médio',
-        value: '—',
-      },
-      {
-        icon: 'check-circle',
-        label: 'Aceitação',
-        value: `${taxaAceitacao}%`,
-      },
-      {
-        icon: 'alert-triangle',
-        label: 'Rejeição Tátil',
-        value: `${taxaRejeicaoTextura}%`,
-      },
-    ];
-  }, [logs]);
+  const metrics = calcularMetricas(logs);
 
   return (
     <View className="flex-row flex-wrap gap-4 h-full content-center">
@@ -307,51 +176,14 @@ export const QuickMetricsGrid = ({
 };
 
 export const SensoryMatrixWidget = ({
-  logs = []
+  logs = [],
 }) => {
-  const rows = useMemo(() => {
-    const stats = {};
-
-    logs.forEach((log) => {
-      const textura =
-        log.alimento?.textura?.trim();
-
-      if (!textura) return;
-
-      if (!stats[textura]) {
-        stats[textura] = {
-          exposure: 0,
-          accepted: 0,
-        };
-      }
-
-      stats[textura].exposure += 1;
-
-      if (log.reacao === 1) {
-        stats[textura].accepted += 1;
-      }
-    });
-
-    return Object.entries(stats)
-      .map(([textura, data]) => ({
-        tex: textura,
-        exp: data.exposure,
-        aceit: data.accepted,
-        taxa:
-          data.exposure > 0
-            ? `${(
-              (data.accepted /
-                data.exposure) *
-              100
-            ).toFixed(1)}%`
-            : '0.0%',
-      }))
-      .sort((a, b) => b.exp - a.exp);
-  }, [logs]);
+  const rows =
+    calcularMatrizSensorial(logs);
 
   return (
     <View className="flex-col w-full">
-      <View className="flex-row border-b border-[#A3C78B] pb-2 mb-2 bg-[#F2F7ED] p-2 rounded-t-lg hidden md:flex-row">
+      <View className="flex-row border-b border-[#A3C78B] pb-2 mb-2 bg-[#F2F7ED] p-2 rounded-t-lg">
         <Text className="flex-[1.5] text-[11px] font-bold text-[#528F33] uppercase">
           Textura
         </Text>
@@ -373,7 +205,7 @@ export const SensoryMatrixWidget = ({
         rows.map((row, i) => (
           <View
             key={i}
-            className="flex-col md:flex-row border-b border-gray-100 py-2 px-2 last:border-0 hover:bg-gray-50 transition-colors"
+            className="flex-row border-b border-gray-100 py-2 px-2 last:border-0 hover:bg-gray-50 transition-colors"
           >
             <Text className="flex-[1.5] text-[12px] font-bold text-[#4B5563]">
               {row.tex}
@@ -403,7 +235,7 @@ export const SensoryMatrixWidget = ({
 
 export const HorizontalBarChart = ({
   data = [],
-  positive
+  positive,
 }) => (
   <View className="flex-col gap-3">
     {data.length > 0 ? (
@@ -424,10 +256,11 @@ export const HorizontalBarChart = ({
 
           <View className="flex-1 mx-3 h-2.5 bg-gray-100 rounded-full overflow-hidden">
             <View
-              className={`h-full ${positive
+              className={`h-full ${
+                positive
                   ? 'bg-[#528F33]'
                   : 'bg-[#D9534F]'
-                }`}
+              }`}
               style={{
                 width: item.value,
               }}
@@ -448,141 +281,10 @@ export const HorizontalBarChart = ({
 );
 
 export const BehavioralFactorsWidget = ({
-  logs = []
+  logs = [],
 }) => {
-  const factors = useMemo(() => {
-    const resultado = [];
-
-    if (!logs.length) return resultado;
-
-    const origemStats = {};
-
-    logs.forEach((log) => {
-      const origem =
-        log.origem?.trim() || 'Não informada';
-
-      if (!origemStats[origem]) {
-        origemStats[origem] = {
-          total: 0,
-          rejected: 0,
-        };
-      }
-
-      origemStats[origem].total += 1;
-
-      if (log.reacao === 2) {
-        origemStats[origem].rejected += 1;
-      }
-    });
-
-    const origemComMaiorRejeicao =
-      Object.entries(origemStats)
-        .map(([origem, data]) => ({
-          origem,
-          taxa:
-            data.total > 0
-              ? (data.rejected / data.total) * 100
-              : 0,
-        }))
-        .sort((a, b) => b.taxa - a.taxa)[0];
-
-    if (
-      origemComMaiorRejeicao &&
-      origemComMaiorRejeicao.taxa > 0
-    ) {
-      resultado.push({
-        color: 'red',
-        text: `Maior taxa de rejeição na origem ${formatarOrigem(
-          origemComMaiorRejeicao.origem
-        )}: ${origemComMaiorRejeicao.taxa.toFixed(1)}%.`,
-      });
-    }
-
-    const horarioStats = {};
-
-    logs.forEach((log) => {
-      if (log.reacao !== 2) return;
-
-      const date = new Date(log.timestamp);
-
-      if (Number.isNaN(date.getTime())) return;
-
-      const hora = date.getHours();
-
-      if (!horarioStats[hora]) {
-        horarioStats[hora] = 0;
-      }
-
-      horarioStats[hora] += 1;
-    });
-
-    const horarioMaiorRejeicao =
-      Object.entries(horarioStats).sort(
-        (a, b) => b[1] - a[1]
-      )[0];
-
-    if (horarioMaiorRejeicao) {
-      const hora = Number(horarioMaiorRejeicao[0]);
-
-      resultado.push({
-        color: 'yellow',
-        text: `Maior concentração de rejeições registrada por volta das ${String(
-          hora
-        ).padStart(2, '0')}h.`,
-      });
-    }
-
-    const feedbackStats = {};
-
-    logs.forEach((log) => {
-      (log.feedbacks || []).forEach((feedback) => {
-        const atributo =
-          feedback.atributo?.trim();
-
-        if (!atributo) return;
-
-        const key = atributo.toUpperCase();
-
-        if (!feedbackStats[key]) {
-          feedbackStats[key] = {
-            total: 0,
-            rejected: 0,
-          };
-        }
-
-        feedbackStats[key].total += 1;
-
-        if (feedback.gostou === false) {
-          feedbackStats[key].rejected += 1;
-        }
-      });
-    });
-
-    const maiorRejeicaoSensorial =
-      Object.entries(feedbackStats)
-        .map(([atributo, data]) => ({
-          atributo,
-          taxa:
-            data.total > 0
-              ? (data.rejected / data.total) * 100
-              : 0,
-        }))
-        .sort((a, b) => b.taxa - a.taxa)[0];
-
-    if (
-      maiorRejeicaoSensorial &&
-      maiorRejeicaoSensorial.taxa > 0
-    ) {
-      resultado.push({
-        color: 'green',
-        text: `O atributo sensorial com maior taxa de rejeição foi ${formatarAtributo(
-          maiorRejeicaoSensorial.atributo
-        )}, com ${maiorRejeicaoSensorial.taxa.toFixed(1)}%.`,
-      });
-    }
-
-    return resultado.slice(0, 3);
-  }, [logs]);
+  const factors =
+    calcularFatoresComportamentais(logs);
 
   if (!factors.length) {
     return (
@@ -599,8 +301,8 @@ export const BehavioralFactorsWidget = ({
           factor.color === 'red'
             ? 'bg-red-400'
             : factor.color === 'yellow'
-              ? 'bg-yellow-500'
-              : 'bg-green-500';
+            ? 'bg-yellow-500'
+            : 'bg-green-500';
 
         return (
           <View
@@ -622,51 +324,13 @@ export const BehavioralFactorsWidget = ({
 };
 
 export const RepertoireWidget = ({
-  logs = []
+  logs = [],
 }) => {
-  const repertoire = useMemo(() => {
-    const foods = {};
-
-    logs.forEach((log) => {
-      const food = log.alimento;
-
-      if (!food?.nome) return;
-
-      if (!foods[food.id]) {
-        foods[food.id] = {
-          name: food.nome,
-          category: food.categoria,
-          accepted: 0,
-          rejected: 0,
-          total: 0,
-        };
-      }
-
-      foods[food.id].total += 1;
-
-      if (log.reacao === 1) {
-        foods[food.id].accepted += 1;
-      }
-
-      if (log.reacao === 2) {
-        foods[food.id].rejected += 1;
-      }
-    });
-
-    return Object.values(foods);
-  }, [logs]);
-
-  const conforto = repertoire.filter(
-    (food) =>
-      food.total > 0 &&
-      food.accepted === food.total
-  );
-
-  const rejeitados = repertoire.filter(
-    (food) =>
-      food.total > 0 &&
-      food.rejected === food.total
-  );
+  const {
+    repertoire,
+    conforto,
+    rejeitados,
+  } = calcularRepertorio(logs);
 
   return (
     <View className="flex-col lg:flex-row gap-4 mt-2">
@@ -683,7 +347,9 @@ export const RepertoireWidget = ({
                 className="bg-[#EAF3E2] px-3 py-1.5 rounded-lg border border-[#A3C78B]"
               >
                 <Text className="text-[11px] font-bold text-[#528F33]">
-                  {getFoodEmoji(food.category)}{' '}
+                  {getFoodEmoji(
+                    food.category
+                  )}{' '}
                   {food.name}
                 </Text>
               </View>
@@ -709,7 +375,9 @@ export const RepertoireWidget = ({
                 className="bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200"
               >
                 <Text className="text-[11px] font-bold text-blue-600">
-                  {getFoodEmoji(food.category)}{' '}
+                  {getFoodEmoji(
+                    food.category
+                  )}{' '}
                   {food.name}
                 </Text>
               </View>
@@ -735,7 +403,9 @@ export const RepertoireWidget = ({
                 className="bg-white px-3 py-1.5 rounded-lg border border-red-200"
               >
                 <Text className="text-[11px] font-bold text-[#D9534F]">
-                  {getFoodEmoji(food.category)}{' '}
+                  {getFoodEmoji(
+                    food.category
+                  )}{' '}
                   {food.name}
                 </Text>
               </View>
@@ -776,7 +446,7 @@ export const EditableNotesWidget = () => (
 );
 
 export const SignatureWidget = ({
-  professional
+  professional,
 }) => {
   const nome =
     professional?.nome ||
