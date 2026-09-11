@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, KeyboardAvoidingView, Platform, ScrollView} from "react-native";
+import { saveSession } from "../../services/auth/auth.js";
+
+const API_URL = "https://atipic-touch-devlop.onrender.com";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -8,6 +11,8 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const isSmallScreen = height < 700;
   const horizontalPadding = 20;
@@ -16,10 +21,50 @@ export default function LoginScreen() {
 
   const titleSize =
     width < 360 ? 34 :
-    width < 600 ? 44 : 52;
+      width < 600 ? 44 : 52;
 
   const labelSize = width < 360 ? 20 : 23;
   const broccoliWidth = Math.min(width * 0.5, 210);
+
+  async function handleLogin() {
+    if (!email.trim() || !password.trim()) {
+      setError("Preencha o e-mail e a senha.");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          senha: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError("E-mail ou senha inválidos.");
+        return;
+      }
+
+      await saveSession(data.access_token);
+
+      router.push("/child-introduction");
+    } catch (error) {
+      setError("Não foi possível conectar ao servidor.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   return (
     <SafeAreaView className="flex-1 bg-[#FFFCEF] overflow-hidden">
@@ -125,14 +170,27 @@ export default function LoginScreen() {
               />
             </View>
 
+            {error ? (
+              <Text
+                className="text-red-700 text-center font-bold"
+                style={{
+                  marginTop: 12,
+                }}
+              >
+                {error}
+              </Text>
+            ) : null}
+
             <TouchableOpacity
-              onPress={() => router.push("/child-introduction")}
+              onPress={handleLogin}
+              disabled={loading}
               activeOpacity={0.8}
               className="items-center justify-center rounded-[7px] bg-[#A3987B]"
               style={{
                 width: Math.min(cardWidth * 0.72, 260),
                 height: 65,
                 marginTop: isSmallScreen ? 25 : 32,
+                opacity: loading ? 0.6 : 1,
               }}
             >
               <Text
@@ -141,7 +199,7 @@ export default function LoginScreen() {
                   fontSize: width < 360 ? 27 : 32,
                 }}
               >
-                Continuar
+                {loading ? "Entrando..." : "Continuar"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -155,7 +213,7 @@ export default function LoginScreen() {
         style={{
           position: "absolute",
           width: broccoliWidth,
-          height: broccoliWidth * 1,
+          height: broccoliWidth,
           left: -width * 0.1,
           bottom: -height * 0.01,
         }}
