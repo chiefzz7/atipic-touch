@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import StatCard from '../../components/ui/StatCard';
+import PeriodDatePicker from '../../components/ui/PeriodDatePicker';
 import AlertsWidget from '../../components/dashboard/AlertsWidget';
 import CombosWidget from '../../components/dashboard/CombosWidget';
 import LogsTableWidget from '../../components/dashboard/LogsTableWidget';
@@ -18,7 +19,7 @@ import {
   BarChartCor,
   RadarChartTextura,
   LineChartEvolucao,
-  ProgressReacoes
+  ProgressReacoes,
 } from '../../components/dashboard/ChartWidgets';
 import Footer from '../../components/ui/Footer';
 import usePeriodFilter from '../../hooks/usePeriodFilter';
@@ -26,13 +27,20 @@ import usePeriodFilter from '../../hooks/usePeriodFilter';
 const API_URL = 'http://localhost:8000';
 
 export default function DashboardScreen() {
-  const [selectedChild, setSelectedChild] = useState(null);
+  const [selectedChild, setSelectedChild] =
+    useState(null);
+
   const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showPeriodModal, setShowPeriodModal] = useState(false);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [showPeriodModal, setShowPeriodModal] =
+    useState(false);
 
   const {
     periodType,
+    selectedDate,
     logsFiltrados,
     setSelectedDate,
     formatPeriod,
@@ -45,19 +53,22 @@ export default function DashboardScreen() {
 
   const carregarDados = async () => {
     try {
-      const childStorage = await AsyncStorage.getItem(
-        '@atipictouch:selected_child'
-      );
+      const childStorage =
+        await AsyncStorage.getItem(
+          '@atipictouch:selected_child'
+        );
 
-      const token = await AsyncStorage.getItem(
-        '@atipictouch:token'
-      );
+      const token =
+        await AsyncStorage.getItem(
+          '@atipictouch:token'
+        );
 
       if (!childStorage || !token) {
         return;
       }
 
-      const child = JSON.parse(childStorage);
+      const child =
+        JSON.parse(childStorage);
 
       setSelectedChild(child);
 
@@ -77,7 +88,8 @@ export default function DashboardScreen() {
         );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       setLogs(data);
 
@@ -86,11 +98,16 @@ export default function DashboardScreen() {
           .filter(log => log.timestamp)
           .sort(
             (a, b) =>
-              new Date(b.timestamp) - new Date(a.timestamp)
+              new Date(b.timestamp) -
+              new Date(a.timestamp)
           )[0];
 
         if (latestLog) {
-          setSelectedDate(new Date(latestLog.timestamp));
+          setSelectedDate(
+            new Date(
+              latestLog.timestamp
+            )
+          );
         }
       }
     } catch (error) {
@@ -103,28 +120,45 @@ export default function DashboardScreen() {
     }
   };
 
-  const selecionarPeriodoDashboard = (type) => {
-    selecionarPeriodo(type);
-    setShowPeriodModal(false);
-  };
+  const selecionarPeriodoDashboard =
+    type => {
+      selecionarPeriodo(type);
 
-  const tentativas = logsFiltrados.length;
+      if (type === 'all') {
+        setShowPeriodModal(false);
+      }
+    };
 
-  const aceitacoes = logsFiltrados.filter(
-    log => log.reacao === 1
-  ).length;
+  const selecionarDataDashboard =
+    date => {
+      setSelectedDate(date);
+      setShowPeriodModal(false);
+    };
 
-  const rejeicoes = logsFiltrados.filter(
-    log => log.reacao === 2
-  ).length;
+  const tentativas =
+    logsFiltrados.length;
 
-  const neutros = logsFiltrados.filter(
-    log => log.reacao === 3
-  ).length;
+  const aceitacoes =
+    logsFiltrados.filter(
+      log => log.reacao === 1
+    ).length;
+
+  const rejeicoes =
+    logsFiltrados.filter(
+      log => log.reacao === 2
+    ).length;
+
+  const neutros =
+    logsFiltrados.filter(
+      log => log.reacao === 3
+    ).length;
 
   const taxaAceitacao =
     tentativas > 0
-      ? ((aceitacoes / tentativas) * 100).toFixed(1)
+      ? (
+          (aceitacoes / tentativas) *
+          100
+        ).toFixed(1)
       : '0.0';
 
   return (
@@ -140,14 +174,17 @@ export default function DashboardScreen() {
               Resumo do paciente{' '}
 
               <Text className="font-bold text-[#212134]">
-                {selectedChild?.nome || 'Carregando...'}
+                {selectedChild?.nome ||
+                  'Carregando...'}
               </Text>
             </Text>
           </View>
 
           <View className="flex-row gap-3">
             <TouchableOpacity
-              onPress={() => setShowPeriodModal(true)}
+              onPress={() =>
+                setShowPeriodModal(true)
+              }
               className="flex-row items-center bg-white border border-gray-200 px-4 py-2.5 rounded-xl shadow-sm"
             >
               <Feather
@@ -164,7 +201,9 @@ export default function DashboardScreen() {
                 name="chevron-down"
                 size={14}
                 color="#9CA3AF"
-                style={{ marginLeft: 8 }}
+                style={{
+                  marginLeft: 8,
+                }}
               />
             </TouchableOpacity>
 
@@ -186,11 +225,15 @@ export default function DashboardScreen() {
           visible={showPeriodModal}
           transparent
           animationType="fade"
-          onRequestClose={() => setShowPeriodModal(false)}
+          onRequestClose={() =>
+            setShowPeriodModal(false)
+          }
         >
           <TouchableOpacity
             activeOpacity={1}
-            onPress={() => setShowPeriodModal(false)}
+            onPress={() =>
+              setShowPeriodModal(false)
+            }
             className="flex-1 bg-black/30 items-center justify-center p-6"
           >
             <TouchableOpacity
@@ -204,7 +247,11 @@ export default function DashboardScreen() {
                 </Text>
 
                 <TouchableOpacity
-                  onPress={() => setShowPeriodModal(false)}
+                  onPress={() =>
+                    setShowPeriodModal(
+                      false
+                    )
+                  }
                 >
                   <Feather
                     name="x"
@@ -215,7 +262,11 @@ export default function DashboardScreen() {
               </View>
 
               <TouchableOpacity
-                onPress={() => selecionarPeriodoDashboard('day')}
+                onPress={() =>
+                  selecionarPeriodoDashboard(
+                    'day'
+                  )
+                }
                 className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
                   periodType === 'day'
                     ? 'bg-[#F1F7EC] border-[#528F33]'
@@ -244,7 +295,11 @@ export default function DashboardScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => selecionarPeriodoDashboard('week')}
+                onPress={() =>
+                  selecionarPeriodoDashboard(
+                    'week'
+                  )
+                }
                 className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
                   periodType === 'week'
                     ? 'bg-[#F1F7EC] border-[#528F33]'
@@ -273,7 +328,11 @@ export default function DashboardScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => selecionarPeriodoDashboard('month')}
+                onPress={() =>
+                  selecionarPeriodoDashboard(
+                    'month'
+                  )
+                }
                 className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
                   periodType === 'month'
                     ? 'bg-[#F1F7EC] border-[#528F33]'
@@ -302,7 +361,11 @@ export default function DashboardScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => selecionarPeriodoDashboard('all')}
+                onPress={() =>
+                  selecionarPeriodoDashboard(
+                    'all'
+                  )
+                }
                 className={`flex-row items-center justify-between p-4 rounded-xl border ${
                   periodType === 'all'
                     ? 'bg-[#F1F7EC] border-[#528F33]'
@@ -329,6 +392,15 @@ export default function DashboardScreen() {
                   />
                 )}
               </TouchableOpacity>
+
+              {periodType !== 'all' && (
+                <PeriodDatePicker
+                  selectedDate={selectedDate}
+                  onChange={
+                    selecionarDataDashboard
+                  }
+                />
+              )}
             </TouchableOpacity>
           </TouchableOpacity>
         </Modal>
@@ -336,36 +408,57 @@ export default function DashboardScreen() {
         <View className="flex-row flex-wrap gap-4 mb-6">
           <StatCard
             title="Tentativas"
-            value={loading ? '...' : tentativas}
+            value={
+              loading
+                ? '...'
+                : tentativas
+            }
             icon="layers"
             color="#528F33"
           />
 
           <StatCard
             title="Aceitações"
-            value={loading ? '...' : aceitacoes}
+            value={
+              loading
+                ? '...'
+                : aceitacoes
+            }
             icon="check-circle"
             color="#528F33"
           />
 
           <StatCard
             title="Rejeições"
-            value={loading ? '...' : rejeicoes}
+            value={
+              loading
+                ? '...'
+                : rejeicoes
+            }
             icon="x-circle"
             color="#D9534F"
           />
 
           <StatCard
             title="Neutros"
-            value={loading ? '...' : neutros}
+            value={
+              loading
+                ? '...'
+                : neutros
+            }
             icon="minus-circle"
             color="#F59E0B"
           />
         </View>
 
         <View className="flex-col lg:flex-row gap-6 mb-10">
-          <AlertsWidget logs={logsFiltrados} />
-          <CombosWidget logs={logsFiltrados} />
+          <AlertsWidget
+            logs={logsFiltrados}
+          />
+
+          <CombosWidget
+            logs={logsFiltrados}
+          />
         </View>
 
         <View className="mb-10">
@@ -375,21 +468,29 @@ export default function DashboardScreen() {
 
           <View className="flex-col lg:flex-row gap-4 mb-6">
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <LineChartEvolucao logs={logsFiltrados} />
+              <LineChartEvolucao
+                logs={logsFiltrados}
+              />
             </View>
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <BarChartCor logs={logsFiltrados} />
+              <BarChartCor
+                logs={logsFiltrados}
+              />
             </View>
 
             <View className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[180px]">
-              <RadarChartTextura logs={logsFiltrados} />
+              <RadarChartTextura
+                logs={logsFiltrados}
+              />
             </View>
           </View>
 
           <View className="flex-col lg:flex-row gap-4">
             <View className="flex-[2] bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <ProgressReacoes logs={logsFiltrados} />
+              <ProgressReacoes
+                logs={logsFiltrados}
+              />
             </View>
 
             <View className="flex-[1] bg-white p-6 rounded-2xl shadow-sm border border-gray-100 justify-center">
@@ -408,11 +509,14 @@ export default function DashboardScreen() {
 
                 <View className="ml-4 flex-1">
                   <Text className="text-[24px] font-extrabold text-[#528F33]">
-                    {loading ? '...' : `${taxaAceitacao}%`}
+                    {loading
+                      ? '...'
+                      : `${taxaAceitacao}%`}
                   </Text>
 
                   <Text className="text-[11px] text-[#6B7280]">
-                    {aceitacoes} refeições aceitas de {tentativas} tentativas.
+                    {aceitacoes} refeições aceitas de{' '}
+                    {tentativas} tentativas.
                   </Text>
                 </View>
               </View>
@@ -420,7 +524,9 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        <LogsTableWidget logs={logsFiltrados} />
+        <LogsTableWidget
+          logs={logsFiltrados}
+        />
 
         <Footer />
       </ScrollView>
