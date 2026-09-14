@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, KeyboardAvoidingView, Platform, ScrollView} from "react-native";
+import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { saveSession } from "../../services/auth/auth.js";
+import { getChildren } from "../../services/children/children";
 
 const API_URL = "https://atipic-touch-devlop.onrender.com";
 
@@ -57,7 +58,13 @@ export default function LoginScreen() {
 
       await saveSession(data.access_token);
 
-      router.push("/child-introduction");
+      const children = await getChildren();
+
+      if (children.length > 0) {
+        router.replace("/device");
+      } else {
+        router.replace("/child-introduction");
+      }
     } catch (error) {
       setError("Não foi possível conectar ao servidor.");
     } finally {
