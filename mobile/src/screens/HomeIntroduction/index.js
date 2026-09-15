@@ -61,7 +61,7 @@ export default function HomeIntroduction() {
 
             <TouchableOpacity
               activeOpacity={0.85}
-              onPress={() => router.push("/device")}
+              onPress={() => router.replace("/device")}
               className="w-full items-center justify-center bg-[#A3C78C] rounded-[17px]"
               style={{ height: isSmallScreen ? 68 : 76, marginTop: isSmallScreen ? 24 : 34 }}
             >
