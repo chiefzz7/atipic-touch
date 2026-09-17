@@ -1,10 +1,7 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 
-import {
-  validateSession,
-  subscribeAuth,
-} from "../services/auth/auth";
+import { validateSession, subscribeAuth, } from "../services/auth/auth";
 
 import { getChildren } from "../services/children/children";
 
@@ -20,9 +17,6 @@ export default function Layout() {
   // Indica que a verificação inicial da sessão já terminou.
   const sessionInitialized = useRef(false);
 
-  // Guarda se o aplicativo acabou de iniciar.
-  // Alterações de autenticação durante o cadastro não
-  // devem reiniciar o fluxo de navegação.
   const isInitialSessionCheck = useRef(true);
 
   useEffect(() => {
@@ -56,12 +50,6 @@ export default function Layout() {
 
     checkSession();
 
-    /*
-     * O listener acompanha apenas o estado da autenticação.
-     *
-     * Ele não toma decisões de navegação. Isso é importante
-     * porque saveSession() também é executado durante o cadastro.
-     */
     const unsubscribe = subscribeAuth((isAuthenticated) => {
       if (!mounted) return;
 
@@ -81,36 +69,17 @@ export default function Layout() {
 
     const currentRoute = segments[0];
 
-    const publicRoutes = [
-      "login",
-      "register",
-    ];
+    const publicRoutes = ["login","register",];
 
-    const onboardingRoutes = [
-      "child-introduction",
-      "home-introduction",
-    ];
+    const onboardingRoutes = ["child-introduction", "home-introduction" ];
 
     const isPublicRoute = publicRoutes.includes(currentRoute);
     const isOnboardingRoute = onboardingRoutes.includes(currentRoute);
 
-    /*
-     * O onboarding é controlado pelas próprias telas.
-     *
-     * O layout não pode enviar o usuário para /device
-     * enquanto ele estiver passando pelo cadastro.
-     */
     if (isOnboardingRoute) {
       return;
     }
 
-    /*
-     * Durante a inicialização, se não existe sessão,
-     * permitimos que o usuário permaneça em login/register.
-     *
-     * Não redirecionamos imediatamente para login porque
-     * o cadastro pode estar acabando de criar a sessão.
-     */
     if (!authenticated) {
       if (isPublicRoute) {
         return;
@@ -120,34 +89,16 @@ export default function Layout() {
       return;
     }
 
-    /*
-     * Usuário autenticado em login/register.
-     *
-     * Aqui verificamos a existência de uma criança somente
-     * para sessões já existentes ao abrir o aplicativo.
-     *
-     * O resultado NÃO é utilizado durante o onboarding.
-     */
     if (authenticated && isPublicRoute && isInitialSessionCheck.current) {
       isInitialSessionCheck.current = false;
 
       redirectAuthenticatedUser();
-    }
-  }, [
-    authenticated,
-    checkingSession,
-    segments,
-    router,
-  ]);
+    }}, [authenticated, checkingSession, segments, router]);
 
   async function redirectAuthenticatedUser() {
     try {
       const children = await getChildren();
 
-      /*
-       * Enquanto verificamos os filhos, a tela atual continua
-       * intacta. Só depois da resposta decidimos a rota.
-       */
       if (children.length > 0) {
         router.replace("/device");
       } else {

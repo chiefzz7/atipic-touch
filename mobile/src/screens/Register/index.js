@@ -26,6 +26,30 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  function formatTelefone(value) {
+    // Remove tudo que não for número
+    const numbers = value.replace(/\D/g, "").slice(0, 11);
+
+    if (numbers.length === 0) {
+      return "";
+    }
+
+    // DDD
+    if (numbers.length <= 2) {
+      return `(${numbers}`;
+    }
+
+    // (11) 999
+    if (numbers.length <= 7) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    }
+
+    // (11) 99999-9999
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+      7
+    )}`;
+  }
+
   function validateForm() {
     if (!nome.trim()) {
       return "Informe seu nome.";
@@ -99,7 +123,6 @@ export default function RegisterScreen() {
     try {
       setLoading(true);
 
-      // Cria o responsável na API.
       await registerUser({
         nome: nome.trim(),
         email: email.trim().toLowerCase(),
@@ -107,12 +130,8 @@ export default function RegisterScreen() {
         senha,
       });
 
-      // O cadastro não retorna token, então fazemos login
-      // automaticamente para criar a sessão do responsável.
       await loginAfterRegister();
 
-      // Como o responsável acabou de ser cadastrado,
-      // ele ainda precisa cadastrar a criança.
       router.replace("/child-introduction");
     } catch (error) {
       setError(
@@ -129,7 +148,6 @@ export default function RegisterScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 30 }}
       >
-        {/* Progresso: cadastro do responsável é o primeiro de dois passos */}
         <View className="items-center mt-[35px]">
           <View className="w-[338px] h-[8px] rounded-full bg-[#EDE8D0] overflow-hidden">
             <View className="w-1/2 h-full bg-[#6B5A2A]" />
@@ -145,7 +163,6 @@ export default function RegisterScreen() {
             Cadastro responsável
           </Text>
 
-          {/* Nome */}
           <Text className="mt-7 text-center text-[24px] text-white">
             Seu Nome (ou apelido)
           </Text>
@@ -154,11 +171,11 @@ export default function RegisterScreen() {
             value={nome}
             onChangeText={setNome}
             placeholder="Digite seu nome"
+            placeholderTextColor="#999999"
             autoCapitalize="words"
             className="self-center mt-3 w-full h-[49px] rounded-[7px] bg-white px-4 text-[18px]"
           />
 
-          {/* E-mail */}
           <Text className="mt-2 text-center text-[24px] text-white">
             Seu E-mail
           </Text>
@@ -167,26 +184,26 @@ export default function RegisterScreen() {
             value={email}
             onChangeText={setEmail}
             placeholder="Digite seu e-mail"
+            placeholderTextColor="#999999"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
             className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
           />
 
-          {/* Telefone exigido pelo endpoint */}
           <Text className="mt-2 text-center text-[24px] text-white">
             Seu Telefone
           </Text>
 
           <TextInput
             value={telefone}
-            onChangeText={setTelefone}
+            onChangeText={(value) => setTelefone(formatTelefone(value))}
             placeholder="Digite seu telefone"
+            placeholderTextColor="#999999"
             keyboardType="phone-pad"
             className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
           />
 
-          {/* Senha */}
           <Text className="mt-2 text-center text-[24px] text-white">
             Crie uma senha
           </Text>
@@ -195,12 +212,12 @@ export default function RegisterScreen() {
             value={senha}
             onChangeText={setSenha}
             placeholder="Digite sua senha"
+            placeholderTextColor="#999999"
             secureTextEntry
             autoCapitalize="none"
             className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
           />
 
-          {/* Confirmação */}
           <Text className="mt-2 text-center text-[24px] text-white">
             Confirme sua senha
           </Text>
@@ -209,12 +226,12 @@ export default function RegisterScreen() {
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
             placeholder="Digite novamente sua senha"
+            placeholderTextColor="#999999"
             secureTextEntry
             autoCapitalize="none"
             className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
           />
 
-          {/* Mensagem de erro */}
           {error ? (
             <Text className="mt-4 text-center text-[16px] font-semibold text-red-700">
               {error}

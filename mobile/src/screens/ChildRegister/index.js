@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 import { registerChild } from "../../services/children/children";
+import { saveSelectedChild } from "../../services/children/selectedChild";
 
 export default function ChildRegister() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function ChildRegister() {
   const [temasPreferidos, setTemasPreferidos] = useState("");
   const [restricoesMedicas, setRestricoesMedicas] = useState("");
 
-  // Campos mantidos na interface, mas ainda não fazem parte da API.
+  // Campos mantidos na interface, mas ainda não são usados pela API.
   const [sexo, setSexo] = useState(null);
   const [observacoes, setObservacoes] = useState("");
 
@@ -94,31 +95,41 @@ export default function ChildRegister() {
     try {
       setLoading(true);
 
-      await registerChild({
+      /*
+       * A API retorna a criança criada, incluindo seu ID.
+       * Esse objeto será utilizado como criança selecionada
+       * para os próximos fluxos do aplicativo.
+       */
+      const child = await registerChild({
         nome: nome.trim(),
         dataNascimento: formatDateToApi(dataNascimento),
         temasPreferidos: getPreferredThemes(),
         restricoesMedicas: restricoesMedicas.trim(),
       });
 
-      // Após o cadastro, segue diretamente para a Home.
-      router.replace("/home-introduction");
+      console.log("CRIANÇA CADASTRADA:", child);
+
+      /*
+       * Como ainda não existe uma tela de seleção de crianças,
+       * a criança recém-cadastrada é definida automaticamente
+       * como a criança selecionada.
+       */
+      await saveSelectedChild(child);
+
+      console.log("CRIANÇA SALVA COMO SELECIONADA:", child);
+
+      router.replace("/device");
     } catch (error) {
+      console.error("Erro ao cadastrar criança:", error);
+
       setError(
         error.message || "Não foi possível cadastrar a criança."
       );
     } finally {
       setLoading(false);
     }
-    await registerChild({
-      nome: nome.trim(),
-      dataNascimento: formatDateToApi(dataNascimento),
-      temasPreferidos: getPreferredThemes(),
-      restricoesMedicas: restricoesMedicas.trim(),
-    });
-
-    router.replace("/device");
   }
+
   function formatBirthDate(value) {
     const numbers = value.replace(/\D/g, "").slice(0, 8);
 
@@ -140,7 +151,6 @@ export default function ChildRegister() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        {/* Progresso */}
         <View className="mb-6">
           <Text className="text-[#7A7A7A] text-sm font-medium mb-2">
             Passo 2 de 2
@@ -151,7 +161,6 @@ export default function ChildRegister() {
           </View>
         </View>
 
-        {/* Foto */}
         <View
           className="bg-white rounded-[28px] items-center justify-center shadow-sm mb-6"
           style={{ height: 230 }}
@@ -176,13 +185,11 @@ export default function ChildRegister() {
           </TouchableOpacity>
         </View>
 
-        {/* Formulário */}
         <View className="bg-white rounded-[28px] px-5 py-6 shadow-sm">
           <Text className="text-[#404040] text-lg font-semibold mb-5">
             Dados da criança
           </Text>
 
-          {/* Nome */}
           <Text className="text-[#555555] text-sm mb-2">
             Nome Completo
           </Text>
@@ -195,7 +202,6 @@ export default function ChildRegister() {
             placeholderTextColor="#A7A7A7"
           />
 
-          {/* Data de nascimento */}
           <Text className="text-[#555555] text-sm mb-2">
             Data de nascimento
           </Text>
@@ -211,7 +217,7 @@ export default function ChildRegister() {
             keyboardType="numeric"
             maxLength={10}
           />
-          {/* Sexo */}
+
           <Text className="text-[#555555] text-sm mb-3">
             Sexo
           </Text>
@@ -219,10 +225,11 @@ export default function ChildRegister() {
           <View className="flex-row justify-between mb-5">
             <TouchableOpacity
               onPress={() => setSexo("masculino")}
-              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${sexo === "masculino"
-                ? "border-[#A3C78C] bg-[#F1F8EC]"
-                : "border-[#E7E2D8]"
-                }`}
+              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${
+                sexo === "masculino"
+                  ? "border-[#A3C78C] bg-[#F1F8EC]"
+                  : "border-[#E7E2D8]"
+              }`}
             >
               <Image
                 source={require("../../../assets/images/masculino_sexo.png")}
@@ -237,10 +244,11 @@ export default function ChildRegister() {
 
             <TouchableOpacity
               onPress={() => setSexo("feminino")}
-              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${sexo === "feminino"
-                ? "border-[#A3C78C] bg-[#F1F8EC]"
-                : "border-[#E7E2D8]"
-                }`}
+              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${
+                sexo === "feminino"
+                  ? "border-[#A3C78C] bg-[#F1F8EC]"
+                  : "border-[#E7E2D8]"
+              }`}
             >
               <Image
                 source={require("../../../assets/images/feminino_sexo.png")}
@@ -254,7 +262,6 @@ export default function ChildRegister() {
             </TouchableOpacity>
           </View>
 
-          {/* Temas preferidos */}
           <Text className="text-[#555555] text-sm mb-2">
             Temas preferidos
           </Text>
@@ -273,7 +280,6 @@ export default function ChildRegister() {
             Separe os temas por vírgulas.
           </Text>
 
-          {/* Restrições */}
           <Text className="text-[#555555] text-sm mb-2">
             Restrições
           </Text>
@@ -288,7 +294,6 @@ export default function ChildRegister() {
             textAlignVertical="top"
           />
 
-          {/* Observações */}
           <Text className="text-[#555555] text-sm mb-2 mt-4">
             Observações
           </Text>
@@ -303,14 +308,12 @@ export default function ChildRegister() {
             textAlignVertical="top"
           />
 
-          {/* Erro */}
           {error ? (
             <Text className="text-red-600 text-sm font-medium text-center mt-4">
               {error}
             </Text>
           ) : null}
 
-          {/* Salvar */}
           <TouchableOpacity
             onPress={handleRegisterChild}
             disabled={loading}
