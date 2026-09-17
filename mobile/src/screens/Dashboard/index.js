@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity, ActivityIndicator, } from "react-native";
 
-import { getChildren } from "../../services/children/children";
-import { getFeedingLogs } from "../../services/dashboard/dashboard";
-
 import { Ionicons } from "@expo/vector-icons";
+
+import { getSelectedChild } from "../../services/children/selectedChild";
+import { getFeedingLogs } from "../../services/dashboard/dashboard";
 
 import AvatarHeader from "../../components/AvatarHeader";
 import BottomNavigation from "../../components/BottomNavigation";
@@ -18,6 +18,7 @@ export default function DashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   useEffect(() => {
     async function loadDashboard() {
       try {
@@ -28,15 +29,15 @@ export default function DashboardScreen() {
          * Primeiro buscamos as crianças vinculadas ao usuário.
          * O ID retornado será utilizado para consultar o histórico alimentar.
          */
-        const children = await getChildren();
+        const currentChild = await getSelectedChild();
 
-        console.log("CRIANÇAS RECEBIDAS:", children);
+        console.log("CRIANÇA SELECIONADA:", currentChild);
 
-        if (!Array.isArray(children) || children.length === 0) {
-          throw new Error("Nenhuma criança cadastrada.");
+        if (!currentChild?.id) {
+          throw new Error("Nenhuma criança selecionada.");
         }
 
-        const currentChild = children[0];
+        console.log("CRIANÇA ID:", currentChild.id);
 
         console.log("CRIANÇA SELECIONADA:", currentChild);
         console.log("CRIANÇA ID:", currentChild.id);
@@ -186,7 +187,7 @@ export default function DashboardScreen() {
           </View>
         ) : (
           <>
-          
+
             <View className="mt-5">
               <SectionCard
                 title="Última refeição"
@@ -220,11 +221,11 @@ export default function DashboardScreen() {
                       <View className="flex-row flex-wrap mt-3">
                         <View
                           className={`flex-row items-center rounded-full px-3 py-1 mr-2 ${getReactionLabel(lastMeal.reacao) === "Gostou"
-                              ? "bg-[#EDF6E8]"
-                              : getReactionLabel(lastMeal.reacao) ===
-                                "Não gostou"
-                                ? "bg-[#FCEBE8]"
-                                : "bg-[#F8F0D9]"
+                            ? "bg-[#EDF6E8]"
+                            : getReactionLabel(lastMeal.reacao) ===
+                              "Não gostou"
+                              ? "bg-[#FCEBE8]"
+                              : "bg-[#F8F0D9]"
                             }`}
                         >
                           <Ionicons
@@ -249,11 +250,11 @@ export default function DashboardScreen() {
 
                           <Text
                             className={`font-bold ml-1 text-[12px] ${getReactionLabel(lastMeal.reacao) === "Gostou"
-                                ? "text-[#4D9B43]"
-                                : getReactionLabel(lastMeal.reacao) ===
-                                  "Não gostou"
-                                  ? "text-[#D9534F]"
-                                  : "text-[#C29424]"
+                              ? "text-[#4D9B43]"
+                              : getReactionLabel(lastMeal.reacao) ===
+                                "Não gostou"
+                                ? "text-[#D9534F]"
+                                : "text-[#C29424]"
                               }`}
                           >
                             {getReactionLabel(lastMeal.reacao)}
@@ -365,9 +366,9 @@ export default function DashboardScreen() {
                         }
                         activeOpacity={0.75}
                         className={`flex-row items-center py-3 ${index !==
-                            Math.min(recentLogs.length, 3) - 1
-                            ? "border-b border-[#E9E1CF]"
-                            : ""
+                          Math.min(recentLogs.length, 3) - 1
+                          ? "border-b border-[#E9E1CF]"
+                          : ""
                           }`}
                       >
                         <View className="flex-1">
@@ -385,10 +386,10 @@ export default function DashboardScreen() {
 
                         <View
                           className={`w-[38px] h-[38px] rounded-[9px] items-center justify-center ${reaction === "Gostou"
-                              ? "bg-[#EDF6E8]"
-                              : reaction === "Não gostou"
-                                ? "bg-[#FCEBE8]"
-                                : "bg-[#F8F0D9]"
+                            ? "bg-[#EDF6E8]"
+                            : reaction === "Não gostou"
+                              ? "bg-[#FCEBE8]"
+                              : "bg-[#F8F0D9]"
                             }`}
                         >
                           <Ionicons
