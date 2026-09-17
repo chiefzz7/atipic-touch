@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
@@ -20,7 +13,7 @@ export default function ChildRegister() {
   const [temasPreferidos, setTemasPreferidos] = useState("");
   const [restricoesMedicas, setRestricoesMedicas] = useState("");
 
-  // Campos mantidos na interface, mas ainda não fazem parte da API.
+  // Campos mantidos na interface, mas ainda não sao usados pela API.
   const [sexo, setSexo] = useState(null);
   const [observacoes, setObservacoes] = useState("");
 
@@ -101,7 +94,6 @@ export default function ChildRegister() {
         restricoesMedicas: restricoesMedicas.trim(),
       });
 
-      // Após o cadastro, segue diretamente para a Home.
       router.replace("/home-introduction");
     } catch (error) {
       setError(
@@ -140,7 +132,6 @@ export default function ChildRegister() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        {/* Progresso */}
         <View className="mb-6">
           <Text className="text-[#7A7A7A] text-sm font-medium mb-2">
             Passo 2 de 2
@@ -151,7 +142,6 @@ export default function ChildRegister() {
           </View>
         </View>
 
-        {/* Foto */}
         <View
           className="bg-white rounded-[28px] items-center justify-center shadow-sm mb-6"
           style={{ height: 230 }}
@@ -176,13 +166,11 @@ export default function ChildRegister() {
           </TouchableOpacity>
         </View>
 
-        {/* Formulário */}
         <View className="bg-white rounded-[28px] px-5 py-6 shadow-sm">
           <Text className="text-[#404040] text-lg font-semibold mb-5">
             Dados da criança
           </Text>
 
-          {/* Nome */}
           <Text className="text-[#555555] text-sm mb-2">
             Nome Completo
           </Text>
@@ -195,7 +183,6 @@ export default function ChildRegister() {
             placeholderTextColor="#A7A7A7"
           />
 
-          {/* Data de nascimento */}
           <Text className="text-[#555555] text-sm mb-2">
             Data de nascimento
           </Text>
@@ -211,7 +198,7 @@ export default function ChildRegister() {
             keyboardType="numeric"
             maxLength={10}
           />
-          {/* Sexo */}
+
           <Text className="text-[#555555] text-sm mb-3">
             Sexo
           </Text>
@@ -254,7 +241,6 @@ export default function ChildRegister() {
             </TouchableOpacity>
           </View>
 
-          {/* Temas preferidos */}
           <Text className="text-[#555555] text-sm mb-2">
             Temas preferidos
           </Text>
@@ -273,7 +259,6 @@ export default function ChildRegister() {
             Separe os temas por vírgulas.
           </Text>
 
-          {/* Restrições */}
           <Text className="text-[#555555] text-sm mb-2">
             Restrições
           </Text>
@@ -288,7 +273,6 @@ export default function ChildRegister() {
             textAlignVertical="top"
           />
 
-          {/* Observações */}
           <Text className="text-[#555555] text-sm mb-2 mt-4">
             Observações
           </Text>
@@ -303,14 +287,12 @@ export default function ChildRegister() {
             textAlignVertical="top"
           />
 
-          {/* Erro */}
           {error ? (
             <Text className="text-red-600 text-sm font-medium text-center mt-4">
               {error}
             </Text>
           ) : null}
 
-          {/* Salvar */}
           <TouchableOpacity
             onPress={handleRegisterChild}
             disabled={loading}
