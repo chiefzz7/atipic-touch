@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity, ActivityIndicator, } from "react-native";
 
+import { getChildren } from "../../services/children/children";
+import { getFeedingLogs } from "../../services/dashboard/dashboard";
+
 import { Ionicons } from "@expo/vector-icons";
 
 import AvatarHeader from "../../components/AvatarHeader";
@@ -8,63 +11,62 @@ import BottomNavigation from "../../components/BottomNavigation";
 import SectionCard from "../../components/SectionCard";
 import InteractionModal from "../../components/InteractionModal";
 
-import { getFeedingLogs } from "../../services/dashboard/dashboard";
-
-export default function DashboardScreen({ criancaId }) {
+export default function DashboardScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [feedingLogs, setFeedingLogs] = useState([]);
+  const [child, setChild] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function loadFeedingLogs() {
+    async function loadDashboard() {
       try {
         setLoading(true);
         setError(null);
 
-        const data = await getFeedingLogs(criancaId);
+        /*
+         * Primeiro buscamos as crianças vinculadas ao usuário.
+         * O ID retornado será utilizado para consultar o histórico alimentar.
+         */
+        const children = await getChildren();
+
+        console.log("CRIANÇAS RECEBIDAS:", children);
+
+        if (!Array.isArray(children) || children.length === 0) {
+          throw new Error("Nenhuma criança cadastrada.");
+        }
+
+        const currentChild = children[0];
+
+        console.log("CRIANÇA SELECIONADA:", currentChild);
+        console.log("CRIANÇA ID:", currentChild.id);
+
+        setChild(currentChild);
+
+        const data = await getFeedingLogs(currentChild.id);
+
+        console.log("HISTÓRICO ALIMENTAR:", data);
 
         setFeedingLogs(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Erro ao carregar histórico alimentar:", err);
+        console.error("Erro ao carregar Dashboard:", err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
 
-    if (criancaId) {
-      loadFeedingLogs();
-    } else {
-      setLoading(false);
-      setError("Criança não identificada.");
-    }
-  }, [criancaId]);
+    loadDashboard();
+  }, []);
 
-  /*
-   * A API retorna os registros com timestamp.
-   * Ordenamos do mais recente para o mais antigo para garantir
-   * que a primeira refeição seja realmente a última registrada.
-   */
   const sortedLogs = [...feedingLogs].sort(
     (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
   );
 
   const lastMeal = sortedLogs[0];
 
-  /*
-   * A Dashboard apresenta somente as últimas 5 refeições
-   * no resumo de reações.
-   */
   const recentLogs = sortedLogs.slice(0, 5);
 
-  /*
-   * Converte o valor de reação recebido pela API para o
-   * texto utilizado na interface.
-   *
-   * Os valores exatos do enum de reação precisam ser confirmados
-   * com o backend caso sejam diferentes destes.
-   */
   const getReactionLabel = (reaction) => {
     if (typeof reaction === "string") {
       return reaction;
@@ -75,10 +77,10 @@ export default function DashboardScreen({ criancaId }) {
         return "Gostou";
 
       case 2:
-        return "Neutro";
+        return "Não gostou";
 
       case 3:
-        return "Não gostou";
+        return "Neutro";
 
       default:
         return "Neutro";
@@ -131,10 +133,6 @@ export default function DashboardScreen({ criancaId }) {
   };
 
   const getMealImage = (foodName) => {
-    /*
-     * Mantemos o asset atual enquanto as imagens dos alimentos
-     * ainda não estão vinculadas aos registros da API.
-     */
     if (foodName === "Feijão") {
       return require("../../../assets/images/foods/feijao.png");
     }
@@ -154,14 +152,17 @@ export default function DashboardScreen({ criancaId }) {
         <AvatarHeader
           variant="dashboard"
           greeting="Bom dia"
-          childName="João"
+          childName={child?.nome || ""}
           hasNotification={true}
           onNotificationPress={() => setModalVisible(true)}
         />
 
         {loading ? (
           <View className="items-center justify-center py-20">
-            <ActivityIndicator size="large" color="#4D9B43" />
+            <ActivityIndicator
+              size="large"
+              color="#4D9B43"
+            />
 
             <Text className="text-[#80775C] text-[14px] mt-3">
               Carregando histórico alimentar...
@@ -185,7 +186,7 @@ export default function DashboardScreen({ criancaId }) {
           </View>
         ) : (
           <>
-            {/* Última refeição */}
+          
             <View className="mt-5">
               <SectionCard
                 title="Última refeição"
@@ -217,11 +218,18 @@ export default function DashboardScreen({ criancaId }) {
                       </Text>
 
                       <View className="flex-row flex-wrap mt-3">
-                        <View className="flex-row items-center bg-[#EDF6E8] rounded-full px-3 py-1 mr-2">
+                        <View
+                          className={`flex-row items-center rounded-full px-3 py-1 mr-2 ${getReactionLabel(lastMeal.reacao) === "Gostou"
+                              ? "bg-[#EDF6E8]"
+                              : getReactionLabel(lastMeal.reacao) ===
+                                "Não gostou"
+                                ? "bg-[#FCEBE8]"
+                                : "bg-[#F8F0D9]"
+                            }`}
+                        >
                           <Ionicons
                             name={
-                              getReactionLabel(lastMeal.reacao) ===
-                                "Gostou"
+                              getReactionLabel(lastMeal.reacao) === "Gostou"
                                 ? "happy-outline"
                                 : getReactionLabel(lastMeal.reacao) ===
                                   "Não gostou"
@@ -229,10 +237,25 @@ export default function DashboardScreen({ criancaId }) {
                                   : "remove-circle-outline"
                             }
                             size={17}
-                            color="#4D9B43"
+                            color={
+                              getReactionLabel(lastMeal.reacao) === "Gostou"
+                                ? "#4D9B43"
+                                : getReactionLabel(lastMeal.reacao) ===
+                                  "Não gostou"
+                                  ? "#D9534F"
+                                  : "#C29424"
+                            }
                           />
 
-                          <Text className="text-[#4D9B43] font-bold ml-1 text-[12px]">
+                          <Text
+                            className={`font-bold ml-1 text-[12px] ${getReactionLabel(lastMeal.reacao) === "Gostou"
+                                ? "text-[#4D9B43]"
+                                : getReactionLabel(lastMeal.reacao) ===
+                                  "Não gostou"
+                                  ? "text-[#D9534F]"
+                                  : "text-[#C29424]"
+                              }`}
+                          >
                             {getReactionLabel(lastMeal.reacao)}
                           </Text>
                         </View>
@@ -261,7 +284,6 @@ export default function DashboardScreen({ criancaId }) {
               </SectionCard>
             </View>
 
-            {/* Resumo das últimas refeições */}
             <View className="mt-5">
               <SectionCard
                 title="Como está indo?"
@@ -308,7 +330,6 @@ export default function DashboardScreen({ criancaId }) {
               </SectionCard>
             </View>
 
-            {/* Alimentos recentes */}
             <View className="mt-5">
               <SectionCard title="Alimentos recentes">
                 <View>
@@ -338,9 +359,13 @@ export default function DashboardScreen({ criancaId }) {
 
                     return (
                       <TouchableOpacity
-                        key={log.id || `${log.alimento?.nome}-${index}`}
+                        key={
+                          log.id ||
+                          `${log.alimento?.nome}-${index}`
+                        }
                         activeOpacity={0.75}
-                        className={`flex-row items-center py-3 ${index !== Math.min(recentLogs.length, 3) - 1
+                        className={`flex-row items-center py-3 ${index !==
+                            Math.min(recentLogs.length, 3) - 1
                             ? "border-b border-[#E9E1CF]"
                             : ""
                           }`}
