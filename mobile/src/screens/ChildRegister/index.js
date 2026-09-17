@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 import { registerChild } from "../../services/children/children";
+import { saveSelectedChild } from "../../services/children/selectedChild";
 
 export default function ChildRegister() {
   const router = useRouter();
@@ -13,7 +21,7 @@ export default function ChildRegister() {
   const [temasPreferidos, setTemasPreferidos] = useState("");
   const [restricoesMedicas, setRestricoesMedicas] = useState("");
 
-  // Campos mantidos na interface, mas ainda não sao usados pela API.
+  // Campos mantidos na interface, mas ainda não são usados pela API.
   const [sexo, setSexo] = useState(null);
   const [observacoes, setObservacoes] = useState("");
 
@@ -87,30 +95,41 @@ export default function ChildRegister() {
     try {
       setLoading(true);
 
-      await registerChild({
+      /*
+       * A API retorna a criança criada, incluindo seu ID.
+       * Esse objeto será utilizado como criança selecionada
+       * para os próximos fluxos do aplicativo.
+       */
+      const child = await registerChild({
         nome: nome.trim(),
         dataNascimento: formatDateToApi(dataNascimento),
         temasPreferidos: getPreferredThemes(),
         restricoesMedicas: restricoesMedicas.trim(),
       });
 
-      router.replace("/home-introduction");
+      console.log("CRIANÇA CADASTRADA:", child);
+
+      /*
+       * Como ainda não existe uma tela de seleção de crianças,
+       * a criança recém-cadastrada é definida automaticamente
+       * como a criança selecionada.
+       */
+      await saveSelectedChild(child);
+
+      console.log("CRIANÇA SALVA COMO SELECIONADA:", child);
+
+      router.replace("/device");
     } catch (error) {
+      console.error("Erro ao cadastrar criança:", error);
+
       setError(
         error.message || "Não foi possível cadastrar a criança."
       );
     } finally {
       setLoading(false);
     }
-    await registerChild({
-      nome: nome.trim(),
-      dataNascimento: formatDateToApi(dataNascimento),
-      temasPreferidos: getPreferredThemes(),
-      restricoesMedicas: restricoesMedicas.trim(),
-    });
-
-    router.replace("/device");
   }
+
   function formatBirthDate(value) {
     const numbers = value.replace(/\D/g, "").slice(0, 8);
 
@@ -206,10 +225,11 @@ export default function ChildRegister() {
           <View className="flex-row justify-between mb-5">
             <TouchableOpacity
               onPress={() => setSexo("masculino")}
-              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${sexo === "masculino"
-                ? "border-[#A3C78C] bg-[#F1F8EC]"
-                : "border-[#E7E2D8]"
-                }`}
+              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${
+                sexo === "masculino"
+                  ? "border-[#A3C78C] bg-[#F1F8EC]"
+                  : "border-[#E7E2D8]"
+              }`}
             >
               <Image
                 source={require("../../../assets/images/masculino_sexo.png")}
@@ -224,10 +244,11 @@ export default function ChildRegister() {
 
             <TouchableOpacity
               onPress={() => setSexo("feminino")}
-              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${sexo === "feminino"
-                ? "border-[#A3C78C] bg-[#F1F8EC]"
-                : "border-[#E7E2D8]"
-                }`}
+              className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${
+                sexo === "feminino"
+                  ? "border-[#A3C78C] bg-[#F1F8EC]"
+                  : "border-[#E7E2D8]"
+              }`}
             >
               <Image
                 source={require("../../../assets/images/feminino_sexo.png")}
