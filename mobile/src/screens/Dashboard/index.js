@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+import { SafeAreaView, ScrollView, View, Text, Image, TouchableOpacity, ActivityIndicator, } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -229,12 +221,12 @@ export default function DashboardScreen({ criancaId }) {
                           <Ionicons
                             name={
                               getReactionLabel(lastMeal.reacao) ===
-                              "Gostou"
+                                "Gostou"
                                 ? "happy-outline"
                                 : getReactionLabel(lastMeal.reacao) ===
                                   "Não gostou"
-                                ? "sad-outline"
-                                : "remove-circle-outline"
+                                  ? "sad-outline"
+                                  : "remove-circle-outline"
                             }
                             size={17}
                             color="#4D9B43"
@@ -323,7 +315,7 @@ export default function DashboardScreen({ criancaId }) {
                   <View className="flex-row justify-end mb-2">
                     <TouchableOpacity
                       activeOpacity={0.7}
-                      onPress={() => {}}
+                      onPress={() => { }}
                       className="flex-row items-center"
                     >
                       <Text className="text-[#4D9B43] text-[14px] font-bold">
@@ -348,11 +340,10 @@ export default function DashboardScreen({ criancaId }) {
                       <TouchableOpacity
                         key={log.id || `${log.alimento?.nome}-${index}`}
                         activeOpacity={0.75}
-                        className={`flex-row items-center py-3 ${
-                          index !== Math.min(recentLogs.length, 3) - 1
+                        className={`flex-row items-center py-3 ${index !== Math.min(recentLogs.length, 3) - 1
                             ? "border-b border-[#E9E1CF]"
                             : ""
-                        }`}
+                          }`}
                       >
                         <View className="flex-1">
                           <Text
@@ -368,29 +359,28 @@ export default function DashboardScreen({ criancaId }) {
                         </View>
 
                         <View
-                          className={`w-[38px] h-[38px] rounded-[9px] items-center justify-center ${
-                            reaction === "Gostou"
+                          className={`w-[38px] h-[38px] rounded-[9px] items-center justify-center ${reaction === "Gostou"
                               ? "bg-[#EDF6E8]"
                               : reaction === "Não gostou"
-                              ? "bg-[#FCEBE8]"
-                              : "bg-[#F8F0D9]"
-                          }`}
+                                ? "bg-[#FCEBE8]"
+                                : "bg-[#F8F0D9]"
+                            }`}
                         >
                           <Ionicons
                             name={
                               reaction === "Gostou"
                                 ? "happy-outline"
                                 : reaction === "Não gostou"
-                                ? "sad-outline"
-                                : "remove-outline"
+                                  ? "sad-outline"
+                                  : "remove-outline"
                             }
                             size={22}
                             color={
                               reaction === "Gostou"
                                 ? "#4D9B43"
                                 : reaction === "Não gostou"
-                                ? "#D9534F"
-                                : "#C29424"
+                                  ? "#D9534F"
+                                  : "#C29424"
                             }
                           />
                         </View>
