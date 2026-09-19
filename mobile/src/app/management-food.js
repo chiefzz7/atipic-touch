@@ -1,5 +1,5 @@
-import FoodManagementScreen from "../screens/FoodManagementScreen";
+import FoodManagement from "../screens/FoodManagement";
 
-export default function FoodManagement() {
-  return <FoodManagementScreen />;
+export default function foodManagement() {
+  return <FoodManagement />;
 }
