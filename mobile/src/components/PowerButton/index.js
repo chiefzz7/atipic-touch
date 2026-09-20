@@ -1,11 +1,20 @@
 import React from "react";
-import { TouchableOpacity, View } from "react-native";
+
+import {
+  TouchableOpacity,
+  View,
+} from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 
-export default function PowerButton() {
+export default function PowerButton({
+  onPress,
+}) {
+
   return (
     <TouchableOpacity
       activeOpacity={0.85}
+      onPress={onPress}
       className="items-center justify-center"
     >
 
