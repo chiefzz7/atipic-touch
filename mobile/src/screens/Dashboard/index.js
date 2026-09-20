@@ -4,7 +4,6 @@ import React, {
 } from "react";
 
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -12,6 +11,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+
+import {
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+
+import { StatusBar } from "expo-status-bar";
 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -31,6 +36,8 @@ import SectionCard from "../../components/SectionCard";
 import InteractionModal from "../../components/InteractionModal";
 
 export default function DashboardScreen() {
+  const insets =
+    useSafeAreaInsets();
 
   const [modalVisible, setModalVisible] =
     useState(false);
@@ -55,11 +62,9 @@ export default function DashboardScreen() {
   // ========================================
 
   useEffect(() => {
-
     const removerListener =
       bluetoothService.adicionarListener(
         (evento) => {
-
           let reaction = null;
 
           if (
@@ -104,11 +109,8 @@ export default function DashboardScreen() {
   // ========================================
 
   useEffect(() => {
-
     async function loadDashboard() {
-
       try {
-
         setLoading(true);
         setError(null);
 
@@ -150,7 +152,6 @@ export default function DashboardScreen() {
         );
 
       } catch (err) {
-
         console.error(
           "Erro ao carregar Dashboard:",
           err
@@ -159,7 +160,6 @@ export default function DashboardScreen() {
         setError(err.message);
 
       } finally {
-
         setLoading(false);
       }
     }
@@ -183,7 +183,6 @@ export default function DashboardScreen() {
 
   const getReactionLabel =
     (reaction) => {
-
       if (
         typeof reaction === "string"
       ) {
@@ -191,7 +190,6 @@ export default function DashboardScreen() {
       }
 
       switch (reaction) {
-
         case 1:
           return "Gostou";
 
@@ -264,7 +262,6 @@ export default function DashboardScreen() {
 
   const formatDate =
     (timestamp) => {
-
       if (!timestamp) {
         return "";
       }
@@ -285,7 +282,6 @@ export default function DashboardScreen() {
 
   const getMealImage =
     (foodName) => {
-
       if (foodName === "Feijão") {
         return require(
           "../../../assets/images/foods/feijao.png"
@@ -298,16 +294,21 @@ export default function DashboardScreen() {
     };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFCEF]">
-
+    <View
+      className="flex-1 bg-[#FFFCEF]"
+      style={{
+        paddingTop: insets.top,
+      }}
+    >
+      <StatusBar style="dark" />
+      
       <ScrollView
-        className="flex-1 px-3 pt-6"
+        className="flex-1 px-3 pt-2"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: 120,
         }}
       >
-
         <AvatarHeader
           variant="dashboard"
           greeting="Bom dia"
@@ -321,9 +322,7 @@ export default function DashboardScreen() {
         />
 
         {loading ? (
-
           <View className="items-center justify-center py-20">
-
             <ActivityIndicator
               size="large"
               color="#4D9B43"
@@ -332,13 +331,10 @@ export default function DashboardScreen() {
             <Text className="text-[#80775C] text-[14px] mt-3">
               Carregando histórico alimentar...
             </Text>
-
           </View>
 
         ) : error ? (
-
           <View className="items-center justify-center py-20 px-6">
-
             <Ionicons
               name="alert-circle-outline"
               size={42}
@@ -352,15 +348,11 @@ export default function DashboardScreen() {
             <Text className="text-[#80775C] text-[13px] text-center mt-2">
               {error}
             </Text>
-
           </View>
 
         ) : (
-
           <>
-
             <View className="mt-5">
-
               <SectionCard
                 title="Última refeição"
                 subtitle={
@@ -371,13 +363,9 @@ export default function DashboardScreen() {
                     : "Nenhuma refeição registrada"
                 }
               >
-
                 {lastMeal ? (
-
                   <View className="flex-row items-center">
-
                     <View className="w-[90px] h-[90px] rounded-[10px] overflow-hidden bg-[#F4F0E5]">
-
                       <Image
                         source={
                           getMealImage(
@@ -392,11 +380,9 @@ export default function DashboardScreen() {
                         }}
                         resizeMode="cover"
                       />
-
                     </View>
 
                     <View className="flex-1 ml-4">
-
                       <Text
                         numberOfLines={2}
                         className="text-[#554B41] text-[18px] font-bold"
@@ -410,7 +396,6 @@ export default function DashboardScreen() {
                       </Text>
 
                       <View className="flex-row flex-wrap mt-3">
-
                         <View
                           className={`flex-row items-center rounded-full px-3 py-1 mr-2 ${
                             getReactionLabel(
@@ -425,7 +410,6 @@ export default function DashboardScreen() {
                               : "bg-[#F8F0D9]"
                           }`}
                         >
-
                           <Ionicons
                             name={
                               getReactionLabel(
@@ -477,15 +461,12 @@ export default function DashboardScreen() {
                               )
                             }
                           </Text>
-
                         </View>
 
                         {lastMeal
                           .alimento
                           ?.cor && (
-
                           <View className="flex-row items-center bg-[#F8F0D9] rounded-full px-3 py-1">
-
                             <Ionicons
                               name="color-palette-outline"
                               size={17}
@@ -499,40 +480,28 @@ export default function DashboardScreen() {
                                   .cor
                               }
                             </Text>
-
                           </View>
                         )}
-
                       </View>
-
                     </View>
-
                   </View>
 
                 ) : (
-
                   <Text className="text-[#80775C] text-[14px]">
                     Nenhuma refeição encontrada.
                   </Text>
-
                 )}
-
               </SectionCard>
-
             </View>
 
             <View className="mt-5">
-
               <SectionCard
                 title="Como está indo?"
                 subtitle="Resumo das últimas 5 refeições"
               >
-
                 <View className="flex-row -mx-1">
-
                   {reactionData.map(
                     (item) => (
-
                       <View
                         key={
                           item.label
@@ -543,7 +512,6 @@ export default function DashboardScreen() {
                             item.background,
                         }}
                       >
-
                         <Ionicons
                           name={
                             item.icon
@@ -582,33 +550,24 @@ export default function DashboardScreen() {
                             item.label
                           }
                         </Text>
-
                       </View>
                     )
                   )}
-
                 </View>
-
               </SectionCard>
-
             </View>
 
             <View className="mt-5">
-
               <SectionCard
                 title="Alimentos recentes"
               >
-
                 <View>
-
                   <View className="flex-row justify-end mb-2">
-
                     <TouchableOpacity
                       activeOpacity={0.7}
                       onPress={() => {}}
                       className="flex-row items-center"
                     >
-
                       <Text className="text-[#4D9B43] text-[14px] font-bold">
                         Ver histórico
                       </Text>
@@ -621,9 +580,7 @@ export default function DashboardScreen() {
                           marginLeft: 4,
                         }}
                       />
-
                     </TouchableOpacity>
-
                   </View>
 
                   {recentLogs
@@ -633,14 +590,12 @@ export default function DashboardScreen() {
                         log,
                         index
                       ) => {
-
                         const reaction =
                           getReactionLabel(
                             log.reacao
                           );
 
                         return (
-
                           <TouchableOpacity
                             key={
                               log.id ||
@@ -664,9 +619,7 @@ export default function DashboardScreen() {
                                 : ""
                             }`}
                           >
-
                             <View className="flex-1">
-
                               <Text
                                 numberOfLines={
                                   1
@@ -688,7 +641,6 @@ export default function DashboardScreen() {
                                   )
                                 }
                               </Text>
-
                             </View>
 
                             <View
@@ -702,7 +654,6 @@ export default function DashboardScreen() {
                                   : "bg-[#F8F0D9]"
                               }`}
                             >
-
                               <Ionicons
                                 name={
                                   reaction ===
@@ -724,7 +675,6 @@ export default function DashboardScreen() {
                                     : "#C29424"
                                 }
                               />
-
                             </View>
 
                             <Ionicons
@@ -735,22 +685,15 @@ export default function DashboardScreen() {
                                 marginLeft: 5,
                               }}
                             />
-
                           </TouchableOpacity>
                         );
                       }
                     )}
-
                 </View>
-
               </SectionCard>
-
             </View>
-
           </>
-
         )}
-
       </ScrollView>
 
       <InteractionModal
@@ -760,7 +703,6 @@ export default function DashboardScreen() {
           setModalVisible(false)
         }
         onSubmit={(experience) => {
-
           console.log(
             experience
           );
@@ -772,7 +714,6 @@ export default function DashboardScreen() {
       <BottomNavigation
         active="dashboard"
       />
-
-    </SafeAreaView>
+    </View>
   );
 }
