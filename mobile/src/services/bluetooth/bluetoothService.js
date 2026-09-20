@@ -3,9 +3,15 @@ import {
   State,
 } from "react-native-ble-plx";
 
+import {
+  PermissionsAndroid,
+  Platform,
+} from "react-native";
+
 import { decode } from "base-64";
 
-const DEVICE_NAME = "AtipicTouch-ESP32";
+const DEVICE_NAME =
+  "AtipicTouch-ESP32";
 
 const SERVICE_UUID =
   "7a8f0001-4a54-4b00-8000-000000000001";
@@ -16,247 +22,137 @@ const EVENT_CHARACTERISTIC_UUID =
 class BluetoothService {
 
   constructor() {
-    this.manager = new BleManager();
+
+    this.manager =
+      new BleManager();
 
     this.device = null;
-    this.monitorSubscription = null;
 
-    this.listeners = new Set();
+    this.conectando = false;
+
+    this.disconnectSubscription =
+      null;
+
+    this.monitorSubscription =
+      null;
+
+    this.connectionListeners =
+      new Set();
+
+    this.eventListeners =
+      new Set();
+
+    this.bufferBLE = "";
   }
 
   // ========================================
-  // Estado BLE
+  // Permissões
   // ========================================
 
-  async verificarBluetooth() {
+  async solicitarPermissoes() {
 
-    const state = await this.manager.state();
-
-    return state === State.PoweredOn;
-  }
-
-  // ========================================
-  // Eventos
-  // ========================================
-
-  adicionarListener(listener) {
-
-    this.listeners.add(listener);
-
-    return () => {
-      this.listeners.delete(listener);
-    };
-  }
-
-  notificarListeners(evento) {
-
-    this.listeners.forEach((listener) => {
-
-      try {
-        listener(evento);
-      } catch (error) {
-        console.error(
-          "Erro ao processar evento BLE:",
-          error
-        );
-      }
-
-    });
-  }
-
-  // ========================================
-  // Scan + conexão
-  // ========================================
-
-  async conectar() {
-
-    const bluetoothLigado =
-      await this.verificarBluetooth();
-
-    if (!bluetoothLigado) {
-      throw new Error(
-        "O Bluetooth do celular está desligado."
-      );
+    if (
+      Platform.OS !== "android"
+    ) {
+      return true;
     }
 
-    await this.desconectar(false);
+    if (
+      Platform.Version < 31
+    ) {
+      return true;
+    }
 
-    return new Promise(
-      (resolve, reject) => {
+    const resultado =
+      await PermissionsAndroid
+        .requestMultiple([
+          PermissionsAndroid
+            .PERMISSIONS
+            .BLUETOOTH_SCAN,
 
-        let finalizado = false;
+          PermissionsAndroid
+            .PERMISSIONS
+            .BLUETOOTH_CONNECT,
+        ]);
 
-        const finalizarErro = (error) => {
+    const scanPermitido =
+      resultado[
+        PermissionsAndroid
+          .PERMISSIONS
+          .BLUETOOTH_SCAN
+      ] ===
+      PermissionsAndroid
+        .RESULTS
+        .GRANTED;
 
-          if (finalizado) {
-            return;
-          }
+    const connectPermitido =
+      resultado[
+        PermissionsAndroid
+          .PERMISSIONS
+          .BLUETOOTH_CONNECT
+      ] ===
+      PermissionsAndroid
+        .RESULTS
+        .GRANTED;
 
-          finalizado = true;
-
-          this.manager.stopDeviceScan();
-
-          reject(error);
-        };
-
-        const finalizarSucesso = (device) => {
-
-          if (finalizado) {
-            return;
-          }
-
-          finalizado = true;
-
-          this.manager.stopDeviceScan();
-
-          resolve(device);
-        };
-
-        this.manager.startDeviceScan(
-          [SERVICE_UUID],
-          null,
-          async (error, device) => {
-
-            if (error) {
-
-              console.error(
-                "Erro durante scan BLE:",
-                error
-              );
-
-              finalizarErro(error);
-
-              return;
-            }
-
-            if (!device) {
-              return;
-            }
-
-            const nome =
-              device.name ||
-              device.localName;
-
-            if (nome !== DEVICE_NAME) {
-              return;
-            }
-
-            try {
-
-              this.manager.stopDeviceScan();
-
-              console.log(
-                "ESP32 encontrado:",
-                device.id
-              );
-
-              const conectado =
-                await device.connect();
-
-              const descoberto =
-                await conectado.discoverAllServicesAndCharacteristics();
-
-              this.device = descoberto;
-
-              this.monitorarEventos(descoberto);
-
-              console.log(
-                "ESP32 conectado:",
-                descoberto.id
-              );
-
-              finalizarSucesso(descoberto);
-
-            } catch (connectionError) {
-
-              console.error(
-                "Erro ao conectar ao ESP32:",
-                connectionError
-              );
-
-              finalizarErro(connectionError);
-            }
-          }
-        );
-
-        setTimeout(() => {
-
-          if (finalizado) {
-            return;
-          }
-
-          this.manager.stopDeviceScan();
-
-          finalizarErro(
-            new Error(
-              "Não foi possível encontrar o AtipicTouch-ESP32."
-            )
-          );
-
-        }, 15000);
-      }
+    return (
+      scanPermitido &&
+      connectPermitido
     );
   }
 
   // ========================================
-  // Monitoramento dos eventos
+  // Estado Bluetooth
   // ========================================
 
-  monitorarEventos(device) {
+  async verificarBluetooth() {
 
-    if (this.monitorSubscription) {
-      this.monitorSubscription.remove();
+    const state =
+      await this.manager.state();
 
-      this.monitorSubscription = null;
-    }
+    return (
+      state ===
+      State.PoweredOn
+    );
+  }
 
-    this.monitorSubscription =
-      device.monitorCharacteristicForService(
-        SERVICE_UUID,
-        EVENT_CHARACTERISTIC_UUID,
-        (error, characteristic) => {
+  // ========================================
+  // Listener de conexão
+  // ========================================
 
-          if (error) {
+  adicionarListenerConexao(
+    listener
+  ) {
 
-            console.error(
-              "Erro na notificação BLE:",
-              error
-            );
+    this.connectionListeners
+      .add(listener);
 
-            return;
-          }
+    return () => {
 
-          if (!characteristic?.value) {
-            return;
-          }
+      this.connectionListeners
+        .delete(listener);
+    };
+  }
+
+  notificarConexao(
+    conectado
+  ) {
+
+    this.connectionListeners
+      .forEach(
+        (listener) => {
 
           try {
 
-            const jsonString =
-              decode(characteristic.value);
-
-            console.log(
-              "Evento recebido do ESP32:",
-              jsonString
+            listener(
+              conectado
             );
 
-            const evento =
-              JSON.parse(jsonString);
-
-            if (
-              !evento ||
-              typeof evento !== "object"
-            ) {
-              return;
-            }
-
-            this.notificarListeners(evento);
-
-          } catch (parseError) {
+          } catch (error) {
 
             console.error(
-              "Erro ao interpretar evento BLE:",
-              parseError
+              "Erro no listener de conexão BLE:",
+              error
             );
           }
         }
@@ -264,47 +160,673 @@ class BluetoothService {
   }
 
   // ========================================
-  // Desconectar
+  // Listener de eventos do ESP32
   // ========================================
 
-  async desconectar(
-    limparDevice = true
+  adicionarListener(
+    listener
   ) {
 
-    if (this.monitorSubscription) {
+    this.eventListeners
+      .add(listener);
 
-      this.monitorSubscription.remove();
+    return () => {
 
-      this.monitorSubscription = null;
+      this.eventListeners
+        .delete(listener);
+    };
+  }
+
+  notificarEvento(
+    evento
+  ) {
+
+    this.eventListeners
+      .forEach(
+        (listener) => {
+
+          try {
+
+            listener(
+              evento
+            );
+
+          } catch (error) {
+
+            console.error(
+              "Erro no listener de evento BLE:",
+              error
+            );
+          }
+        }
+      );
+  }
+
+  // ========================================
+  // Conectar
+  // ========================================
+
+  async conectar() {
+
+    if (
+      this.conectando
+    ) {
+
+      throw new Error(
+        "Já existe uma tentativa de conexão em andamento."
+      );
     }
 
-    if (this.device) {
+    const permissoes =
+      await this
+        .solicitarPermissoes();
+
+    if (
+      !permissoes
+    ) {
+
+      throw new Error(
+        "Permissão de Bluetooth não concedida."
+      );
+    }
+
+    const bluetoothLigado =
+      await this
+        .verificarBluetooth();
+
+    if (
+      !bluetoothLigado
+    ) {
+
+      throw new Error(
+        "O Bluetooth do celular está desligado."
+      );
+    }
+
+    // Já conectado?
+    if (
+      this.device
+    ) {
 
       try {
 
-        await this.device.cancelConnection();
+        const conectado =
+          await this.device
+            .isConnected();
+
+        if (
+          conectado
+        ) {
+
+          console.log(
+            "ESP32 já conectado:",
+            this.device.id
+          );
+
+          if (
+            !this.monitorSubscription
+          ) {
+
+            this
+              .monitorarEventos(
+                this.device
+              );
+          }
+
+          this
+            .notificarConexao(
+              true
+            );
+
+          return this.device;
+        }
 
       } catch (error) {
 
         console.warn(
-          "Erro ao desconectar ESP32:",
+          "Erro ao verificar conexão existente:",
+          error
+        );
+      }
+
+      this.device =
+        null;
+    }
+
+    this.conectando =
+      true;
+
+    try {
+
+      const device =
+        await this
+          .procurarDispositivo();
+
+      console.log(
+        "ESP32 encontrado:",
+        device.id
+      );
+
+      let conectado =
+        await device
+          .connect();
+
+      conectado =
+        await conectado
+          .discoverAllServicesAndCharacteristics();
+
+      this.device =
+        conectado;
+
+      this.bufferBLE =
+        "";
+
+      this
+        .monitorarDesconexao(
+          conectado
+        );
+
+      this
+        .monitorarEventos(
+          conectado
+        );
+
+      console.log(
+        "ESP32 conectado:",
+        conectado.id
+      );
+
+      this
+        .notificarConexao(
+          true
+        );
+
+      return conectado;
+
+    } finally {
+
+      this.conectando =
+        false;
+
+      this.manager
+        .stopDeviceScan();
+    }
+  }
+
+  // ========================================
+  // Scan
+  // ========================================
+
+  procurarDispositivo() {
+
+    return new Promise(
+      (
+        resolve,
+        reject
+      ) => {
+
+        let finalizado =
+          false;
+
+        const encerrar =
+          () => {
+
+            this.manager
+              .stopDeviceScan();
+          };
+
+        const timeout =
+          setTimeout(
+            () => {
+
+              if (
+                finalizado
+              ) {
+                return;
+              }
+
+              finalizado =
+                true;
+
+              encerrar();
+
+              reject(
+                new Error(
+                  "AtipicTouch-ESP32 não encontrado."
+                )
+              );
+
+            },
+            15000
+          );
+
+        this.manager
+          .startDeviceScan(
+            [
+              SERVICE_UUID
+            ],
+            null,
+            (
+              error,
+              device
+            ) => {
+
+              if (
+                finalizado
+              ) {
+                return;
+              }
+
+              if (
+                error
+              ) {
+
+                finalizado =
+                  true;
+
+                clearTimeout(
+                  timeout
+                );
+
+                encerrar();
+
+                reject(
+                  error
+                );
+
+                return;
+              }
+
+              if (
+                !device
+              ) {
+                return;
+              }
+
+              const nome =
+                device.name ||
+                device.localName;
+
+              if (
+                nome !==
+                DEVICE_NAME
+              ) {
+                return;
+              }
+
+              finalizado =
+                true;
+
+              clearTimeout(
+                timeout
+              );
+
+              encerrar();
+
+              resolve(
+                device
+              );
+            }
+          );
+      }
+    );
+  }
+
+  // ========================================
+  // Desconexão
+  // ========================================
+
+  monitorarDesconexao(
+    device
+  ) {
+
+    if (
+      this.disconnectSubscription
+    ) {
+
+      this.disconnectSubscription
+        .remove();
+
+      this.disconnectSubscription =
+        null;
+    }
+
+    this.disconnectSubscription =
+      this.manager
+        .onDeviceDisconnected(
+          device.id,
+          (
+            error
+          ) => {
+
+            if (
+              error
+            ) {
+
+              console.warn(
+                "ESP32 desconectado:",
+                error
+              );
+
+            } else {
+
+              console.log(
+                "ESP32 desconectado."
+              );
+            }
+
+            this.device =
+              null;
+
+            this.bufferBLE =
+              "";
+
+            if (
+              this.monitorSubscription
+            ) {
+
+              this.monitorSubscription
+                .remove();
+
+              this.monitorSubscription =
+                null;
+            }
+
+            this
+              .notificarConexao(
+                false
+              );
+          }
+        );
+  }
+
+  // ========================================
+  // Monitorar eventos BLE
+  // ========================================
+
+  monitorarEventos(
+    device
+  ) {
+
+    if (
+      this.monitorSubscription
+    ) {
+
+      this.monitorSubscription
+        .remove();
+
+      this.monitorSubscription =
+        null;
+    }
+
+    this.bufferBLE =
+      "";
+
+    this.monitorSubscription =
+      device
+        .monitorCharacteristicForService(
+          SERVICE_UUID,
+          EVENT_CHARACTERISTIC_UUID,
+          (
+            error,
+            characteristic
+          ) => {
+
+            if (
+              error
+            ) {
+
+              if (
+                error?.message
+                  ?.toLowerCase()
+                  .includes(
+                    "cancel"
+                  )
+              ) {
+                return;
+              }
+
+              console.error(
+                "Erro na notificação BLE:",
+                error
+              );
+
+              return;
+            }
+
+            if (
+              !characteristic
+                ?.value
+            ) {
+              return;
+            }
+
+            try {
+
+              const trecho =
+                decode(
+                  characteristic
+                    .value
+                );
+
+              console.log(
+                "Trecho recebido do ESP32:",
+                trecho
+              );
+
+              this
+                .processarTrechoBLE(
+                  trecho
+                );
+
+            } catch (
+              error
+            ) {
+
+              console.error(
+                "Erro ao decodificar evento BLE:",
+                error
+              );
+            }
+          }
+        );
+  }
+
+  // ========================================
+  // Juntar os pedaços BLE
+  // ========================================
+
+  processarTrechoBLE(
+    trecho
+  ) {
+
+    if (
+      !trecho
+    ) {
+      return;
+    }
+
+    this.bufferBLE +=
+      trecho;
+
+    let indiceFim;
+
+    while (
+      (
+        indiceFim =
+          this.bufferBLE
+            .indexOf(
+              "\n"
+            )
+      ) !== -1
+    ) {
+
+      const mensagem =
+        this.bufferBLE
+          .slice(
+            0,
+            indiceFim
+          )
+          .trim();
+
+      this.bufferBLE =
+        this.bufferBLE
+          .slice(
+            indiceFim + 1
+          );
+
+      if (
+        !mensagem
+      ) {
+        continue;
+      }
+
+      try {
+
+        const evento =
+          JSON.parse(
+            mensagem
+          );
+
+        console.log(
+          "Evento recebido do ESP32:",
+          evento
+        );
+
+        this
+          .notificarEvento(
+            evento
+          );
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          "Erro ao interpretar evento BLE completo:",
+          mensagem,
           error
         );
       }
     }
 
-    if (limparDevice) {
-      this.device = null;
+    if (
+      this.bufferBLE
+        .length > 4096
+    ) {
+
+      console.warn(
+        "Buffer BLE excedeu o limite. Limpando."
+      );
+
+      this.bufferBLE =
+        "";
     }
   }
 
   // ========================================
-  // Status
+  // Desconectar manualmente
   // ========================================
+
+  async desconectar() {
+
+    this.manager
+      .stopDeviceScan();
+
+    this.conectando =
+      false;
+
+    if (
+      this.monitorSubscription
+    ) {
+
+      this.monitorSubscription
+        .remove();
+
+      this.monitorSubscription =
+        null;
+    }
+
+    if (
+      !this.device
+    ) {
+
+      this.bufferBLE =
+        "";
+
+      this
+        .notificarConexao(
+          false
+        );
+
+      return;
+    }
+
+    const device =
+      this.device;
+
+    try {
+
+      const conectado =
+        await device
+          .isConnected();
+
+      if (
+        conectado
+      ) {
+
+        await device
+          .cancelConnection();
+      }
+
+    } finally {
+
+      this.device =
+        null;
+
+      this.bufferBLE =
+        "";
+
+      this
+        .notificarConexao(
+          false
+        );
+    }
+  }
+
+  // ========================================
+  // Verificar conexão
+  // ========================================
+
+  async verificarConexaoAtual() {
+
+    if (
+      !this.device
+    ) {
+      return false;
+    }
+
+    try {
+
+      return await this.device
+        .isConnected();
+
+    } catch (
+      error
+    ) {
+
+      this.device =
+        null;
+
+      return false;
+    }
+  }
 
   estaConectado() {
 
-    return this.device !== null;
+    return (
+      this.device !== null
+    );
   }
 
   obterDevice() {
@@ -318,16 +840,48 @@ class BluetoothService {
 
   destroy() {
 
-    if (this.monitorSubscription) {
-      this.monitorSubscription.remove();
+    this.manager
+      .stopDeviceScan();
 
-      this.monitorSubscription = null;
+    if (
+      this.monitorSubscription
+    ) {
+
+      this.monitorSubscription
+        .remove();
+
+      this.monitorSubscription =
+        null;
     }
 
-    this.manager.destroy();
+    if (
+      this.disconnectSubscription
+    ) {
 
-    this.device = null;
-    this.listeners.clear();
+      this.disconnectSubscription
+        .remove();
+
+      this.disconnectSubscription =
+        null;
+    }
+
+    this.manager
+      .destroy();
+
+    this.device =
+      null;
+
+    this.conectando =
+      false;
+
+    this.bufferBLE =
+      "";
+
+    this.connectionListeners
+      .clear();
+
+    this.eventListeners
+      .clear();
   }
 }
 

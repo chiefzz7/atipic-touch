@@ -1,16 +1,62 @@
-import React, { useState } from "react";
-import { Modal, SafeAreaView, ScrollView, View, Text, TouchableOpacity, TextInput, Image, useWindowDimensions, } from "react-native";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  useWindowDimensions,
+} from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
 import BottomNavigation from "../BottomNavigation";
 
-export default function InteractionModal({visible, onClose, onSubmit}) {
-  const { width } = useWindowDimensions();
+export default function InteractionModal({
+  visible,
+  onClose,
+  onSubmit,
+  initialEmotion = "Gostou",
+}) {
 
-  const [emotion, setEmotion] = useState("Gostou");
-  const [aspect, setAspect] = useState("Cor");
-  const [observation, setObservation] = useState("");
+  const { width } =
+    useWindowDimensions();
+
+  const [emotion, setEmotion] =
+    useState("Gostou");
+
+  const [aspect, setAspect] =
+    useState("Cor");
+
+  const [
+    observation,
+    setObservation,
+  ] = useState("");
+
+  // Quando o ESP abrir o modal,
+  // seleciona automaticamente
+  // a reação recebida.
+  useEffect(() => {
+
+    if (visible) {
+
+      setEmotion(
+        initialEmotion ||
+        "Gostou"
+      );
+    }
+
+  }, [
+    visible,
+    initialEmotion,
+  ]);
 
   const emotions = [
     {
@@ -53,33 +99,49 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
     },
   ];
 
-  const horizontalPadding = 16;
-  const aspectGap = 8;
+  const horizontalPadding =
+    16;
+
+  const aspectGap =
+    8;
 
   const aspectWidth =
-    (width - horizontalPadding * 2 - aspectGap * 4) / 5;
+    (
+      width -
+      horizontalPadding * 2 -
+      aspectGap * 4
+    ) / 5;
 
-  const handleSubmit = () => {
-    const experience = {
-      emotion,
-      aspect,
-      observation,
+  const handleSubmit =
+    () => {
+
+      const experience = {
+        emotion,
+        aspect,
+        observation,
+      };
+
+      onSubmit?.(
+        experience
+      );
+
+      onClose?.();
     };
 
-    onSubmit?.(experience);
-    onClose?.();
-  };
-
   return (
+
     <Modal
       visible={visible}
       animationType="slide"
       onRequestClose={onClose}
     >
+
       <SafeAreaView className="flex-1 bg-[#FFFCEF]">
 
         <ScrollView
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={
+            false
+          }
           contentContainerStyle={{
             paddingBottom: 110,
           }}
@@ -92,11 +154,13 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
               activeOpacity={0.8}
               className="w-10 h-10 items-center justify-center"
             >
+
               <Ionicons
                 name="arrow-back"
                 size={28}
                 color="#6F4E24"
               />
+
             </TouchableOpacity>
 
             <Text
@@ -110,11 +174,13 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
               activeOpacity={0.8}
               className="w-10 h-10 items-center justify-center"
             >
+
               <Ionicons
                 name="help-circle-outline"
                 size={28}
                 color="#6F4E24"
               />
+
             </TouchableOpacity>
 
           </View>
@@ -132,16 +198,22 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 <View className="flex-1 pr-2">
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     className="text-[#554B41] text-[20px] font-bold"
                   >
                     Reação da criança
                   </Text>
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     adjustsFontSizeToFit
-                    minimumFontScale={0.8}
+                    minimumFontScale={
+                      0.8
+                    }
                     className="text-[#80775C] text-[16px] mt-1"
                   >
                     Como a criança reagiu ao alimento?
@@ -150,9 +222,12 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 </View>
 
                 <TouchableOpacity
-                  activeOpacity={0.8}
+                  activeOpacity={
+                    0.8
+                  }
                   className="border border-[#E5DCC4] rounded-[10px] px-3 py-2 flex-row items-center"
                 >
+
                   <Ionicons
                     name="pencil-outline"
                     size={18}
@@ -160,11 +235,14 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                   />
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     className="text-[#6F4E24] ml-2 text-[14px] font-medium"
                   >
                     Alterar reação
                   </Text>
+
                 </TouchableOpacity>
 
               </View>
@@ -175,44 +253,76 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
               <View className="flex-row">
 
-                {emotions.map((item, index) => {
-                  const selected = emotion === item.value;
+                {emotions.map(
+                  (
+                    item,
+                    index
+                  ) => {
 
-                  return (
-                    <TouchableOpacity
-                      key={item.value}
-                      onPress={() => setEmotion(item.value)}
-                      activeOpacity={0.8}
-                      className={`flex-1 h-[116px] rounded-[10px] items-center justify-center border ${index !== emotions.length - 1
-                        ? "mr-3"
-                        : ""
-                        } ${selected
-                          ? "border-[#3D8B3D] bg-[#F4FAEF]"
-                          : "border-[#E5DCC4] bg-[#FFFCEF]"
+                    const selected =
+                      emotion ===
+                      item.value;
+
+                    return (
+
+                      <TouchableOpacity
+                        key={
+                          item.value
+                        }
+                        onPress={() =>
+                          setEmotion(
+                            item.value
+                          )
+                        }
+                        activeOpacity={
+                          0.8
+                        }
+                        className={`flex-1 h-[116px] rounded-[10px] items-center justify-center border ${
+                          index !==
+                          emotions.length -
+                            1
+                            ? "mr-3"
+                            : ""
+                        } ${
+                          selected
+                            ? "border-[#3D8B3D] bg-[#F4FAEF]"
+                            : "border-[#E5DCC4] bg-[#FFFCEF]"
                         }`}
-                    >
-
-                      <Ionicons
-                        name={item.icon}
-                        size={42}
-                        color={item.color}
-                      />
-
-                      <Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.8}
-                        className={`mt-2 text-[17px] ${selected
-                          ? "text-[#3D8B3D] font-bold"
-                          : "text-[#554B41]"
-                          }`}
                       >
-                        {item.value}
-                      </Text>
 
-                    </TouchableOpacity>
-                  );
-                })}
+                        <Ionicons
+                          name={
+                            item.icon
+                          }
+                          size={42}
+                          color={
+                            item.color
+                          }
+                        />
+
+                        <Text
+                          numberOfLines={
+                            1
+                          }
+                          adjustsFontSizeToFit
+                          minimumFontScale={
+                            0.8
+                          }
+                          className={`mt-2 text-[17px] ${
+                            selected
+                              ? "text-[#3D8B3D] font-bold"
+                              : "text-[#554B41]"
+                          }`}
+                        >
+                          {
+                            item.value
+                          }
+                        </Text>
+
+                      </TouchableOpacity>
+                    );
+                  }
+                )}
 
               </View>
 
@@ -229,14 +339,18 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 <View className="flex-1 min-w-0 pr-2">
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     className="text-[#554B41] text-[20px] font-bold"
                   >
                     Alimento
                   </Text>
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     ellipsizeMode="tail"
                     className="text-[#80775C] text-[15px] mt-1"
                   >
@@ -246,7 +360,9 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 </View>
 
                 <TouchableOpacity
-                  activeOpacity={0.8}
+                  activeOpacity={
+                    0.8
+                  }
                   className="shrink-0 border border-[#E5DCC4] rounded-[10px] px-3 py-2 flex-row items-center"
                 >
 
@@ -257,7 +373,9 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                   />
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     className="text-[#6F4E24] ml-2 text-[14px] font-medium"
                   >
                     Alterar alimento
@@ -271,23 +389,27 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
             <View className="px-4 py-4 flex-row items-center">
 
-              <View
-                className="w-[78px] h-[78px] rounded-[8px] overflow-hidden shrink-0"
-              >
+              <View className="w-[78px] h-[78px] rounded-[8px] overflow-hidden shrink-0">
+
                 <Image
-                  source={require("../../../assets/images/foods/feijao.png")}
+                  source={require(
+                    "../../../assets/images/foods/feijao.png"
+                  )}
                   style={{
                     width: "100%",
                     height: "100%",
                   }}
                   resizeMode="cover"
                 />
+
               </View>
 
               <View className="flex-1 min-w-0 ml-4">
 
                 <Text
-                  numberOfLines={2}
+                  numberOfLines={
+                    2
+                  }
                   className="text-[#554B41] text-[18px] font-bold"
                 >
                   Feijão
@@ -319,7 +441,9 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
             <Text
               numberOfLines={1}
               adjustsFontSizeToFit
-              minimumFontScale={0.8}
+              minimumFontScale={
+                0.8
+              }
               className="text-[#80775C] text-[16px] mt-1"
             >
               Em qual aspecto a reação foi observada?
@@ -327,53 +451,86 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
             <View className="flex-row mt-4">
 
-              {aspects.map((item, index) => {
-                const selected = aspect === item.label;
+              {aspects.map(
+                (
+                  item,
+                  index
+                ) => {
 
-                return (
-                  <TouchableOpacity
-                    key={item.label}
-                    onPress={() => setAspect(item.label)}
-                    activeOpacity={0.8}
-                    style={{
-                      width: aspectWidth,
-                      height: 108,
-                      marginRight:
-                        index !== aspects.length - 1
-                          ? aspectGap
-                          : 0,
-                    }}
-                    className={`rounded-[10px] items-center justify-center border ${selected
-                      ? "border-[#3D8B3D] bg-[#F4FAEF]"
-                      : "border-[#E5DCC4] bg-[#FFFCEF]"
-                      }`}
-                  >
+                  const selected =
+                    aspect ===
+                    item.label;
 
-                    <Ionicons
-                      name={item.icon}
-                      size={40}
-                      color={
-                        selected
-                          ? "#3D8B3D"
-                          : "#806A42"
+                  return (
+
+                    <TouchableOpacity
+                      key={
+                        item.label
                       }
-                    />
+                      onPress={() =>
+                        setAspect(
+                          item.label
+                        )
+                      }
+                      activeOpacity={
+                        0.8
+                      }
+                      style={{
+                        width:
+                          aspectWidth,
 
-                    <Text
-                      numberOfLines={1}
-                      adjustsFontSizeToFit
-                      minimumFontScale={0.65}
-                      className={`mt-2 text-[15px] text-center ${selected
-                        ? "text-[#3D8B3D] font-bold"
-                        : "text-[#554B41]"
-                        }`}
+                        height:
+                          108,
+
+                        marginRight:
+                          index !==
+                          aspects.length -
+                            1
+                            ? aspectGap
+                            : 0,
+                      }}
+                      className={`rounded-[10px] items-center justify-center border ${
+                        selected
+                          ? "border-[#3D8B3D] bg-[#F4FAEF]"
+                          : "border-[#E5DCC4] bg-[#FFFCEF]"
+                      }`}
                     >
-                      {item.label}
-                    </Text>
 
-                  </TouchableOpacity>
-                );
-              })}
+                      <Ionicons
+                        name={
+                          item.icon
+                        }
+                        size={40}
+                        color={
+                          selected
+                            ? "#3D8B3D"
+                            : "#806A42"
+                        }
+                      />
+
+                      <Text
+                        numberOfLines={
+                          1
+                        }
+                        adjustsFontSizeToFit
+                        minimumFontScale={
+                          0.65
+                        }
+                        className={`mt-2 text-[15px] text-center ${
+                          selected
+                            ? "text-[#3D8B3D] font-bold"
+                            : "text-[#554B41]"
+                        }`}
+                      >
+                        {
+                          item.label
+                        }
+                      </Text>
+
+                    </TouchableOpacity>
+                  );
+                }
+              )}
 
             </View>
 
@@ -436,23 +593,31 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 <View className="flex-[2.2] h-[98px] rounded-[10px] border border-[#E5DCC4] bg-[#F7F0DC] flex-row items-center px-1">
 
                   <View className="w-[72px] h-[72px] rounded-[8px] overflow-hidden shrink-0">
+
                     <Image
-                      source={require("../../../assets/images/foods/feijao.png")}
+                      source={require(
+                        "../../../assets/images/foods/feijao.png"
+                      )}
                       style={{
                         width: "100%",
                         height: "100%",
                       }}
                       resizeMode="cover"
                     />
+
                   </View>
+
                   <Text
-                    numberOfLines={4}
+                    numberOfLines={
+                      4
+                    }
                     className="flex-1 min-w-0 ml-1 text-[#554B41] text-[10px] font-bold"
                   >
                     Feijão
                   </Text>
 
                 </View>
+
               </View>
 
               <View className="flex-row items-center mt-5">
@@ -464,16 +629,22 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 />
 
                 <Text
-                  numberOfLines={1}
+                  numberOfLines={
+                    1
+                  }
                   adjustsFontSizeToFit
-                  minimumFontScale={0.75}
+                  minimumFontScale={
+                    0.75
+                  }
                   className="flex-1 ml-2 text-[#554B41] text-[15px]"
                 >
                   Hoje, 08 de maio de 2025 às 09:41
                 </Text>
 
                 <TouchableOpacity
-                  activeOpacity={0.8}
+                  activeOpacity={
+                    0.8
+                  }
                   className="flex-row items-center ml-2"
                 >
 
@@ -484,7 +655,9 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                   />
 
                   <Text
-                    numberOfLines={1}
+                    numberOfLines={
+                      1
+                    }
                     className="text-[#6F4E24] ml-1 text-[14px]"
                   >
                     Editar
@@ -507,8 +680,12 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
                 </Text>
 
                 <TextInput
-                  value={observation}
-                  onChangeText={setObservation}
+                  value={
+                    observation
+                  }
+                  onChangeText={
+                    setObservation
+                  }
                   placeholder="Adicione observações sobre esse momento..."
                   placeholderTextColor="#B8B4AA"
                   multiline
@@ -525,8 +702,12 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
           <View className="mx-4 mt-5">
 
             <TouchableOpacity
-              onPress={handleSubmit}
-              activeOpacity={0.85}
+              onPress={
+                handleSubmit
+              }
+              activeOpacity={
+                0.85
+              }
               className="h-[62px] rounded-[10px] bg-[#4D9B43] items-center justify-center flex-row"
             >
 
@@ -543,8 +724,12 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={onClose}
-              activeOpacity={0.85}
+              onPress={
+                onClose
+              }
+              activeOpacity={
+                0.85
+              }
               className="h-[62px] mt-3 rounded-[10px] border border-[#C98F7C] items-center justify-center"
             >
 
@@ -558,9 +743,12 @@ export default function InteractionModal({visible, onClose, onSubmit}) {
 
         </ScrollView>
 
-        <BottomNavigation active="dashboard" />
+        <BottomNavigation
+          active="dashboard"
+        />
 
       </SafeAreaView>
+
     </Modal>
   );
 }

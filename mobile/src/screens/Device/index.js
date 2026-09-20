@@ -32,11 +32,39 @@ export default function Device() {
 
   useEffect(() => {
 
-    setConnected(
-      bluetoothService.estaConectado()
-    );
+    let mounted = true;
 
-    return () => {};
+    async function verificarConexao() {
+
+      const conectado =
+        await bluetoothService
+          .verificarConexaoAtual();
+
+      if (mounted) {
+        setConnected(conectado);
+      }
+    }
+
+    verificarConexao();
+
+    const removerListener =
+      bluetoothService
+        .adicionarListenerConexao(
+          (conectado) => {
+
+            if (mounted) {
+              setConnected(conectado);
+            }
+          }
+        );
+
+    return () => {
+
+      mounted = false;
+
+      removerListener();
+    };
+
   }, []);
 
   const handleConnection = async () => {
@@ -49,9 +77,31 @@ export default function Device() {
 
     if (connected) {
 
-      await bluetoothService.desconectar();
+      try {
 
-      setConnected(false);
+        setConnecting(true);
+
+        await bluetoothService
+          .desconectar();
+
+        setConnected(false);
+
+      } catch (disconnectError) {
+
+        console.error(
+          "Erro ao desconectar dispositivo:",
+          disconnectError
+        );
+
+        setError(
+          disconnectError?.message ||
+          "Não foi possível desconectar o dispositivo."
+        );
+
+      } finally {
+
+        setConnecting(false);
+      }
 
       return;
     }
@@ -60,9 +110,21 @@ export default function Device() {
 
       setConnecting(true);
 
-      await bluetoothService.conectar();
+      await bluetoothService
+        .conectar();
 
-      setConnected(true);
+      const conectado =
+        await bluetoothService
+          .verificarConexaoAtual();
+
+      setConnected(conectado);
+
+      if (!conectado) {
+
+        setError(
+          "O dispositivo foi encontrado, mas a conexão BLE não permaneceu ativa."
+        );
+      }
 
     } catch (connectionError) {
 
@@ -70,6 +132,8 @@ export default function Device() {
         "Erro ao conectar dispositivo:",
         connectionError
       );
+
+      setConnected(false);
 
       setError(
         connectionError?.message ||
@@ -118,6 +182,7 @@ export default function Device() {
               </Text>
 
               {connecting && (
+
                 <View className="items-center mt-4">
 
                   <ActivityIndicator
@@ -126,12 +191,17 @@ export default function Device() {
                   />
 
                 </View>
+
               )}
 
               {error !== "" && (
+
                 <Text className="text-[#9B5547] text-[15px] text-center mt-4 px-4">
+
                   {error}
+
                 </Text>
+
               )}
 
               <View className="mt-8">
@@ -139,7 +209,7 @@ export default function Device() {
                 <PrimaryButton
                   title={
                     connected
-                      ? "Dispositivo conectado"
+                      ? "Desconectar dispositivo"
                       : "Conectar dispositivo"
                   }
                   disabled={connecting}
@@ -156,7 +226,9 @@ export default function Device() {
 
       </View>
 
-      <BottomNavigation active="device" />
+      <BottomNavigation
+        active="device"
+      />
 
     </SafeAreaView>
   );

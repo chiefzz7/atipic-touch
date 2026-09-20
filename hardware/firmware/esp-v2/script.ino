@@ -44,60 +44,203 @@ bool estadoAnteriorAzul = HIGH;
 // ========================================
 
 BLEServer *bleServer = nullptr;
-BLECharacteristic *eventCharacteristic = nullptr;
+
+BLECharacteristic *eventCharacteristic =
+  nullptr;
 
 bool dispositivoConectado = false;
-bool dispositivoConectadoAnterior = false;
 
 // ========================================
 // Callbacks do servidor BLE
 // ========================================
 
-class ServerCallbacks : public BLEServerCallbacks {
+class ServerCallbacks :
+  public BLEServerCallbacks {
 
-  void onConnect(BLEServer *server) override {
+  void onConnect(
+    BLEServer *server
+  ) override {
+
     dispositivoConectado = true;
 
-    Serial.println("BLE conectado.");
+    Serial.println();
+
+    Serial.println(
+      "========================================"
+    );
+
+    Serial.println(
+      "Celular conectado ao ESP32."
+    );
+
+    Serial.println(
+      "========================================"
+    );
   }
 
-  void onDisconnect(BLEServer *server) override {
+  void onDisconnect(
+    BLEServer *server
+  ) override {
+
     dispositivoConectado = false;
 
-    Serial.println("BLE desconectado.");
+    Serial.println();
 
-    // Permite que o celular encontre novamente o ESP32.
+    Serial.println(
+      "========================================"
+    );
+
+    Serial.println(
+      "Celular desconectado do ESP32."
+    );
+
+    Serial.println(
+      "Reiniciando advertising..."
+    );
+
+    Serial.println(
+      "========================================"
+    );
+
+    delay(300);
+
     server->startAdvertising();
   }
 };
 
 // ========================================
+// Envio BLE fragmentado
+// ========================================
+
+void enviarMensagemBLE(
+  const String &mensagem
+) {
+
+  if (
+    !dispositivoConectado ||
+    eventCharacteristic == nullptr
+  ) {
+    return;
+  }
+
+  /*
+   * O MTU padrão BLE é 23.
+   *
+   * 23 - 3 bytes de cabeçalho ATT =
+   * aproximadamente 20 bytes úteis.
+   *
+   * Por isso enviamos em blocos de 20.
+   */
+  const size_t TAMANHO_PACOTE = 20;
+
+  /*
+   * O \n é utilizado pelo aplicativo
+   * para identificar o final do JSON.
+   */
+  String payload =
+    mensagem + "\n";
+
+  for (
+    size_t inicio = 0;
+    inicio < payload.length();
+    inicio += TAMANHO_PACOTE
+  ) {
+
+    size_t fim =
+      inicio +
+      TAMANHO_PACOTE;
+
+    if (
+      fim >
+      payload.length()
+    ) {
+
+      fim =
+        payload.length();
+    }
+
+    String pacote =
+      payload.substring(
+        inicio,
+        fim
+      );
+
+    eventCharacteristic
+      ->setValue(
+        (uint8_t *)
+          pacote.c_str(),
+        pacote.length()
+      );
+
+    eventCharacteristic
+      ->notify();
+
+    /*
+     * Pequeno intervalo para evitar
+     * perda de notificações.
+     */
+    delay(15);
+  }
+}
+
+// ========================================
 // Envio de evento
 // ========================================
 
-void enviarEvento(const char *botao, int value) {
+void enviarEvento(
+  const char *botao,
+  int value
+) {
 
   String json = "{";
 
   json += "\"botao\":\"";
   json += botao;
   json += "\",";
+
   json += "\"value\":";
   json += value;
+
   json += "}";
 
-  // Mostra no monitor USB
-  Serial.println(json);
+  // ======================================
+  // Monitor serial
+  // ======================================
 
-  // Só envia BLE se existir um dispositivo conectado
-  if (!dispositivoConectado || eventCharacteristic == nullptr) {
+  Serial.print(
+    "Evento: "
+  );
+
+  Serial.println(
+    json
+  );
+
+  // ======================================
+  // Verificar conexão
+  // ======================================
+
+  if (
+    !dispositivoConectado
+  ) {
+
+    Serial.println(
+      "Evento nao enviado: nenhum celular conectado."
+    );
+
     return;
   }
 
-  eventCharacteristic->setValue(json.c_str());
-  eventCharacteristic->notify();
+  // ======================================
+  // Enviar BLE
+  // ======================================
 
-  Serial.println("Evento enviado via BLE.");
+  enviarMensagemBLE(
+    json
+  );
+
+  Serial.println(
+    "Evento enviado via BLE."
+  );
 }
 
 // ========================================
@@ -106,49 +249,101 @@ void enviarEvento(const char *botao, int value) {
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(
+    115200
+  );
+
+  delay(500);
 
   Serial.println();
-  Serial.println("========================================");
-  Serial.println("AtipicTouch - ESP32 BLE");
-  Serial.println("========================================");
+
+  Serial.println(
+    "========================================"
+  );
+
+  Serial.println(
+    "AtipicTouch - ESP32 BLE"
+  );
+
+  Serial.println(
+    "========================================"
+  );
 
   // ======================================
   // Configuração dos botões
   // ======================================
 
-  pinMode(BOTAO_VERMELHO, INPUT_PULLUP);
-  pinMode(BOTAO_VERDE, INPUT_PULLUP);
-  pinMode(BOTAO_LARANJA, INPUT_PULLUP);
-  pinMode(BOTAO_AZUL, INPUT_PULLUP);
+  pinMode(
+    BOTAO_VERMELHO,
+    INPUT_PULLUP
+  );
+
+  pinMode(
+    BOTAO_VERDE,
+    INPUT_PULLUP
+  );
+
+  pinMode(
+    BOTAO_LARANJA,
+    INPUT_PULLUP
+  );
+
+  pinMode(
+    BOTAO_AZUL,
+    INPUT_PULLUP
+  );
 
   // ======================================
   // Inicialização BLE
   // ======================================
 
-  BLEDevice::init(DEVICE_NAME);
+  BLEDevice::init(
+    DEVICE_NAME
+  );
 
-  bleServer = BLEDevice::createServer();
+  bleServer =
+    BLEDevice::createServer();
 
-  bleServer->setCallbacks(new ServerCallbacks());
+  bleServer->setCallbacks(
+    new ServerCallbacks()
+  );
 
   BLEService *service =
-    bleServer->createService(SERVICE_UUID);
+    bleServer->createService(
+      SERVICE_UUID
+    );
+
+  // ======================================
+  // Característica de eventos
+  // ======================================
 
   eventCharacteristic =
     service->createCharacteristic(
       CHARACTERISTIC_UUID,
+
       BLECharacteristic::PROPERTY_READ |
       BLECharacteristic::PROPERTY_NOTIFY
     );
 
-  eventCharacteristic->addDescriptor(
-    new BLE2902()
-  );
+  /*
+   * Necessário para notificações BLE.
+   */
+  eventCharacteristic
+    ->addDescriptor(
+      new BLE2902()
+    );
 
-  eventCharacteristic->setValue(
-    "{\"status\":\"ready\"}"
-  );
+  /*
+   * Valor inicial da característica.
+   */
+  eventCharacteristic
+    ->setValue(
+      "{\"status\":\"ready\"}"
+    );
+
+  // ======================================
+  // Iniciar serviço
+  // ======================================
 
   service->start();
 
@@ -159,18 +354,48 @@ void setup() {
   BLEAdvertising *advertising =
     BLEDevice::getAdvertising();
 
-  advertising->addServiceUUID(SERVICE_UUID);
+  advertising
+    ->addServiceUUID(
+      SERVICE_UUID
+    );
 
-  advertising->setScanResponse(true);
+  advertising
+    ->setScanResponse(
+      true
+    );
 
-  advertising->setMinPreferred(0x06);
-  advertising->setMaxPreferred(0x12);
+  advertising
+    ->setMinPreferred(
+      0x06
+    );
 
-  BLEDevice::startAdvertising();
+  advertising
+    ->setMaxPreferred(
+      0x12
+    );
 
-  Serial.println("BLE iniciado.");
-  Serial.println("Nome: AtipicTouch-ESP32");
-  Serial.println("Aguardando conexao...");
+  BLEDevice
+    ::startAdvertising();
+
+  // ======================================
+  // Informações
+  // ======================================
+
+  Serial.println(
+    "BLE iniciado."
+  );
+
+  Serial.print(
+    "Nome: "
+  );
+
+  Serial.println(
+    DEVICE_NAME
+  );
+
+  Serial.println(
+    "Aguardando conexao..."
+  );
 }
 
 // ========================================
@@ -185,14 +410,19 @@ void loop() {
   // ======================================
 
   bool estadoVermelho =
-    digitalRead(BOTAO_VERMELHO);
+    digitalRead(
+      BOTAO_VERMELHO
+    );
 
   if (
     estadoVermelho == LOW &&
     estadoAnteriorVermelho == HIGH
   ) {
 
-    enviarEvento("rejeitou", 2);
+    enviarEvento(
+      "rejeitou",
+      2
+    );
 
     delay(50);
   }
@@ -206,14 +436,19 @@ void loop() {
   // ======================================
 
   bool estadoVerde =
-    digitalRead(BOTAO_VERDE);
+    digitalRead(
+      BOTAO_VERDE
+    );
 
   if (
     estadoVerde == LOW &&
     estadoAnteriorVerde == HIGH
   ) {
 
-    enviarEvento("aceitou", 1);
+    enviarEvento(
+      "aceitou",
+      1
+    );
 
     delay(50);
   }
@@ -227,14 +462,19 @@ void loop() {
   // ======================================
 
   bool estadoLaranja =
-    digitalRead(BOTAO_LARANJA);
+    digitalRead(
+      BOTAO_LARANJA
+    );
 
   if (
     estadoLaranja == LOW &&
     estadoAnteriorLaranja == HIGH
   ) {
 
-    enviarEvento("neutro", 3);
+    enviarEvento(
+      "neutro",
+      3
+    );
 
     delay(50);
   }
@@ -243,23 +483,30 @@ void loop() {
     estadoLaranja;
 
   // ======================================
-  // AZUL - AÇÃO / FEEDBACK FUTURO
+  // AZUL - AÇÃO
   // GPIO 19
   // ======================================
 
   bool estadoAzul =
-    digitalRead(BOTAO_AZUL);
+    digitalRead(
+      BOTAO_AZUL
+    );
 
   if (
     estadoAzul == LOW &&
     estadoAnteriorAzul == HIGH
   ) {
 
-    enviarEvento("acao", 0);
+    enviarEvento(
+      "acao",
+      0
+    );
 
     delay(50);
   }
 
   estadoAnteriorAzul =
     estadoAzul;
+
+  delay(5);
 }
