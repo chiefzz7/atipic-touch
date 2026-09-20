@@ -10,18 +10,28 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 
 import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
-import { StatusBar } from "expo-status-bar";
+import {
+  StatusBar,
+} from "expo-status-bar";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+} from "@expo/vector-icons";
+
+import {
+  getChildren,
+} from "../../services/children/children";
 
 import {
   getSelectedChild,
+  saveSelectedChild,
 } from "../../services/children/selectedChild";
 
 import {
@@ -56,6 +66,21 @@ export default function DashboardScreen() {
 
   const [bleReaction, setBleReaction] =
     useState("Gostou");
+
+  const [
+    availableChildren,
+    setAvailableChildren,
+  ] = useState([]);
+
+  const [
+    childSelectionVisible,
+    setChildSelectionVisible,
+  ] = useState(false);
+
+  const [
+    selectingChildId,
+    setSelectingChildId,
+  ] = useState(null);
 
   // ========================================
   // Eventos do ESP32
@@ -95,9 +120,13 @@ export default function DashboardScreen() {
             reaction
           );
 
-          setBleReaction(reaction);
+          setBleReaction(
+            reaction
+          );
 
-          setModalVisible(true);
+          setModalVisible(
+            true
+          );
         }
       );
 
@@ -105,7 +134,51 @@ export default function DashboardScreen() {
   }, []);
 
   // ========================================
-  // Dashboard
+  // Carregar dados da criança
+  // ========================================
+
+  async function loadChildData(
+    selectedChild
+  ) {
+    if (!selectedChild?.id) {
+      throw new Error(
+        "Criança inválida."
+      );
+    }
+
+    console.log(
+      "CRIANÇA SELECIONADA:",
+      selectedChild
+    );
+
+    console.log(
+      "CRIANÇA ID:",
+      selectedChild.id
+    );
+
+    setChild(
+      selectedChild
+    );
+
+    const data =
+      await getFeedingLogs(
+        selectedChild.id
+      );
+
+    console.log(
+      "HISTÓRICO ALIMENTAR:",
+      data
+    );
+
+    setFeedingLogs(
+      Array.isArray(data)
+        ? data
+        : []
+    );
+  }
+
+  // ========================================
+  // Inicialização do Dashboard
   // ========================================
 
   useEffect(() => {
@@ -114,41 +187,94 @@ export default function DashboardScreen() {
         setLoading(true);
         setError(null);
 
-        const currentChild =
-          await getSelectedChild();
+        // Busca somente as crianças
+        // vinculadas ao responsável
+        // autenticado.
+        const children =
+          await getChildren();
+
+        const childrenList =
+          Array.isArray(children)
+            ? children
+            : [];
 
         console.log(
-          "CRIANÇA SELECIONADA:",
-          currentChild
+          "CRIANÇAS DO RESPONSÁVEL:",
+          childrenList
         );
 
-        if (!currentChild?.id) {
+        setAvailableChildren(
+          childrenList
+        );
+
+        // Nenhuma criança cadastrada.
+        if (
+          childrenList.length === 0
+        ) {
           throw new Error(
-            "Nenhuma criança selecionada."
+            "Nenhuma criança cadastrada para este responsável."
           );
         }
 
-        console.log(
-          "CRIANÇA ID:",
-          currentChild.id
-        );
+        const storedChild =
+          await getSelectedChild();
 
-        setChild(currentChild);
+        // ====================================
+        // Apenas uma criança
+        // ====================================
 
-        const data =
-          await getFeedingLogs(
-            currentChild.id
+        if (
+          childrenList.length === 1
+        ) {
+          const onlyChild =
+            childrenList[0];
+
+          await saveSelectedChild(
+            onlyChild
           );
 
-        console.log(
-          "HISTÓRICO ALIMENTAR:",
-          data
-        );
+          await loadChildData(
+            onlyChild
+          );
 
-        setFeedingLogs(
-          Array.isArray(data)
-            ? data
-            : []
+          return;
+        }
+
+        // ====================================
+        // Mais de uma criança
+        // ====================================
+
+        const storedChildIsValid =
+          storedChild?.id &&
+          childrenList.some(
+            (currentChild) =>
+              currentChild.id ===
+              storedChild.id
+          );
+
+        // Já existe uma criança selecionada
+        // e ela pertence ao responsável atual.
+        if (
+          storedChildIsValid
+        ) {
+          const currentChild =
+            childrenList.find(
+              (item) =>
+                item.id ===
+                storedChild.id
+            );
+
+          await loadChildData(
+            currentChild
+          );
+
+          return;
+        }
+
+        // Não existe seleção válida.
+        // O responsável precisa escolher.
+        setChildSelectionVisible(
+          true
         );
 
       } catch (err) {
@@ -157,7 +283,10 @@ export default function DashboardScreen() {
           err
         );
 
-        setError(err.message);
+        setError(
+          err?.message ||
+          "Não foi possível carregar o Dashboard."
+        );
 
       } finally {
         setLoading(false);
@@ -167,6 +296,69 @@ export default function DashboardScreen() {
     loadDashboard();
 
   }, []);
+
+  // ========================================
+  // Selecionar criança no modal
+  // ========================================
+
+  async function handleSelectChild(
+    selectedChild
+  ) {
+    if (
+      !selectedChild?.id ||
+      selectingChildId
+    ) {
+      return;
+    }
+
+    try {
+      setSelectingChildId(
+        selectedChild.id
+      );
+
+      setError(null);
+
+      await saveSelectedChild(
+        selectedChild
+      );
+
+      setChildSelectionVisible(
+        false
+      );
+
+      setLoading(
+        true
+      );
+
+      await loadChildData(
+        selectedChild
+      );
+
+    } catch (err) {
+      console.error(
+        "Erro ao selecionar criança:",
+        err
+      );
+
+      setError(
+        err?.message ||
+        "Não foi possível selecionar a criança."
+      );
+
+    } finally {
+      setSelectingChildId(
+        null
+      );
+
+      setLoading(
+        false
+      );
+    }
+  }
+
+  // ========================================
+  // Dados do Dashboard
+  // ========================================
 
   const sortedLogs =
     [...feedingLogs].sort(
@@ -179,7 +371,10 @@ export default function DashboardScreen() {
     sortedLogs[0];
 
   const recentLogs =
-    sortedLogs.slice(0, 5);
+    sortedLogs.slice(
+      0,
+      5
+    );
 
   const getReactionLabel =
     (reaction) => {
@@ -216,11 +411,14 @@ export default function DashboardScreen() {
             ) === "Gostou"
         ).length,
 
-      icon: "happy-outline",
+      icon:
+        "happy-outline",
 
-      iconColor: "#4D9B43",
+      iconColor:
+        "#4D9B43",
 
-      background: "#EDF6E8",
+      background:
+        "#EDF6E8",
     },
 
     {
@@ -234,29 +432,37 @@ export default function DashboardScreen() {
             ) === "Neutro"
         ).length,
 
-      icon: "remove-circle-outline",
+      icon:
+        "remove-circle-outline",
 
-      iconColor: "#C29424",
+      iconColor:
+        "#C29424",
 
-      background: "#F8F0D9",
+      background:
+        "#F8F0D9",
     },
 
     {
-      label: "Não gostou",
+      label:
+        "Não gostou",
 
       value:
         recentLogs.filter(
           (log) =>
             getReactionLabel(
               log.reacao
-            ) === "Não gostou"
+            ) ===
+            "Não gostou"
         ).length,
 
-      icon: "sad-outline",
+      icon:
+        "sad-outline",
 
-      iconColor: "#D9534F",
+      iconColor:
+        "#D9534F",
 
-      background: "#FCEBE8",
+      background:
+        "#FCEBE8",
     },
   ];
 
@@ -267,22 +473,30 @@ export default function DashboardScreen() {
       }
 
       const date =
-        new Date(timestamp);
+        new Date(
+          timestamp
+        );
 
       return date.toLocaleString(
         "pt-BR",
         {
-          day: "2-digit",
-          month: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
+          day:
+            "2-digit",
+          month:
+            "2-digit",
+          hour:
+            "2-digit",
+          minute:
+            "2-digit",
         }
       );
     };
 
   const getMealImage =
     (foodName) => {
-      if (foodName === "Feijão") {
+      if (
+        foodName === "Feijão"
+      ) {
         return require(
           "../../../assets/images/foods/feijao.png"
         );
@@ -297,27 +511,38 @@ export default function DashboardScreen() {
     <View
       className="flex-1 bg-[#FFFCEF]"
       style={{
-        paddingTop: insets.top,
+        paddingTop:
+          insets.top,
       }}
     >
-      <StatusBar style="dark" />
-      
+      <StatusBar
+        style="dark"
+      />
+
       <ScrollView
         className="flex-1 px-3 pt-2"
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={
+          false
+        }
         contentContainerStyle={{
-          paddingBottom: 120,
+          paddingBottom:
+            120,
         }}
       >
         <AvatarHeader
           variant="dashboard"
           greeting="Bom dia"
           childName={
-            child?.nome || ""
+            child?.nome ||
+            ""
           }
-          hasNotification={true}
+          hasNotification={
+            true
+          }
           onNotificationPress={() =>
-            setModalVisible(true)
+            setModalVisible(
+              true
+            )
           }
         />
 
@@ -375,8 +600,10 @@ export default function DashboardScreen() {
                           )
                         }
                         style={{
-                          width: "100%",
-                          height: "100%",
+                          width:
+                            "100%",
+                          height:
+                            "100%",
                         }}
                         resizeMode="cover"
                       />
@@ -384,7 +611,9 @@ export default function DashboardScreen() {
 
                     <View className="flex-1 ml-4">
                       <Text
-                        numberOfLines={2}
+                        numberOfLines={
+                          2
+                        }
                         className="text-[#554B41] text-[18px] font-bold"
                       >
                         {
@@ -400,7 +629,8 @@ export default function DashboardScreen() {
                           className={`flex-row items-center rounded-full px-3 py-1 mr-2 ${
                             getReactionLabel(
                               lastMeal.reacao
-                            ) === "Gostou"
+                            ) ===
+                            "Gostou"
                               ? "bg-[#EDF6E8]"
                               : getReactionLabel(
                                   lastMeal.reacao
@@ -424,7 +654,9 @@ export default function DashboardScreen() {
                                 ? "sad-outline"
                                 : "remove-circle-outline"
                             }
-                            size={17}
+                            size={
+                              17
+                            }
                             color={
                               getReactionLabel(
                                 lastMeal.reacao
@@ -469,7 +701,9 @@ export default function DashboardScreen() {
                           <View className="flex-row items-center bg-[#F8F0D9] rounded-full px-3 py-1">
                             <Ionicons
                               name="color-palette-outline"
-                              size={17}
+                              size={
+                                17
+                              }
                               color="#806A42"
                             />
 
@@ -501,7 +735,9 @@ export default function DashboardScreen() {
               >
                 <View className="flex-row -mx-1">
                   {reactionData.map(
-                    (item) => (
+                    (
+                      item
+                    ) => (
                       <View
                         key={
                           item.label
@@ -516,7 +752,9 @@ export default function DashboardScreen() {
                           name={
                             item.icon
                           }
-                          size={30}
+                          size={
+                            30
+                          }
                           color={
                             item.iconColor
                           }
@@ -535,7 +773,9 @@ export default function DashboardScreen() {
                         </Text>
 
                         <Text
-                          numberOfLines={1}
+                          numberOfLines={
+                            1
+                          }
                           adjustsFontSizeToFit
                           minimumFontScale={
                             0.75
@@ -564,7 +804,9 @@ export default function DashboardScreen() {
                 <View>
                   <View className="flex-row justify-end mb-2">
                     <TouchableOpacity
-                      activeOpacity={0.7}
+                      activeOpacity={
+                        0.7
+                      }
                       onPress={() => {}}
                       className="flex-row items-center"
                     >
@@ -574,17 +816,23 @@ export default function DashboardScreen() {
 
                       <Ionicons
                         name="arrow-forward"
-                        size={17}
+                        size={
+                          17
+                        }
                         color="#4D9B43"
                         style={{
-                          marginLeft: 4,
+                          marginLeft:
+                            4,
                         }}
                       />
                     </TouchableOpacity>
                   </View>
 
                   {recentLogs
-                    .slice(0, 3)
+                    .slice(
+                      0,
+                      3
+                    )
                     .map(
                       (
                         log,
@@ -664,7 +912,9 @@ export default function DashboardScreen() {
                                     ? "sad-outline"
                                     : "remove-outline"
                                 }
-                                size={22}
+                                size={
+                                  22
+                                }
                                 color={
                                   reaction ===
                                   "Gostou"
@@ -679,10 +929,13 @@ export default function DashboardScreen() {
 
                             <Ionicons
                               name="chevron-forward"
-                              size={18}
+                              size={
+                                18
+                              }
                               color="#A3987B"
                               style={{
-                                marginLeft: 5,
+                                marginLeft:
+                                  5,
                               }}
                             />
                           </TouchableOpacity>
@@ -696,18 +949,138 @@ export default function DashboardScreen() {
         )}
       </ScrollView>
 
-      <InteractionModal
-        visible={modalVisible}
-        initialEmotion={bleReaction}
-        onClose={() =>
-          setModalVisible(false)
+      {/* ===================================
+          Modal de seleção de criança
+          =================================== */}
+
+      <Modal
+        visible={
+          childSelectionVisible
         }
-        onSubmit={(experience) => {
+        transparent
+        animationType="fade"
+        onRequestClose={() => {}}
+      >
+        <View className="flex-1 bg-black/40 items-center justify-center px-5">
+          <View className="w-full max-w-[420px] bg-[#FFFCEF] rounded-[20px] px-5 py-6">
+            <View className="items-center">
+              <View className="w-[58px] h-[58px] rounded-full bg-[#E5D8B0] items-center justify-center">
+                <Ionicons
+                  name="people"
+                  size={
+                    30
+                  }
+                  color="#6F4E24"
+                />
+              </View>
+
+              <Text className="text-[#554B41] text-[22px] font-bold text-center mt-4">
+                Selecione uma criança
+              </Text>
+
+              <Text className="text-[#80775C] text-[14px] text-center mt-2">
+                Quem você deseja acompanhar?
+              </Text>
+            </View>
+
+            <View className="mt-5">
+              {availableChildren.map(
+                (
+                  currentChild
+                ) => {
+                  const isSelecting =
+                    selectingChildId ===
+                    currentChild.id;
+
+                  return (
+                    <TouchableOpacity
+                      key={
+                        currentChild.id
+                      }
+                      activeOpacity={
+                        0.8
+                      }
+                      disabled={
+                        selectingChildId !==
+                        null
+                      }
+                      onPress={() =>
+                        handleSelectChild(
+                          currentChild
+                        )
+                      }
+                      className="w-full min-h-[70px] border border-[#E5DCC4] bg-white rounded-[12px] px-4 py-3 mb-3 flex-row items-center"
+                    >
+                      <View className="w-[46px] h-[46px] rounded-full bg-[#F2F0E8] items-center justify-center">
+                        <Ionicons
+                          name="person"
+                          size={
+                            25
+                          }
+                          color="#A3987B"
+                        />
+                      </View>
+
+                      <View className="flex-1 ml-4">
+                        <Text
+                          numberOfLines={
+                            1
+                          }
+                          className="text-[#554B41] text-[17px] font-bold"
+                        >
+                          {
+                            currentChild.nome ||
+                            "Criança"
+                          }
+                        </Text>
+                      </View>
+
+                      {isSelecting ? (
+                        <ActivityIndicator
+                          size="small"
+                          color="#4D9B43"
+                        />
+
+                      ) : (
+                        <Ionicons
+                          name="chevron-forward"
+                          size={
+                            22
+                          }
+                          color="#A3987B"
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                }
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <InteractionModal
+        visible={
+          modalVisible
+        }
+        initialEmotion={
+          bleReaction
+        }
+        onClose={() =>
+          setModalVisible(
+            false
+          )
+        }
+        onSubmit={(
+          experience
+        ) => {
           console.log(
             experience
           );
 
-          setModalVisible(false);
+          setModalVisible(
+            false
+          );
         }}
       />
 

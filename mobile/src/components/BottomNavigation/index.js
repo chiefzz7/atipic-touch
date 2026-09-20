@@ -34,7 +34,7 @@ export default function BottomNavigation({
     <View
       className="absolute bottom-0 w-full bg-[#554B41]"
       style={{
-        height: 83 + insets.bottom,
+        height: 65 + insets.bottom,
         paddingBottom: insets.bottom,
       }}
     >
