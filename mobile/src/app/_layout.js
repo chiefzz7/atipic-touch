@@ -1,9 +1,23 @@
-import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import {
+  Stack,
+  useRouter,
+  useSegments,
+} from "expo-router";
 
-import { validateSession, subscribeAuth, } from "../services/auth/auth";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-import { getChildren } from "../services/children/children";
+import {
+  validateSession,
+  subscribeAuth,
+} from "../services/auth/auth";
+
+import {
+  getChildren,
+} from "../services/children/children";
 
 import "../../global.css";
 
@@ -11,38 +25,47 @@ export default function Layout() {
   const router = useRouter();
   const segments = useSegments();
 
-  const [checkingSession, setCheckingSession] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingSession, setCheckingSession] =
+    useState(true);
 
-  // Indica que a verificação inicial da sessão já terminou.
-  const sessionInitialized = useRef(false);
+  const [authenticated, setAuthenticated] =
+    useState(false);
 
-  const isInitialSessionCheck = useRef(true);
+  // Indica que a verificação inicial
+  // da sessão já terminou.
+  const sessionInitialized =
+    useRef(false);
+
+  const isInitialSessionCheck =
+    useRef(true);
 
   useEffect(() => {
     let mounted = true;
 
     async function checkSession() {
       try {
-        const isValid = await validateSession();
+        const isValid =
+          await validateSession();
 
-        if (!mounted) return;
-
-        if (!isValid) {
-          setAuthenticated(false);
+        if (!mounted) {
           return;
         }
 
-        setAuthenticated(true);
+        setAuthenticated(isValid);
       } catch (error) {
-        console.error("Erro ao verificar sessão:", error);
+        console.error(
+          "Erro ao verificar sessão:",
+          error
+        );
 
         if (mounted) {
           setAuthenticated(false);
         }
       } finally {
         if (mounted) {
-          sessionInitialized.current = true;
+          sessionInitialized.current =
+            true;
+
           setCheckingSession(false);
         }
       }
@@ -50,11 +73,18 @@ export default function Layout() {
 
     checkSession();
 
-    const unsubscribe = subscribeAuth((isAuthenticated) => {
-      if (!mounted) return;
+    const unsubscribe =
+      subscribeAuth(
+        (isAuthenticated) => {
+          if (!mounted) {
+            return;
+          }
 
-      setAuthenticated(isAuthenticated);
-    });
+          setAuthenticated(
+            isAuthenticated
+          );
+        }
+      );
 
     return () => {
       mounted = false;
@@ -63,25 +93,52 @@ export default function Layout() {
   }, []);
 
   useEffect(() => {
-    if (checkingSession) return;
-    if (!sessionInitialized.current) return;
-    if (!segments.length) return;
+    if (checkingSession) {
+      return;
+    }
 
-    const currentRoute = segments[0];
+    if (!sessionInitialized.current) {
+      return;
+    }
 
-    const publicRoutes = ["login","register",];
+    const isRootRoute =
+      segments.length === 0;
 
-    const onboardingRoutes = ["child-introduction", "home-introduction" ];
+    const currentRoute =
+      segments[0];
 
-    const isPublicRoute = publicRoutes.includes(currentRoute);
-    const isOnboardingRoute = onboardingRoutes.includes(currentRoute);
+    const publicRoutes = [
+      "login",
+      "register",
+    ];
+
+    const onboardingRoutes = [
+      "child-introduction",
+      "home-introduction",
+    ];
+
+    const isPublicRoute =
+      publicRoutes.includes(
+        currentRoute
+      );
+
+    const isOnboardingRoute =
+      onboardingRoutes.includes(
+        currentRoute
+      );
 
     if (isOnboardingRoute) {
       return;
     }
 
+    // Usuário sem sessão:
+    // mantém a Welcome quando estiver
+    // na rota inicial.
     if (!authenticated) {
-      if (isPublicRoute) {
+      if (
+        isRootRoute ||
+        isPublicRoute
+      ) {
         return;
       }
 
@@ -89,20 +146,46 @@ export default function Layout() {
       return;
     }
 
-    if (authenticated && isPublicRoute && isInitialSessionCheck.current) {
-      isInitialSessionCheck.current = false;
+    // Usuário com sessão válida:
+    // se abrir o app pela Welcome
+    // ou estiver em login/register,
+    // redireciona automaticamente.
+    if (
+      authenticated &&
+      (
+        isRootRoute ||
+        isPublicRoute
+      ) &&
+      isInitialSessionCheck.current
+    ) {
+      isInitialSessionCheck.current =
+        false;
 
       redirectAuthenticatedUser();
-    }}, [authenticated, checkingSession, segments, router]);
+    }
+  }, [
+    authenticated,
+    checkingSession,
+    segments,
+    router,
+  ]);
 
   async function redirectAuthenticatedUser() {
     try {
-      const children = await getChildren();
+      const children =
+        await getChildren();
 
-      if (children.length > 0) {
-        router.replace("/device");
+      if (
+        Array.isArray(children) &&
+        children.length > 0
+      ) {
+        router.replace(
+          "/dashboard"
+        );
       } else {
-        router.replace("/child-introduction");
+        router.replace(
+          "/child-introduction"
+        );
       }
     } catch (error) {
       console.error(
@@ -110,7 +193,9 @@ export default function Layout() {
         error
       );
 
-      router.replace("/child-introduction");
+      router.replace(
+        "/child-introduction"
+      );
     }
   }
 
