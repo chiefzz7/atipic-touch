@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, useWindowDimensions} from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  useWindowDimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
 
 export default function WelcomeScreen() {
@@ -8,17 +14,19 @@ export default function WelcomeScreen() {
   const { width, height } = useWindowDimensions();
 
   const imageSize = Math.min(width * 0.82, 335);
-
-  const imageTop = height * 0.16;
+  const imageTop = height * 0.18;
 
   const buttonWidth = Math.min(width * 0.85, 350);
 
   const buttonTop = Math.min(
-    height * 0.62,
+    height * 0.66,
     height - 210
   );
 
   const loginTop = buttonTop + 87;
+
+  // círculo real: largura e altura iguais
+  const circleSize = Math.max(width * 1.7, 650);
 
   return (
     <View
@@ -27,16 +35,14 @@ export default function WelcomeScreen() {
         overflow: "hidden",
       }}
     >
-
       <View
         className="absolute rounded-full bg-[#E5D8B0]"
         pointerEvents="none"
         style={{
-          width: width * 1.65,
-          height: Math.max(height * 0.82, 650),
-          top: -height * 0.02,
-
-          left: -(width * 0.325),
+          width: circleSize,
+          height: circleSize,
+          top: height * 0.10,
+          left: (width - circleSize) / 2,
         }}
       />
 
@@ -82,7 +88,6 @@ export default function WelcomeScreen() {
           </Text>
         </Text>
       </TouchableOpacity>
-
     </View>
   );
 }

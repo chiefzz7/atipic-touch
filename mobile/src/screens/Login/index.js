@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { SafeAreaView, View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { saveSession } from "../../services/auth/auth.js";
 import { getChildren } from "../../services/children/children";
 
@@ -22,10 +33,13 @@ export default function LoginScreen() {
 
   const titleSize =
     width < 360 ? 34 :
-      width < 600 ? 44 : 52;
+    width < 600 ? 44 : 52;
 
   const labelSize = width < 360 ? 20 : 23;
   const broccoliWidth = Math.min(width * 0.5, 210);
+
+  // círculo real: largura e altura iguais
+  const circleSize = Math.max(width * 1.7, 620);
 
   async function handleLogin() {
     if (!email.trim() || !password.trim()) {
@@ -72,17 +86,16 @@ export default function LoginScreen() {
     }
   }
 
-
   return (
     <SafeAreaView className="flex-1 bg-[#FFFCEF] overflow-hidden">
       <View
         pointerEvents="none"
         className="absolute rounded-full bg-[#E5D8B0]"
         style={{
-          width: width * 1.7,
-          height: Math.max(height * 0.78, 600),
-          top: 16,
-          left: -(width * 0.35),
+          width: circleSize,
+          height: circleSize,
+          top: height * 0.10,
+          left: (width - circleSize) / 2,
         }}
       />
 
@@ -170,7 +183,7 @@ export default function LoginScreen() {
                 secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}
-                className="w-full rounded-[7px] bg-white px-4 text-[18px]"
+                className="w-full rounded-[7px] bg-white px-4 text-[18px] text-black"
                 style={{
                   height: 45,
                 }}
