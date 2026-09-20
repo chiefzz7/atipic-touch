@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { SafeAreaView, ScrollView, ActivityIndicator, Text, View} from "react-native";
+import { SafeAreaView, ScrollView, ActivityIndicator, Text, View } from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -10,7 +10,7 @@ import FoodSearch from "../../components/FoodSearch";
 import FoodItem from "../../components/FoodItem";
 import FoodActionModal from "../../components/FoodActionModal";
 
-import {  getFoods,deleteFood} from "../../services/foods/foods";
+import { getFoods, deleteFood } from "../../services/foods/foods";
 
 export default function EditFoodScreen() {
   const router = useRouter();
@@ -73,9 +73,9 @@ export default function EditFoodScreen() {
     <SafeAreaView className="flex-1 bg-[#FFFCEF]">
 
       <AvatarHeader
-        variant="dashboard"
+        mode="dashboard"
         greeting="Bom dia"
-        childName="João"
+        childName=""
         hasNotification={false}
         onNotificationPress={() => { }}
       />
@@ -90,9 +90,9 @@ export default function EditFoodScreen() {
           onChangeText={setSearch}
           onAddPress={() =>
             router.push({
-              pathname: "/edit-food-form",
+              pathname: "/food-register",
               params: {
-                variant: "create",
+                mode: "create",
               },
             })
           }
@@ -144,10 +144,10 @@ export default function EditFoodScreen() {
           setModalVisible(false);
 
           router.push({
-            pathname: "/edit-food-form",
+            pathname: "/food-register",
             params: {
-              variant: "edit",
-              id: selectedFood.id,
+              mode: "edit",
+              food: JSON.stringify(selectedFood),
             },
           });
         }}
