@@ -30,7 +30,7 @@ export default function FoodSearch({value,onChangeText,onAddPress,})
 
       <TouchableOpacity
   activeOpacity={0.8}
-  onPress={() => router.push("/edit-food-form")}
+  onPress={() => router.push("/food-register")}
   className="items-center"
 >
 
