@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   View,
   Text,
@@ -6,35 +7,75 @@ import {
   Image,
   useWindowDimensions,
 } from "react-native";
-import { useRouter } from "expo-router";
+
+import {
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+
+import {
+  StatusBar,
+} from "expo-status-bar";
+
+import {
+  useRouter,
+} from "expo-router";
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
-  const { width, height } = useWindowDimensions();
+  const insets =
+    useSafeAreaInsets();
 
-  const imageSize = Math.min(width * 0.82, 335);
-  const imageTop = height * 0.18;
+  const {
+    width,
+    height,
+  } = useWindowDimensions();
 
-  const buttonWidth = Math.min(width * 0.85, 350);
+  const imageSize =
+    Math.min(
+      width * 0.82,
+      335
+    );
 
-  const buttonTop = Math.min(
-    height * 0.66,
-    height - 210
-  );
+  const imageTop =
+    height * 0.18;
 
-  const loginTop = buttonTop + 87;
+  const buttonWidth =
+    Math.min(
+      width * 0.85,
+      350
+    );
 
-  // círculo real: largura e altura iguais
-  const circleSize = Math.max(width * 1.7, 650);
+  const buttonTop =
+    Math.min(
+      height * 0.66,
+      height - 210
+    );
+
+  const loginTop =
+    buttonTop + 87;
+
+  // Círculo real:
+  // largura e altura iguais.
+  const circleSize =
+    Math.max(
+      width * 1.7,
+      650
+    );
 
   return (
     <View
       className="flex-1 items-center bg-[#FFFCEF]"
       style={{
         overflow: "hidden",
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
       }}
     >
+      <StatusBar
+        style="dark"
+      />
+
       <View
         className="absolute rounded-full bg-[#E5D8B0]"
         pointerEvents="none"
@@ -42,12 +83,16 @@ export default function WelcomeScreen() {
           width: circleSize,
           height: circleSize,
           top: height * 0.10,
-          left: (width - circleSize) / 2,
+          left:
+            (width - circleSize) /
+            2,
         }}
       />
 
       <Image
-        source={require("../../../assets/images/welcome_brocolis.png")}
+        source={require(
+          "../../../assets/images/welcome_brocolis.png"
+        )}
         resizeMode="contain"
         pointerEvents="none"
         style={{
@@ -55,7 +100,8 @@ export default function WelcomeScreen() {
           width: imageSize,
           height: imageSize,
           top: imageTop,
-          borderRadius: imageSize / 2,
+          borderRadius:
+            imageSize / 2,
         }}
       />
 
@@ -66,7 +112,11 @@ export default function WelcomeScreen() {
           width: buttonWidth,
           top: buttonTop,
         }}
-        onPress={() => router.push("/register")}
+        onPress={() =>
+          router.push(
+            "/register"
+          )
+        }
       >
         <Text className="text-white text-[24px] font-bold">
           Criar minha conta
@@ -79,10 +129,15 @@ export default function WelcomeScreen() {
         style={{
           top: loginTop,
         }}
-        onPress={() => router.push("/login")}
+        onPress={() =>
+          router.push(
+            "/login"
+          )
+        }
       >
         <Text className="text-[#6E6246] text-[18px]">
           Já tem uma conta?{" "}
+
           <Text className="font-bold">
             Entrar
           </Text>

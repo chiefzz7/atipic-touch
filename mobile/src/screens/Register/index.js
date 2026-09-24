@@ -1,53 +1,182 @@
-import React, { useState } from "react";
-import { useRouter } from "expo-router";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  useRouter,
+} from "expo-router";
+
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
+  Keyboard,
+  useWindowDimensions,
 } from "react-native";
 
-import { registerUser } from "../../services/auth/register";
-import { saveSession } from "../../services/auth/auth";
+import {
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-const API_URL = "https://atipic-touch-devlop.onrender.com";
+import {
+  StatusBar,
+} from "expo-status-bar";
+
+import {
+  registerUser,
+} from "../../services/auth/register";
+
+import {
+  saveSession,
+} from "../../services/auth/auth";
+
+const API_URL =
+  "https://atipic-touch-devlop.onrender.com";
 
 export default function RegisterScreen() {
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [senha, setSenha] = useState("");
-  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const insets =
+    useSafeAreaInsets();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const scrollViewRef =
+    useRef(null);
 
-  function formatTelefone(value) {
-    // Remove tudo que não for número
-    const numbers = value.replace(/\D/g, "").slice(0, 11);
+  const {
+    width,
+  } = useWindowDimensions();
 
-    if (numbers.length === 0) {
+  const [
+    nome,
+    setNome,
+  ] = useState("");
+
+  const [
+    email,
+    setEmail,
+  ] = useState("");
+
+  const [
+    telefone,
+    setTelefone,
+  ] = useState("");
+
+  const [
+    senha,
+    setSenha,
+  ] = useState("");
+
+  const [
+    confirmarSenha,
+    setConfirmarSenha,
+  ] = useState("");
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    keyboardVisible,
+    setKeyboardVisible,
+  ] = useState(false);
+
+  const cardWidth =
+    Math.min(
+      width - 32,
+      355
+    );
+
+  useEffect(() => {
+    const showSubscription =
+      Keyboard.addListener(
+        "keyboardDidShow",
+        () => {
+          setKeyboardVisible(
+            true
+          );
+        }
+      );
+
+    const hideSubscription =
+      Keyboard.addListener(
+        "keyboardDidHide",
+        () => {
+          setKeyboardVisible(
+            false
+          );
+        }
+      );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  function scrollToPosition(
+    y
+  ) {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({
+        y,
+        animated: true,
+      });
+    }, 250);
+  }
+
+  function formatTelefone(
+    value
+  ) {
+    const numbers =
+      value
+        .replace(
+          /\D/g,
+          ""
+        )
+        .slice(
+          0,
+          11
+        );
+
+    if (
+      numbers.length === 0
+    ) {
       return "";
     }
 
-    // DDD
-    if (numbers.length <= 2) {
+    if (
+      numbers.length <= 2
+    ) {
       return `(${numbers}`;
     }
 
-    // (11) 999
-    if (numbers.length <= 7) {
-      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    if (
+      numbers.length <= 7
+    ) {
+      return `(${numbers.slice(
+        0,
+        2
+      )}) ${numbers.slice(2)}`;
     }
 
-    // (11) 99999-9999
-    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(
+    return `(${numbers.slice(
+      0,
+      2
+    )}) ${numbers.slice(
+      2,
       7
-    )}`;
+    )}-${numbers.slice(7)}`;
   }
 
   function validateForm() {
@@ -59,9 +188,10 @@ export default function RegisterScreen() {
       return "Informe seu e-mail.";
     }
 
-    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-      email.trim()
-    );
+    const emailValido =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        email.trim()
+      );
 
     if (!emailValido) {
       return "Informe um e-mail válido.";
@@ -79,7 +209,9 @@ export default function RegisterScreen() {
       return "Confirme sua senha.";
     }
 
-    if (senha !== confirmarSenha) {
+    if (
+      senha !== confirmarSenha
+    ) {
       return "As senhas não coincidem.";
     }
 
@@ -87,69 +219,133 @@ export default function RegisterScreen() {
   }
 
   async function loginAfterRegister() {
-    const response = await fetch(`${API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email.trim().toLowerCase(),
-        senha,
-      }),
-    });
+    const response =
+      await fetch(
+        `${API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            Accept:
+              "application/json",
+            "Content-Type":
+              "application/json",
+          },
+          body:
+            JSON.stringify({
+              email:
+                email
+                  .trim()
+                  .toLowerCase(),
+              senha,
+            }),
+        }
+      );
 
-    const data = await response.json().catch(() => null);
+    const data =
+      await response
+        .json()
+        .catch(
+          () => null
+        );
 
-    if (!response.ok || !data?.access_token) {
+    if (
+      !response.ok ||
+      !data?.access_token
+    ) {
       throw new Error(
         "Cadastro realizado, mas não foi possível iniciar sua sessão."
       );
     }
 
-    await saveSession(data.access_token);
+    await saveSession(
+      data.access_token
+    );
   }
 
   async function handleRegister() {
     setError("");
 
-    const validationError = validateForm();
+    const validationError =
+      validateForm();
 
-    if (validationError) {
-      setError(validationError);
+    if (
+      validationError
+    ) {
+      setError(
+        validationError
+      );
+
       return;
     }
 
     try {
-      setLoading(true);
+      setLoading(
+        true
+      );
 
       await registerUser({
-        nome: nome.trim(),
-        email: email.trim().toLowerCase(),
-        telefone: telefone.trim(),
+        nome:
+          nome.trim(),
+        email:
+          email
+            .trim()
+            .toLowerCase(),
+        telefone:
+          telefone.trim(),
         senha,
       });
 
       await loginAfterRegister();
 
-      router.replace("/child-introduction");
+      router.replace(
+        "/child-introduction"
+      );
+
     } catch (error) {
       setError(
-        error.message || "Não foi possível realizar o cadastro."
+        error.message ||
+        "Não foi possível realizar o cadastro."
       );
+
     } finally {
-      setLoading(false);
+      setLoading(
+        false
+      );
     }
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFCEF]">
+    <View
+      className="flex-1 bg-[#FFFCEF]"
+      style={{
+        paddingTop:
+          insets.top,
+        paddingBottom:
+          insets.bottom,
+      }}
+    >
+      <StatusBar
+        style="dark"
+      />
+
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        ref={
+          scrollViewRef
+        }
+        showsVerticalScrollIndicator={
+          false
+        }
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        contentContainerStyle={{
+          paddingBottom:
+            keyboardVisible
+              ? 320
+              : 30,
+        }}
       >
-        <View className="items-center mt-[35px]">
-          <View className="w-[338px] h-[8px] rounded-full bg-[#EDE8D0] overflow-hidden">
+        <View className="items-center mt-[20px]">
+          <View className="w-[338px] max-w-[92%] h-[8px] rounded-full bg-[#EDE8D0] overflow-hidden">
             <View className="w-1/2 h-full bg-[#6B5A2A]" />
           </View>
 
@@ -158,7 +354,13 @@ export default function RegisterScreen() {
           </Text>
         </View>
 
-        <View className="self-center mt-5 w-[355px] rounded-[7px] bg-[#C6BB9A] px-4 py-5">
+        <View
+          className="self-center mt-5 rounded-[7px] bg-[#C6BB9A] px-4 py-5"
+          style={{
+            width:
+              cardWidth,
+          }}
+        >
           <Text className="text-center text-[32px] font-bold text-white">
             Cadastro responsável
           </Text>
@@ -169,11 +371,19 @@ export default function RegisterScreen() {
 
           <TextInput
             value={nome}
-            onChangeText={setNome}
+            onChangeText={
+              setNome
+            }
+            onFocus={() =>
+              scrollToPosition(
+                90
+              )
+            }
             placeholder="Digite seu nome"
             placeholderTextColor="#999999"
             autoCapitalize="words"
-            className="self-center mt-3 w-full h-[49px] rounded-[7px] bg-white px-4 text-[18px]"
+            returnKeyType="next"
+            className="self-center mt-3 w-full h-[49px] rounded-[7px] bg-white px-4 text-[18px] text-black"
           />
 
           <Text className="mt-2 text-center text-[24px] text-white">
@@ -182,13 +392,23 @@ export default function RegisterScreen() {
 
           <TextInput
             value={email}
-            onChangeText={setEmail}
+            onChangeText={
+              setEmail
+            }
+            onFocus={() =>
+              scrollToPosition(
+                170
+              )
+            }
             placeholder="Digite seu e-mail"
             placeholderTextColor="#999999"
             keyboardType="email-address"
             autoCapitalize="none"
-            autoCorrect={false}
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
+            autoCorrect={
+              false
+            }
+            returnKeyType="next"
+            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
           />
 
           <Text className="mt-2 text-center text-[24px] text-white">
@@ -196,12 +416,28 @@ export default function RegisterScreen() {
           </Text>
 
           <TextInput
-            value={telefone}
-            onChangeText={(value) => setTelefone(formatTelefone(value))}
+            value={
+              telefone
+            }
+            onChangeText={(
+              value
+            ) =>
+              setTelefone(
+                formatTelefone(
+                  value
+                )
+              )
+            }
+            onFocus={() =>
+              scrollToPosition(
+                260
+              )
+            }
             placeholder="Digite seu telefone"
             placeholderTextColor="#999999"
             keyboardType="phone-pad"
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
+            returnKeyType="next"
+            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
           />
 
           <Text className="mt-2 text-center text-[24px] text-white">
@@ -210,12 +446,20 @@ export default function RegisterScreen() {
 
           <TextInput
             value={senha}
-            onChangeText={setSenha}
+            onChangeText={
+              setSenha
+            }
+            onFocus={() =>
+              scrollToPosition(
+                350
+              )
+            }
             placeholder="Digite sua senha"
             placeholderTextColor="#999999"
             secureTextEntry
             autoCapitalize="none"
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
+            returnKeyType="next"
+            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
           />
 
           <Text className="mt-2 text-center text-[24px] text-white">
@@ -223,13 +467,26 @@ export default function RegisterScreen() {
           </Text>
 
           <TextInput
-            value={confirmarSenha}
-            onChangeText={setConfirmarSenha}
+            value={
+              confirmarSenha
+            }
+            onChangeText={
+              setConfirmarSenha
+            }
+            onFocus={() =>
+              scrollToPosition(
+                440
+              )
+            }
             placeholder="Digite novamente sua senha"
             placeholderTextColor="#999999"
             secureTextEntry
             autoCapitalize="none"
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px]"
+            returnKeyType="done"
+            onSubmitEditing={
+              handleRegister
+            }
+            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
           />
 
           {error ? (
@@ -239,17 +496,31 @@ export default function RegisterScreen() {
           ) : null}
 
           <TouchableOpacity
-            onPress={handleRegister}
-            disabled={loading}
+            onPress={
+              handleRegister
+            }
+            disabled={
+              loading
+            }
             className="self-center mt-7 w-full h-[72px] rounded-[7px] bg-[#A3987B] items-center justify-center"
-            style={{ opacity: loading ? 0.6 : 1 }}
+            activeOpacity={
+              0.8
+            }
+            style={{
+              opacity:
+                loading
+                  ? 0.6
+                  : 1,
+            }}
           >
             <Text className="text-[32px] font-bold text-white">
-              {loading ? "Cadastrando..." : "Continuar"}
+              {loading
+                ? "Cadastrando..."
+                : "Continuar"}
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
