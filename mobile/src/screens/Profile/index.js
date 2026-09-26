@@ -31,6 +31,7 @@ import {
 import BottomNavigation from "../../components/BottomNavigation";
 import ProfileSection from "../../components/ProfileSection";
 import ProfileOption from "../../components/ProfileOption";
+import ResponsibleEditModal from "../../components/ResponsibleEditModal";
 
 import {
   getCurrentUser,
@@ -76,6 +77,11 @@ export default function ProfileScreen() {
     error,
     setError,
   ] = useState("");
+
+  const [
+    responsibleEditVisible,
+    setResponsibleEditVisible,
+  ] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -219,6 +225,12 @@ export default function ProfileScreen() {
 
     return themes.join(
       ", "
+    );
+  }
+
+  function openResponsibleEdit() {
+    setResponsibleEditVisible(
+      true
     );
   }
 
@@ -461,7 +473,15 @@ export default function ProfileScreen() {
             <ProfileSection
               title="Informações do responsável"
             >
-              <View className="mt-3 bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full">
+              <TouchableOpacity
+                activeOpacity={
+                  0.85
+                }
+                onPress={
+                  openResponsibleEdit
+                }
+                className="mt-3 bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full"
+              >
                 <View className="w-[64px] h-[64px] rounded-full overflow-hidden relative">
                   <Image
                     source={require(
@@ -491,7 +511,15 @@ export default function ProfileScreen() {
                     "Responsável"
                   }
                 </Text>
-              </View>
+
+                <View className="w-[38px] h-[38px] rounded-full bg-[#A3987B] items-center justify-center">
+                  <Ionicons
+                    name="create-outline"
+                    size={19}
+                    color="#FFFCEF"
+                  />
+                </View>
+              </TouchableOpacity>
 
               <View className="mt-2">
                 <ProfileOption
@@ -501,7 +529,9 @@ export default function ProfileScreen() {
                     user?.email ||
                     "Não informado"
                   }
-                  onPress={() => {}}
+                  onPress={
+                    openResponsibleEdit
+                  }
                 />
 
                 <ProfileOption
@@ -511,7 +541,9 @@ export default function ProfileScreen() {
                     user?.telefone ||
                     "Não informado"
                   }
-                  onPress={() => {}}
+                  onPress={
+                    openResponsibleEdit
+                  }
                 />
 
                 <ProfileOption
@@ -530,6 +562,27 @@ export default function ProfileScreen() {
           </>
         )}
       </ScrollView>
+
+      <ResponsibleEditModal
+        visible={
+          responsibleEditVisible
+        }
+        user={
+          user
+        }
+        onClose={() =>
+          setResponsibleEditVisible(
+            false
+          )
+        }
+        onSaved={(
+          updatedUser
+        ) => {
+          setUser(
+            updatedUser
+          );
+        }}
+      />
 
       <BottomNavigation
         active="profile"
