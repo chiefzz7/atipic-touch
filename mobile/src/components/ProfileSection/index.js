@@ -1,11 +1,14 @@
 import React from "react";
+
 import {
   View,
   Text,
   TouchableOpacity,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+} from "@expo/vector-icons";
 
 export default function ProfileSection({
   title,
@@ -15,40 +18,43 @@ export default function ProfileSection({
   rightLabel = "",
   onPress,
 }) {
-
   return (
-
-    <View className="mx-4 mt-5 bg-[#C6BB9A] rounded-[7px] overflow-hidden">
-
+    <View className="mt-4 bg-[#E5DCC4] rounded-[10px] overflow-hidden">
       <TouchableOpacity
-        activeOpacity={expandable ? 0.8 : 1}
-        disabled={!expandable}
-        onPress={onPress}
-        className="h-[48px] px-4 flex-row items-center justify-between"
+        activeOpacity={
+          expandable
+            ? 0.8
+            : 1
+        }
+        disabled={
+          !expandable
+        }
+        onPress={
+          onPress
+        }
+        className="min-h-[52px] px-4 flex-row items-center justify-between"
       >
-
-        <View className="flex-row items-center">
-
+        <View className="flex-1 flex-row items-center">
           <Ionicons
             name="person-circle-outline"
             size={24}
-            color="#FFFCEF"
+            color="#554B41"
           />
 
-          <Text className="ml-0 mr-2 text-white text-[18px] font-bold">
+          <Text
+            numberOfLines={
+              1
+            }
+            className="flex-1 ml-2 text-[#554B41] text-[18px] font-bold"
+          >
             {title}
           </Text>
-
         </View>
 
         {expandable && (
-
-          <View className="flex-row items-center">
-
-            <Text className="text-[#554B41] text-[12px] mr-2">
-
+          <View className="flex-row items-center ml-2">
+            <Text className="text-[#80775C] text-[12px] mr-2">
               {rightLabel}
-
             </Text>
 
             <Ionicons
@@ -57,28 +63,21 @@ export default function ProfileSection({
                   ? "chevron-up"
                   : "chevron-down"
               }
-              size={15}
+              size={17}
               color="#554B41"
             />
-
           </View>
-
         )}
-
       </TouchableOpacity>
 
-      {(!expandable || expanded) && (
-
+      {(
+        !expandable ||
+        expanded
+      ) && (
         <View className="pb-3 px-3">
-
           {children}
-
         </View>
-
       )}
-
     </View>
-
   );
-
 }

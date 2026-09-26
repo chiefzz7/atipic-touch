@@ -1,12 +1,14 @@
 import React from "react";
+
 import {
-  View,
   Text,
   TouchableOpacity,
   Switch,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+} from "@expo/vector-icons";
 
 export default function ProfileOption({
   icon,
@@ -17,80 +19,68 @@ export default function ProfileOption({
   onValueChange,
 }) {
   return (
-
     <TouchableOpacity
-      activeOpacity={type === "switch" ? 1 : 0.85}
-      disabled={type === "switch"}
-      onPress={onPress}
-      className="
-        h-[52px]
-        bg-[#B9AE8D]
-        rounded-[7px]
-        px-4
-        mb-2
-        flex-row
-        items-center
-      "
+      activeOpacity={
+        type === "switch"
+          ? 1
+          : 0.85
+      }
+      disabled={
+        type ===
+        "switch"
+      }
+      onPress={
+        onPress
+      }
+      className="min-h-[54px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 mb-2 flex-row items-center"
     >
-
       <Ionicons
         name={icon}
-        size={24}
-        color="#FFFCEF"
+        size={22}
+        color="#806A42"
       />
 
-      <Text
-        className="
-          ml-3
-          flex-1
-          text-white
-          text-[18px]
-        "
-      >
+      <Text className="ml-3 flex-1 text-[#554B41] text-[16px] font-medium">
         {title}
       </Text>
 
-      {type === "switch" ? (
-
+      {type ===
+      "switch" ? (
         <Switch
-          value={value}
-          onValueChange={onValueChange}
+          value={
+            value
+          }
+          onValueChange={
+            onValueChange
+          }
           trackColor={{
-            false: "#D9D9D9",
-            true: "#FFFFFF",
+            false:
+              "#D9D9D9",
+            true:
+              "#A3C78C",
           }}
-          thumbColor="#6E6246"
+          thumbColor="#FFFCEF"
         />
-
       ) : (
-
         <>
           {!!value && (
-
             <Text
-              numberOfLines={1}
-              className="
-                text-white
-                text-[16px]
-                mr-3
-              "
+              numberOfLines={
+                1
+              }
+              className="max-w-[48%] text-[#80775C] text-[14px] mr-2"
             >
               {value}
             </Text>
-
           )}
 
           <Ionicons
             name="chevron-forward"
-            size={24}
-            color="#FFFCEF"
+            size={20}
+            color="#A3987B"
           />
-
         </>
-
       )}
-
     </TouchableOpacity>
-
   );
 }
