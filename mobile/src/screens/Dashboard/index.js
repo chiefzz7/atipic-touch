@@ -577,7 +577,7 @@ export default function DashboardScreen() {
 
         ) : (
           <>
-            <View className="mt-5">
+            <View className="mt-2">
               <SectionCard
                 title="Última refeição"
                 subtitle={
