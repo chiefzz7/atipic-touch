@@ -20,7 +20,8 @@ import {
 export default function BottomNavigation({
   active = "",
 }) {
-  const router = useRouter();
+  const router =
+    useRouter();
 
   const insets =
     useSafeAreaInsets();
@@ -34,45 +35,61 @@ export default function BottomNavigation({
     <View
       className="absolute bottom-0 w-full bg-[#554B41]"
       style={{
-        height: 65 + insets.bottom,
-        paddingBottom: insets.bottom,
+        height:
+          65 + insets.bottom,
+        paddingBottom:
+          insets.bottom,
       }}
     >
       <View className="flex-1 flex-row justify-around items-center">
         <TouchableOpacity
+          activeOpacity={0.75}
           onPress={() =>
-            router.push("/dashboard")
+            router.push(
+              "/dashboard"
+            )
           }
+          className="w-[52px] h-[52px] items-center justify-center"
         >
           <Ionicons
             name="home"
-            size={30}
-            color={color("dashboard")}
+            size={28}
+            color={color(
+              "dashboard"
+            )}
           />
         </TouchableOpacity>
 
         <TouchableOpacity
+          activeOpacity={0.75}
           onPress={() =>
-            router.push("/device")
+            router.push(
+              "/device"
+            )
           }
+          className="w-[52px] h-[52px] items-center justify-center"
         >
           <Ionicons
             name="hardware-chip"
-            size={30}
-            color={color("device")}
+            size={28}
+            color={color(
+              "device"
+            )}
           />
         </TouchableOpacity>
 
         <TouchableOpacity
+          activeOpacity={0.75}
           onPress={() =>
             router.push(
               "/management-food"
             )
           }
+          className="w-[52px] h-[52px] items-center justify-center"
         >
           <Ionicons
             name="fast-food"
-            size={30}
+            size={28}
             color={color(
               "management-food"
             )}
@@ -80,14 +97,20 @@ export default function BottomNavigation({
         </TouchableOpacity>
 
         <TouchableOpacity
+          activeOpacity={0.75}
           onPress={() =>
-            router.push("/profile")
+            router.push(
+              "/profile"
+            )
           }
+          className="w-[52px] h-[52px] items-center justify-center"
         >
           <Ionicons
             name="people"
-            size={30}
-            color={color("profile")}
+            size={28}
+            color={color(
+              "profile"
+            )}
           />
         </TouchableOpacity>
       </View>

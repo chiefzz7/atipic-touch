@@ -1,5 +1,9 @@
 import React from "react";
-import { TouchableOpacity, Text } from "react-native";
+
+import {
+  TouchableOpacity,
+  Text,
+} from "react-native";
 
 export default function PrimaryButton({
   title,
@@ -12,13 +16,18 @@ export default function PrimaryButton({
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      className="w-[full] h-[55px] rounded-[7px] items-center justify-center"
+      accessibilityState={{
+        disabled,
+      }}
+      className="w-full h-[54px] rounded-[10px] items-center justify-center"
       style={{
-        backgroundColor: disabled ? "#979388" : "#A3C78C",
+        backgroundColor:
+          disabled
+            ? "#B8B4AA"
+            : "#83BF6E",
       }}
     >
-      <Text className="text-white text-[15px] font-bold">
+      <Text className="text-white text-[16px] font-bold">
         {title}
       </Text>
     </TouchableOpacity>
