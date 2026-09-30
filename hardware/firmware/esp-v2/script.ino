@@ -22,33 +22,68 @@
   "7a8f0002-4a54-4b00-8000-000000000002"
 
 // ========================================
-// GPIO dos botões
+// GPIO - reações
 // ========================================
 
-#define BOTAO_VERMELHO 23
-#define BOTAO_VERDE    22
-#define BOTAO_LARANJA  21
-#define BOTAO_AZUL     19
+// Mantidos conforme o hardware já utilizado.
+#define BOTAO_NAO_GOSTOU 23
+#define BOTAO_GOSTOU     22
+#define BOTAO_NEUTRO     21
 
 // ========================================
-// Estado dos botões
+// GPIO - aspectos sensoriais
 // ========================================
 
-bool estadoAnteriorVermelho = HIGH;
-bool estadoAnteriorVerde = HIGH;
-bool estadoAnteriorLaranja = HIGH;
-bool estadoAnteriorAzul = HIGH;
+#define BOTAO_COR          25
+#define BOTAO_SABOR        26
+#define BOTAO_CHEIRO       27
+#define BOTAO_TEXTURA      32
+#define BOTAO_TEMPERATURA  33
+
+// ========================================
+// Estado anterior - reações
+// ========================================
+
+bool estadoAnteriorNaoGostou =
+  HIGH;
+
+bool estadoAnteriorGostou =
+  HIGH;
+
+bool estadoAnteriorNeutro =
+  HIGH;
+
+// ========================================
+// Estado anterior - sensoriais
+// ========================================
+
+bool estadoAnteriorCor =
+  HIGH;
+
+bool estadoAnteriorSabor =
+  HIGH;
+
+bool estadoAnteriorCheiro =
+  HIGH;
+
+bool estadoAnteriorTextura =
+  HIGH;
+
+bool estadoAnteriorTemperatura =
+  HIGH;
 
 // ========================================
 // BLE
 // ========================================
 
-BLEServer *bleServer = nullptr;
+BLEServer *bleServer =
+  nullptr;
 
 BLECharacteristic *eventCharacteristic =
   nullptr;
 
-bool dispositivoConectado = false;
+bool dispositivoConectado =
+  false;
 
 // ========================================
 // Callbacks do servidor BLE
@@ -61,7 +96,8 @@ class ServerCallbacks :
     BLEServer *server
   ) override {
 
-    dispositivoConectado = true;
+    dispositivoConectado =
+      true;
 
     Serial.println();
 
@@ -82,7 +118,8 @@ class ServerCallbacks :
     BLEServer *server
   ) override {
 
-    dispositivoConectado = false;
+    dispositivoConectado =
+      false;
 
     Serial.println();
 
@@ -102,9 +139,12 @@ class ServerCallbacks :
       "========================================"
     );
 
-    delay(300);
+    delay(
+      300
+    );
 
-    server->startAdvertising();
+    server
+      ->startAdvertising();
   }
 };
 
@@ -118,32 +158,38 @@ void enviarMensagemBLE(
 
   if (
     !dispositivoConectado ||
-    eventCharacteristic == nullptr
+    eventCharacteristic ==
+      nullptr
   ) {
     return;
   }
 
   /*
-   * O MTU padrão BLE é 23.
+   * MTU BLE padrão:
    *
-   * 23 - 3 bytes de cabeçalho ATT =
-   * aproximadamente 20 bytes úteis.
+   * 23 bytes
+   * - 3 bytes ATT
+   * = aproximadamente 20 bytes úteis.
    *
-   * Por isso enviamos em blocos de 20.
+   * O aplicativo já possui buffer para
+   * remontar mensagens fragmentadas.
    */
-  const size_t TAMANHO_PACOTE = 20;
+  const size_t TAMANHO_PACOTE =
+    20;
 
   /*
-   * O \n é utilizado pelo aplicativo
-   * para identificar o final do JSON.
+   * O \n indica o final de cada JSON.
    */
   String payload =
-    mensagem + "\n";
+    mensagem +
+    "\n";
 
   for (
     size_t inicio = 0;
-    inicio < payload.length();
-    inicio += TAMANHO_PACOTE
+    inicio <
+      payload.length();
+    inicio +=
+      TAMANHO_PACOTE
   ) {
 
     size_t fim =
@@ -176,71 +222,154 @@ void enviarMensagemBLE(
       ->notify();
 
     /*
-     * Pequeno intervalo para evitar
-     * perda de notificações.
+     * Pequeno intervalo para reduzir
+     * risco de perda entre notificações.
      */
-    delay(15);
+    delay(
+      15
+    );
   }
 }
 
 // ========================================
-// Envio de evento
+// Evento de reação
 // ========================================
 
-void enviarEvento(
+void enviarEventoReacao(
   const char *botao,
   int value
 ) {
 
-  String json = "{";
+  String json =
+    "{";
 
-  json += "\"botao\":\"";
-  json += botao;
-  json += "\",";
+  json +=
+    "\"tipo\":\"reacao\",";
 
-  json += "\"value\":";
-  json += value;
+  json +=
+    "\"botao\":\"";
 
-  json += "}";
+  json +=
+    botao;
 
-  // ======================================
-  // Monitor serial
-  // ======================================
+  json +=
+    "\",";
+
+  json +=
+    "\"value\":";
+
+  json +=
+    value;
+
+  json +=
+    "}";
 
   Serial.print(
-    "Evento: "
+    "Evento de reação: "
   );
 
   Serial.println(
     json
   );
-
-  // ======================================
-  // Verificar conexão
-  // ======================================
 
   if (
     !dispositivoConectado
   ) {
 
     Serial.println(
-      "Evento nao enviado: nenhum celular conectado."
+      "Evento não enviado: nenhum celular conectado."
     );
 
     return;
   }
-
-  // ======================================
-  // Enviar BLE
-  // ======================================
 
   enviarMensagemBLE(
     json
   );
 
   Serial.println(
-    "Evento enviado via BLE."
+    "Evento de reação enviado via BLE."
   );
+}
+
+// ========================================
+// Evento sensorial
+// ========================================
+
+void enviarEventoSensorial(
+  const char *atributo
+) {
+
+  String json =
+    "{";
+
+  json +=
+    "\"tipo\":\"sensorial\",";
+
+  json +=
+    "\"atributo\":\"";
+
+  json +=
+    atributo;
+
+  json +=
+    "\"";
+
+  json +=
+    "}";
+
+  Serial.print(
+    "Evento sensorial: "
+  );
+
+  Serial.println(
+    json
+  );
+
+  if (
+    !dispositivoConectado
+  ) {
+
+    Serial.println(
+      "Evento não enviado: nenhum celular conectado."
+    );
+
+    return;
+  }
+
+  enviarMensagemBLE(
+    json
+  );
+
+  Serial.println(
+    "Evento sensorial enviado via BLE."
+  );
+}
+
+// ========================================
+// Detectar pressionamento
+// ========================================
+
+bool foiPressionado(
+  int pin,
+  bool &estadoAnterior
+) {
+
+  bool estadoAtual =
+    digitalRead(
+      pin
+    );
+
+  bool pressionado =
+    estadoAtual ==
+      LOW &&
+    estadoAnterior ==
+      HIGH;
+
+  estadoAnterior =
+    estadoAtual;
+
+  return pressionado;
 }
 
 // ========================================
@@ -253,7 +382,9 @@ void setup() {
     115200
   );
 
-  delay(500);
+  delay(
+    500
+  );
 
   Serial.println();
 
@@ -266,30 +397,58 @@ void setup() {
   );
 
   Serial.println(
+    "8 botoes - reacao + sensorial"
+  );
+
+  Serial.println(
     "========================================"
   );
 
   // ======================================
-  // Configuração dos botões
+  // Reações
   // ======================================
 
   pinMode(
-    BOTAO_VERMELHO,
+    BOTAO_NAO_GOSTOU,
     INPUT_PULLUP
   );
 
   pinMode(
-    BOTAO_VERDE,
+    BOTAO_GOSTOU,
     INPUT_PULLUP
   );
 
   pinMode(
-    BOTAO_LARANJA,
+    BOTAO_NEUTRO,
+    INPUT_PULLUP
+  );
+
+  // ======================================
+  // Sensoriais
+  // ======================================
+
+  pinMode(
+    BOTAO_COR,
     INPUT_PULLUP
   );
 
   pinMode(
-    BOTAO_AZUL,
+    BOTAO_SABOR,
+    INPUT_PULLUP
+  );
+
+  pinMode(
+    BOTAO_CHEIRO,
+    INPUT_PULLUP
+  );
+
+  pinMode(
+    BOTAO_TEXTURA,
+    INPUT_PULLUP
+  );
+
+  pinMode(
+    BOTAO_TEMPERATURA,
     INPUT_PULLUP
   );
 
@@ -302,57 +461,59 @@ void setup() {
   );
 
   bleServer =
-    BLEDevice::createServer();
+    BLEDevice
+      ::createServer();
 
-  bleServer->setCallbacks(
-    new ServerCallbacks()
-  );
+  bleServer
+    ->setCallbacks(
+      new ServerCallbacks()
+    );
 
   BLEService *service =
-    bleServer->createService(
-      SERVICE_UUID
-    );
+    bleServer
+      ->createService(
+        SERVICE_UUID
+      );
 
   // ======================================
   // Característica de eventos
   // ======================================
 
   eventCharacteristic =
-    service->createCharacteristic(
-      CHARACTERISTIC_UUID,
+    service
+      ->createCharacteristic(
+        CHARACTERISTIC_UUID,
 
-      BLECharacteristic::PROPERTY_READ |
-      BLECharacteristic::PROPERTY_NOTIFY
-    );
+        BLECharacteristic
+          ::PROPERTY_READ |
+        BLECharacteristic
+          ::PROPERTY_NOTIFY
+      );
 
-  /*
-   * Necessário para notificações BLE.
-   */
   eventCharacteristic
     ->addDescriptor(
       new BLE2902()
     );
 
-  /*
-   * Valor inicial da característica.
-   */
   eventCharacteristic
     ->setValue(
       "{\"status\":\"ready\"}"
     );
 
   // ======================================
-  // Iniciar serviço
+  // Serviço
   // ======================================
 
-  service->start();
+  service
+    ->start();
 
   // ======================================
   // Advertising
   // ======================================
 
   BLEAdvertising *advertising =
-    BLEDevice::getAdvertising();
+    BLEDevice
+      ::getAdvertising();
 
   advertising
     ->addServiceUUID(
@@ -393,6 +554,42 @@ void setup() {
     DEVICE_NAME
   );
 
+  Serial.println();
+
+  Serial.println(
+    "GPIO 22 -> Gostou"
+  );
+
+  Serial.println(
+    "GPIO 23 -> Nao gostou"
+  );
+
+  Serial.println(
+    "GPIO 21 -> Neutro"
+  );
+
+  Serial.println(
+    "GPIO 25 -> Cor"
+  );
+
+  Serial.println(
+    "GPIO 26 -> Sabor"
+  );
+
+  Serial.println(
+    "GPIO 27 -> Cheiro"
+  );
+
+  Serial.println(
+    "GPIO 32 -> Textura"
+  );
+
+  Serial.println(
+    "GPIO 33 -> Temperatura"
+  );
+
+  Serial.println();
+
   Serial.println(
     "Aguardando conexao..."
   );
@@ -405,108 +602,169 @@ void setup() {
 void loop() {
 
   // ======================================
-  // VERMELHO - REJEITOU
-  // GPIO 23
+  // NÃO GOSTOU
   // ======================================
 
-  bool estadoVermelho =
-    digitalRead(
-      BOTAO_VERMELHO
-    );
-
   if (
-    estadoVermelho == LOW &&
-    estadoAnteriorVermelho == HIGH
+    foiPressionado(
+      BOTAO_NAO_GOSTOU,
+      estadoAnteriorNaoGostou
+    )
   ) {
 
-    enviarEvento(
+    enviarEventoReacao(
       "rejeitou",
       2
     );
 
-    delay(50);
+    delay(
+      50
+    );
   }
 
-  estadoAnteriorVermelho =
-    estadoVermelho;
-
   // ======================================
-  // VERDE - ACEITOU
-  // GPIO 22
+  // GOSTOU
   // ======================================
-
-  bool estadoVerde =
-    digitalRead(
-      BOTAO_VERDE
-    );
 
   if (
-    estadoVerde == LOW &&
-    estadoAnteriorVerde == HIGH
+    foiPressionado(
+      BOTAO_GOSTOU,
+      estadoAnteriorGostou
+    )
   ) {
 
-    enviarEvento(
+    enviarEventoReacao(
       "aceitou",
       1
     );
 
-    delay(50);
+    delay(
+      50
+    );
   }
 
-  estadoAnteriorVerde =
-    estadoVerde;
-
   // ======================================
-  // LARANJA - NEUTRO
-  // GPIO 21
+  // NEUTRO
   // ======================================
-
-  bool estadoLaranja =
-    digitalRead(
-      BOTAO_LARANJA
-    );
 
   if (
-    estadoLaranja == LOW &&
-    estadoAnteriorLaranja == HIGH
+    foiPressionado(
+      BOTAO_NEUTRO,
+      estadoAnteriorNeutro
+    )
   ) {
 
-    enviarEvento(
+    enviarEventoReacao(
       "neutro",
       3
     );
 
-    delay(50);
+    delay(
+      50
+    );
   }
 
-  estadoAnteriorLaranja =
-    estadoLaranja;
-
   // ======================================
-  // AZUL - AÇÃO
-  // GPIO 19
+  // COR
   // ======================================
-
-  bool estadoAzul =
-    digitalRead(
-      BOTAO_AZUL
-    );
 
   if (
-    estadoAzul == LOW &&
-    estadoAnteriorAzul == HIGH
+    foiPressionado(
+      BOTAO_COR,
+      estadoAnteriorCor
+    )
   ) {
 
-    enviarEvento(
-      "acao",
-      0
+    enviarEventoSensorial(
+      "cor"
     );
 
-    delay(50);
+    delay(
+      50
+    );
   }
 
-  estadoAnteriorAzul =
-    estadoAzul;
+  // ======================================
+  // SABOR
+  // ======================================
 
-  delay(5);
+  if (
+    foiPressionado(
+      BOTAO_SABOR,
+      estadoAnteriorSabor
+    )
+  ) {
+
+    enviarEventoSensorial(
+      "sabor"
+    );
+
+    delay(
+      50
+    );
+  }
+
+  // ======================================
+  // CHEIRO
+  // ======================================
+
+  if (
+    foiPressionado(
+      BOTAO_CHEIRO,
+      estadoAnteriorCheiro
+    )
+  ) {
+
+    enviarEventoSensorial(
+      "cheiro"
+    );
+
+    delay(
+      50
+    );
+  }
+
+  // ======================================
+  // TEXTURA
+  // ======================================
+
+  if (
+    foiPressionado(
+      BOTAO_TEXTURA,
+      estadoAnteriorTextura
+    )
+  ) {
+
+    enviarEventoSensorial(
+      "textura"
+    );
+
+    delay(
+      50
+    );
+  }
+
+  // ======================================
+  // TEMPERATURA
+  // ======================================
+
+  if (
+    foiPressionado(
+      BOTAO_TEMPERATURA,
+      estadoAnteriorTemperatura
+    )
+  ) {
+
+    enviarEventoSensorial(
+      "temperatura"
+    );
+
+    delay(
+      50
+    );
+  }
+
+  delay(
+    5
+  );
 }
