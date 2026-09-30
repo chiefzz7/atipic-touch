@@ -32,6 +32,7 @@ import BottomNavigation from "../../components/BottomNavigation";
 import ProfileSection from "../../components/ProfileSection";
 import ProfileOption from "../../components/ProfileOption";
 import ResponsibleEditModal from "../../components/ResponsibleEditModal";
+import ChildEditModal from "../../components/ChildEditModal";
 
 import {
   getCurrentUser,
@@ -40,6 +41,11 @@ import {
 import {
   getChildren,
 } from "../../services/children/children";
+
+import {
+  getSelectedChild,
+  saveSelectedChild,
+} from "../../services/children/selectedChild";
 
 export default function ProfileScreen() {
   const router =
@@ -82,6 +88,16 @@ export default function ProfileScreen() {
     responsibleEditVisible,
     setResponsibleEditVisible,
   ] = useState(false);
+
+  const [
+    childEditVisible,
+    setChildEditVisible,
+  ] = useState(false);
+
+  const [
+    selectedChildForEdit,
+    setSelectedChildForEdit,
+  ] = useState(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -234,6 +250,66 @@ export default function ProfileScreen() {
     );
   }
 
+  function openChildEdit(
+    child
+  ) {
+    setSelectedChildForEdit(
+      child
+    );
+
+    setChildEditVisible(
+      true
+    );
+  }
+
+  function closeChildEdit() {
+    setChildEditVisible(
+      false
+    );
+
+    setSelectedChildForEdit(
+      null
+    );
+  }
+
+  async function handleChildSaved(
+    updatedChild
+  ) {
+    setChildren(
+      (
+        previousChildren
+      ) =>
+        previousChildren.map(
+          (
+            currentChild
+          ) =>
+            currentChild.id ===
+            updatedChild.id
+              ? updatedChild
+              : currentChild
+        )
+    );
+
+    try {
+      const selectedChild =
+        await getSelectedChild();
+
+      if (
+        selectedChild?.id ===
+        updatedChild.id
+      ) {
+        await saveSelectedChild(
+          updatedChild
+        );
+      }
+    } catch (err) {
+      console.warn(
+        "Não foi possível sincronizar a criança selecionada:",
+        err
+      );
+    }
+  }
+
   const childrenLabel =
     `${children.length} ${
       children.length === 1
@@ -364,7 +440,17 @@ export default function ProfileScreen() {
                       }
                       className="mt-3"
                     >
-                      <View className="bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full">
+                      <TouchableOpacity
+                        activeOpacity={
+                          0.85
+                        }
+                        onPress={() =>
+                          openChildEdit(
+                            child
+                          )
+                        }
+                        className="bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full"
+                      >
                         <View className="w-[64px] h-[64px] rounded-full overflow-hidden relative">
                           <Image
                             source={require(
@@ -405,7 +491,15 @@ export default function ProfileScreen() {
                             }
                           </Text>
                         </View>
-                      </View>
+
+                        <View className="w-[38px] h-[38px] rounded-full bg-[#A3987B] items-center justify-center">
+                          <Ionicons
+                            name="create-outline"
+                            size={19}
+                            color="#FFFCEF"
+                          />
+                        </View>
+                      </TouchableOpacity>
 
                       <View className="mt-2">
                         <ProfileOption
@@ -416,7 +510,11 @@ export default function ProfileScreen() {
                               child.dataNascimento
                             )
                           }
-                          onPress={() => {}}
+                          onPress={() =>
+                            openChildEdit(
+                              child
+                            )
+                          }
                         />
 
                         <ProfileOption
@@ -427,7 +525,11 @@ export default function ProfileScreen() {
                               child.temasPreferidos
                             )
                           }
-                          onPress={() => {}}
+                          onPress={() =>
+                            openChildEdit(
+                              child
+                            )
+                          }
                         />
 
                         <ProfileOption
@@ -437,7 +539,11 @@ export default function ProfileScreen() {
                             child.restricoesMedicas ||
                             "Nenhuma informada"
                           }
-                          onPress={() => {}}
+                          onPress={() =>
+                            openChildEdit(
+                              child
+                            )
+                          }
                         />
                       </View>
                     </View>
@@ -582,6 +688,21 @@ export default function ProfileScreen() {
             updatedUser
           );
         }}
+      />
+
+      <ChildEditModal
+        visible={
+          childEditVisible
+        }
+        child={
+          selectedChildForEdit
+        }
+        onClose={
+          closeChildEdit
+        }
+        onSaved={
+          handleChildSaved
+        }
       />
 
       <BottomNavigation
