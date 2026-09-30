@@ -1,23 +1,170 @@
 import React, {
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
 
 import {
   Modal,
-  SafeAreaView,
   ScrollView,
   View,
   Text,
   TouchableOpacity,
   TextInput,
-  Image,
-  useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
+import {
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
-import BottomNavigation from "../BottomNavigation";
+import {
+  StatusBar,
+} from "expo-status-bar";
+
+import {
+  Ionicons,
+} from "@expo/vector-icons";
+
+import bluetoothService from "../../services/bluetooth/bluetoothService";
+
+import {
+  getFoods,
+} from "../../services/foods/foods";
+
+const REACTIONS = [
+  {
+    value: 1,
+    label: "Gostou",
+    icon: "happy-outline",
+    color: "#4D9B43",
+    background: "#EDF6E8",
+  },
+  {
+    value: 3,
+    label: "Neutro",
+    icon: "remove-circle-outline",
+    color: "#C29424",
+    background: "#F8F0D9",
+  },
+  {
+    value: 2,
+    label: "Não gostou",
+    icon: "sad-outline",
+    color: "#D9534F",
+    background: "#FCEBE8",
+  },
+];
+
+const SENSORY_ASPECTS = [
+  {
+    key: "cor",
+    label: "Cor",
+    icon: "color-palette-outline",
+  },
+  {
+    key: "sabor",
+    label: "Sabor",
+    icon: "restaurant-outline",
+  },
+  {
+    key: "cheiro",
+    label: "Cheiro",
+    icon: "water-outline",
+  },
+  {
+    key: "textura",
+    label: "Textura",
+    icon: "hand-left-outline",
+  },
+  {
+    key: "temperatura",
+    label: "Temperatura",
+    icon: "thermometer-outline",
+  },
+];
+
+function getReactionValue(
+  emotion
+) {
+  switch (emotion) {
+    case "Gostou":
+      return 1;
+
+    case "Não gostou":
+      return 2;
+
+    case "Neutro":
+      return 3;
+
+    default:
+      return 3;
+  }
+}
+
+function getReactionLabel(
+  value
+) {
+  switch (
+    Number(value)
+  ) {
+    case 1:
+      return "Gostou";
+
+    case 2:
+      return "Não gostou";
+
+    case 3:
+      return "Neutro";
+
+    default:
+      return null;
+  }
+}
+
+function getReactionFromBleEvent(
+  evento
+) {
+  if (
+    evento?.tipo ===
+    "sensorial"
+  ) {
+    return null;
+  }
+
+  if (
+    evento?.botao ===
+      "aceitou" ||
+    Number(
+      evento?.value
+    ) === 1
+  ) {
+    return 1;
+  }
+
+  if (
+    evento?.botao ===
+      "rejeitou" ||
+    Number(
+      evento?.value
+    ) === 2
+  ) {
+    return 2;
+  }
+
+  if (
+    evento?.botao ===
+      "neutro" ||
+    Number(
+      evento?.value
+    ) === 3
+  ) {
+    return 3;
+  }
+
+  return null;
+}
 
 export default function InteractionModal({
   visible,
@@ -25,486 +172,656 @@ export default function InteractionModal({
   onSubmit,
   initialEmotion = "Gostou",
 }) {
-
-  const { width } =
-    useWindowDimensions();
-
-  const [emotion, setEmotion] =
-    useState("Gostou");
-
-  const [aspect, setAspect] =
-    useState("Cor");
+  const insets =
+    useSafeAreaInsets();
 
   const [
-    observation,
-    setObservation,
+    emotion,
+    setEmotion,
+  ] = useState(
+    initialEmotion
+  );
+
+  const [
+    sensoryContext,
+    setSensoryContext,
+  ] = useState(
+    getReactionValue(
+      initialEmotion
+    )
+  );
+
+  const sensoryContextRef =
+    useRef(
+      getReactionValue(
+        initialEmotion
+      )
+    );
+
+  const [
+    sensoryFeedbacks,
+    setSensoryFeedbacks,
+  ] = useState([]);
+
+  const [
+    foods,
+    setFoods,
+  ] = useState([]);
+
+  const [
+    selectedFood,
+    setSelectedFood,
+  ] = useState(null);
+
+  const [
+    foodSearch,
+    setFoodSearch,
   ] = useState("");
 
-  // Quando o ESP abrir o modal,
-  // seleciona automaticamente
-  // a reação recebida.
+  const [
+    loadingFoods,
+    setLoadingFoods,
+  ] = useState(false);
+
+  const [
+    foodsError,
+    setFoodsError,
+  ] = useState("");
+
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
+
+  const [
+    submitError,
+    setSubmitError,
+  ] = useState("");
+
+  const [
+    captureMessage,
+    setCaptureMessage,
+  ] = useState("");
+
+  // ========================================
+  // Abrir modal / resetar interação
+  // ========================================
+
   useEffect(() => {
-
-    if (visible) {
-
-      setEmotion(
-        initialEmotion ||
-        "Gostou"
-      );
+    if (!visible) {
+      return;
     }
 
+    const initialValue =
+      getReactionValue(
+        initialEmotion
+      );
+
+    setEmotion(
+      initialEmotion
+    );
+
+    setSensoryContext(
+      initialValue
+    );
+
+    sensoryContextRef.current =
+      initialValue;
+
+    setSensoryFeedbacks(
+      []
+    );
+
+    setSelectedFood(
+      null
+    );
+
+    setFoodSearch(
+      ""
+    );
+
+    setSubmitError(
+      ""
+    );
+
+    setCaptureMessage(
+      ""
+    );
   }, [
     visible,
     initialEmotion,
   ]);
 
-  const emotions = [
-    {
-      value: "Gostou",
-      icon: "happy-outline",
-      color: "#3D8B3D",
-    },
-    {
-      value: "Neutro",
-      icon: "remove-circle-outline",
-      color: "#F2C94C",
-    },
-    {
-      value: "Não gostou",
-      icon: "sad-outline",
-      color: "#C92F2F",
-    },
-  ];
+  // ========================================
+  // Carregar alimentos reais
+  // ========================================
 
-  const aspects = [
-    {
-      label: "Cor",
-      icon: "color-palette-outline",
-    },
-    {
-      label: "Sabor",
-      icon: "restaurant-outline",
-    },
-    {
-      label: "Cheiro",
-      icon: "water-outline",
-    },
-    {
-      label: "Textura",
-      icon: "hand-left-outline",
-    },
-    {
-      label: "Temperatura",
-      icon: "thermometer-outline",
-    },
-  ];
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
 
-  const horizontalPadding =
-    16;
+    let active =
+      true;
 
-  const aspectGap =
-    8;
+    async function loadFoods() {
+      try {
+        setLoadingFoods(
+          true
+        );
 
-  const aspectWidth =
-    (
-      width -
-      horizontalPadding * 2 -
-      aspectGap * 4
-    ) / 5;
+        setFoodsError(
+          ""
+        );
 
-  const handleSubmit =
-    () => {
+        const data =
+          await getFoods();
 
-      const experience = {
-        emotion,
-        aspect,
-        observation,
-      };
+        if (!active) {
+          return;
+        }
 
-      onSubmit?.(
-        experience
+        setFoods(
+          Array.isArray(
+            data
+          )
+            ? data
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Erro ao carregar alimentos:",
+          error
+        );
+
+        if (!active) {
+          return;
+        }
+
+        setFoodsError(
+          "Não foi possível carregar os alimentos."
+        );
+      } finally {
+        if (
+          active
+        ) {
+          setLoadingFoods(
+            false
+          );
+        }
+      }
+    }
+
+    loadFoods();
+
+    return () => {
+      active =
+        false;
+    };
+  }, [
+    visible,
+  ]);
+
+  // ========================================
+  // Eventos BLE enquanto modal está aberto
+  // ========================================
+
+  useEffect(() => {
+    if (!visible) {
+      return;
+    }
+
+    const removerListener =
+      bluetoothService
+        .adicionarListener(
+          (
+            evento
+          ) => {
+            const reaction =
+              getReactionFromBleEvent(
+                evento
+              );
+
+            // =================================
+            // Reação recebida
+            //
+            // Enquanto o modal está aberto,
+            // altera somente o CONTEXTO para
+            // o próximo aspecto sensorial.
+            //
+            // A reação geral permanece a que
+            // abriu a interação.
+            // =================================
+
+            if (
+              reaction !==
+              null
+            ) {
+              sensoryContextRef.current =
+                reaction;
+
+              setSensoryContext(
+                reaction
+              );
+
+              const label =
+                getReactionLabel(
+                  reaction
+                );
+
+              setCaptureMessage(
+                reaction ===
+                  3
+                  ? "Contexto neutro selecionado. Para registrar um aspecto sensorial, use Gostou ou Não gostou."
+                  : `Contexto sensorial alterado para: ${label}.`
+              );
+
+              return;
+            }
+
+            // =================================
+            // Aspecto sensorial
+            // =================================
+
+            if (
+              evento?.tipo !==
+              "sensorial"
+            ) {
+              return;
+            }
+
+            const atributo =
+              String(
+                evento?.atributo ||
+                  ""
+              )
+                .trim()
+                .toLowerCase();
+
+            const validAttribute =
+              SENSORY_ASPECTS.some(
+                (
+                  item
+                ) =>
+                  item.key ===
+                  atributo
+              );
+
+            if (
+              !validAttribute
+            ) {
+              console.warn(
+                "Atributo sensorial inválido recebido:",
+                atributo
+              );
+
+              return;
+            }
+
+            const context =
+              sensoryContextRef
+                .current;
+
+            if (
+              context !== 1 &&
+              context !== 2
+            ) {
+              setCaptureMessage(
+                "Escolha Gostou ou Não gostou antes de registrar um aspecto sensorial."
+              );
+
+              return;
+            }
+
+            const gostou =
+              context === 1;
+
+            setSensoryFeedbacks(
+              (
+                previous
+              ) => {
+                const others =
+                  previous.filter(
+                    (
+                      feedback
+                    ) =>
+                      feedback.atributo !==
+                      atributo
+                  );
+
+                return [
+                  ...others,
+                  {
+                    atributo,
+                    gostou,
+                  },
+                ];
+              }
+            );
+
+            const aspect =
+              SENSORY_ASPECTS.find(
+                (
+                  item
+                ) =>
+                  item.key ===
+                  atributo
+              );
+
+            setCaptureMessage(
+              `${aspect?.label || atributo}: ${
+                gostou
+                  ? "Gostou"
+                  : "Não gostou"
+              }.`
+            );
+          }
+        );
+
+    return removerListener;
+  }, [
+    visible,
+  ]);
+
+  // ========================================
+  // Alimentos filtrados
+  // ========================================
+
+  const filteredFoods =
+    useMemo(
+      () => {
+        const normalized =
+          foodSearch
+            .trim()
+            .toLowerCase();
+
+        if (
+          !normalized
+        ) {
+          return foods;
+        }
+
+        return foods.filter(
+          (
+            food
+          ) =>
+            food?.nome
+              ?.toLowerCase()
+              .includes(
+                normalized
+              )
+        );
+      },
+      [
+        foods,
+        foodSearch,
+      ]
+    );
+
+  // ========================================
+  // Alterar reação manualmente
+  // ========================================
+
+  function handleReactionPress(
+    reaction
+  ) {
+    setEmotion(
+      reaction.label
+    );
+
+    setSensoryContext(
+      reaction.value
+    );
+
+    sensoryContextRef.current =
+      reaction.value;
+
+    if (
+      reaction.value ===
+      3
+    ) {
+      setCaptureMessage(
+        "Reação geral alterada para Neutro. Use Gostou ou Não gostou antes de registrar um aspecto sensorial."
+      );
+    } else {
+      setCaptureMessage(
+        `Reação geral e contexto sensorial alterados para: ${reaction.label}.`
+      );
+    }
+  }
+
+  // ========================================
+  // Remover feedback capturado
+  // ========================================
+
+  function removeFeedback(
+    atributo
+  ) {
+    setSensoryFeedbacks(
+      (
+        previous
+      ) =>
+        previous.filter(
+          (
+            feedback
+          ) =>
+            feedback.atributo !==
+            atributo
+        )
+    );
+  }
+
+  // ========================================
+  // Confirmar
+  // ========================================
+
+  async function handleSubmit() {
+    if (
+      !selectedFood?.id
+    ) {
+      setSubmitError(
+        "Selecione o alimento oferecido."
       );
 
+      return;
+    }
+
+    try {
+      setSaving(
+        true
+      );
+
+      setSubmitError(
+        ""
+      );
+
+      await onSubmit?.({
+        reaction:
+          getReactionValue(
+            emotion
+          ),
+
+        food:
+          selectedFood,
+
+        feedbacks:
+          sensoryFeedbacks,
+      });
+
       onClose?.();
-    };
+    } catch (error) {
+      console.error(
+        "Erro ao salvar interação:",
+        error
+      );
+
+      setSubmitError(
+        error?.message ||
+          "Não foi possível salvar a interação."
+      );
+    } finally {
+      setSaving(
+        false
+      );
+    }
+  }
+
+  // ========================================
+  // Data atual
+  // ========================================
+
+  const currentDate =
+    new Date()
+      .toLocaleString(
+        "pt-BR",
+        {
+          day:
+            "2-digit",
+          month:
+            "2-digit",
+          year:
+            "numeric",
+          hour:
+            "2-digit",
+          minute:
+            "2-digit",
+        }
+      );
 
   return (
-
     <Modal
-      visible={visible}
+      visible={
+        visible
+      }
       animationType="slide"
-      onRequestClose={onClose}
+      onRequestClose={
+        saving
+          ? undefined
+          : onClose
+      }
     >
-
-      <SafeAreaView className="flex-1 bg-[#FFFCEF]">
+      <View
+        className="flex-1 bg-[#FFFCEF]"
+        style={{
+          paddingTop:
+            insets.top,
+          paddingBottom:
+            insets.bottom,
+        }}
+      >
+        <StatusBar
+          style="dark"
+        />
 
         <ScrollView
+          className="flex-1 px-3"
           showsVerticalScrollIndicator={
             false
           }
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           contentContainerStyle={{
-            paddingBottom: 110,
+            paddingBottom:
+              40,
           }}
         >
+          {/* =================================
+              Cabeçalho
+              ================================= */}
 
-          <View className="px-4 pt-3 flex-row items-center">
-
+          <View className="mt-3 flex-row items-center">
             <TouchableOpacity
-              onPress={onClose}
-              activeOpacity={0.8}
-              className="w-10 h-10 items-center justify-center"
-            >
-
-              <Ionicons
-                name="arrow-back"
-                size={28}
-                color="#6F4E24"
-              />
-
-            </TouchableOpacity>
-
-            <Text
-              numberOfLines={1}
-              className="flex-1 text-center text-[#6F4E24] text-[28px] font-bold"
-            >
-              Confirmar dados
-            </Text>
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              className="w-10 h-10 items-center justify-center"
-            >
-
-              <Ionicons
-                name="help-circle-outline"
-                size={28}
-                color="#6F4E24"
-              />
-
-            </TouchableOpacity>
-
-          </View>
-
-          <Text className="px-4 mt-2 text-[#555555] text-[17px]">
-            Reveja e confirme as informações antes de salvar.
-          </Text>
-
-          <View className="mx-4 mt-5 rounded-[10px] border border-[#E5DCC4] overflow-hidden">
-
-            <View className="bg-[#F7F0DC] px-4 py-4">
-
-              <View className="flex-row items-center justify-between">
-
-                <View className="flex-1 pr-2">
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    className="text-[#554B41] text-[20px] font-bold"
-                  >
-                    Reação da criança
-                  </Text>
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    adjustsFontSizeToFit
-                    minimumFontScale={
-                      0.8
-                    }
-                    className="text-[#80775C] text-[16px] mt-1"
-                  >
-                    Como a criança reagiu ao alimento?
-                  </Text>
-
-                </View>
-
-                <TouchableOpacity
-                  activeOpacity={
-                    0.8
-                  }
-                  className="border border-[#E5DCC4] rounded-[10px] px-3 py-2 flex-row items-center"
-                >
-
-                  <Ionicons
-                    name="pencil-outline"
-                    size={18}
-                    color="#6F4E24"
-                  />
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    className="text-[#6F4E24] ml-2 text-[14px] font-medium"
-                  >
-                    Alterar reação
-                  </Text>
-
-                </TouchableOpacity>
-
-              </View>
-
-            </View>
-
-            <View className="bg-[#FFFCEF] px-4 py-6">
-
-              <View className="flex-row">
-
-                {emotions.map(
-                  (
-                    item,
-                    index
-                  ) => {
-
-                    const selected =
-                      emotion ===
-                      item.value;
-
-                    return (
-
-                      <TouchableOpacity
-                        key={
-                          item.value
-                        }
-                        onPress={() =>
-                          setEmotion(
-                            item.value
-                          )
-                        }
-                        activeOpacity={
-                          0.8
-                        }
-                        className={`flex-1 h-[116px] rounded-[10px] items-center justify-center border ${
-                          index !==
-                          emotions.length -
-                            1
-                            ? "mr-3"
-                            : ""
-                        } ${
-                          selected
-                            ? "border-[#3D8B3D] bg-[#F4FAEF]"
-                            : "border-[#E5DCC4] bg-[#FFFCEF]"
-                        }`}
-                      >
-
-                        <Ionicons
-                          name={
-                            item.icon
-                          }
-                          size={42}
-                          color={
-                            item.color
-                          }
-                        />
-
-                        <Text
-                          numberOfLines={
-                            1
-                          }
-                          adjustsFontSizeToFit
-                          minimumFontScale={
-                            0.8
-                          }
-                          className={`mt-2 text-[17px] ${
-                            selected
-                              ? "text-[#3D8B3D] font-bold"
-                              : "text-[#554B41]"
-                          }`}
-                        >
-                          {
-                            item.value
-                          }
-                        </Text>
-
-                      </TouchableOpacity>
-                    );
-                  }
-                )}
-
-              </View>
-
-            </View>
-
-          </View>
-
-          <View className="mx-4 mt-5 rounded-[10px] border border-[#E5DCC4] overflow-hidden">
-
-            <View className="bg-[#F7F0DC] px-4 py-4">
-
-              <View className="flex-row items-center">
-
-                <View className="flex-1 min-w-0 pr-2">
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    className="text-[#554B41] text-[20px] font-bold"
-                  >
-                    Alimento
-                  </Text>
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    ellipsizeMode="tail"
-                    className="text-[#80775C] text-[15px] mt-1"
-                  >
-                    Qual alimento foi oferecido?
-                  </Text>
-
-                </View>
-
-                <TouchableOpacity
-                  activeOpacity={
-                    0.8
-                  }
-                  className="shrink-0 border border-[#E5DCC4] rounded-[10px] px-3 py-2 flex-row items-center"
-                >
-
-                  <Ionicons
-                    name="pencil-outline"
-                    size={18}
-                    color="#6F4E24"
-                  />
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    className="text-[#6F4E24] ml-2 text-[14px] font-medium"
-                  >
-                    Alterar alimento
-                  </Text>
-
-                </TouchableOpacity>
-
-              </View>
-
-            </View>
-
-            <View className="px-4 py-4 flex-row items-center">
-
-              <View className="w-[78px] h-[78px] rounded-[8px] overflow-hidden shrink-0">
-
-                <Image
-                  source={require(
-                    "../../../assets/images/foods/feijao.png"
-                  )}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                  }}
-                  resizeMode="cover"
-                />
-
-              </View>
-
-              <View className="flex-1 min-w-0 ml-4">
-
-                <Text
-                  numberOfLines={
-                    2
-                  }
-                  className="text-[#554B41] text-[18px] font-bold"
-                >
-                  Feijão
-                </Text>
-
-                <View className="self-start mt-2 px-3 py-1 rounded-full bg-[#F1E6CA]">
-
-                  <Text className="text-[#806A42] text-[13px]">
-                    Pré-cadastrado
-                  </Text>
-
-                </View>
-
-              </View>
-
-            </View>
-
-          </View>
-
-          <View className="mx-4 mt-5">
-
-            <Text
-              numberOfLines={1}
-              className="text-[#554B41] text-[21px] font-bold"
-            >
-              Aspecto avaliado
-            </Text>
-
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={
+              activeOpacity={
                 0.8
               }
-              className="text-[#80775C] text-[16px] mt-1"
+              disabled={
+                saving
+              }
+              onPress={
+                onClose
+              }
+              className="w-[42px] h-[42px] items-center justify-center"
             >
-              Em qual aspecto a reação foi observada?
+              <Ionicons
+                name="arrow-back"
+                size={26}
+                color="#554B41"
+              />
+            </TouchableOpacity>
+
+            <View className="flex-1 ml-2">
+              <Text className="text-[#554B41] text-[25px] font-bold">
+                Confirmar interação
+              </Text>
+
+              <Text className="text-[#80775C] text-[13px] mt-1">
+                Revise os dados recebidos antes de salvar.
+              </Text>
+            </View>
+          </View>
+
+          {/* =================================
+              Reação geral
+              ================================= */}
+
+          <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5 mt-5">
+            <Text className="text-[#554B41] text-[20px] font-bold">
+              Reação geral
+            </Text>
+
+            <Text className="text-[#80775C] text-[13px] mt-1">
+              Como a criança reagiu ao alimento?
             </Text>
 
             <View className="flex-row mt-4">
-
-              {aspects.map(
+              {REACTIONS.map(
                 (
-                  item,
+                  reaction,
                   index
                 ) => {
-
                   const selected =
-                    aspect ===
-                    item.label;
+                    emotion ===
+                    reaction.label;
 
                   return (
-
                     <TouchableOpacity
                       key={
-                        item.label
-                      }
-                      onPress={() =>
-                        setAspect(
-                          item.label
-                        )
+                        reaction.value
                       }
                       activeOpacity={
                         0.8
                       }
-                      style={{
-                        width:
-                          aspectWidth,
-
-                        height:
-                          108,
-
-                        marginRight:
-                          index !==
-                          aspects.length -
-                            1
-                            ? aspectGap
-                            : 0,
-                      }}
-                      className={`rounded-[10px] items-center justify-center border ${
-                        selected
-                          ? "border-[#3D8B3D] bg-[#F4FAEF]"
-                          : "border-[#E5DCC4] bg-[#FFFCEF]"
+                      onPress={() =>
+                        handleReactionPress(
+                          reaction
+                        )
+                      }
+                      className={`flex-1 min-h-[104px] rounded-[10px] border items-center justify-center ${
+                        index !==
+                        REACTIONS.length -
+                          1
+                          ? "mr-2"
+                          : ""
                       }`}
-                    >
+                      style={{
+                        borderColor:
+                          selected
+                            ? reaction.color
+                            : "#D5CCB5",
 
+                        backgroundColor:
+                          selected
+                            ? reaction.background
+                            : "#FFFCEF",
+                      }}
+                    >
                       <Ionicons
                         name={
-                          item.icon
+                          reaction.icon
                         }
-                        size={40}
+                        size={34}
                         color={
-                          selected
-                            ? "#3D8B3D"
-                            : "#806A42"
+                          reaction.color
                         }
                       />
 
@@ -514,241 +831,478 @@ export default function InteractionModal({
                         }
                         adjustsFontSizeToFit
                         minimumFontScale={
-                          0.65
+                          0.72
                         }
-                        className={`mt-2 text-[15px] text-center ${
-                          selected
-                            ? "text-[#3D8B3D] font-bold"
-                            : "text-[#554B41]"
-                        }`}
+                        className="text-[14px] font-bold mt-2"
+                        style={{
+                          color:
+                            selected
+                              ? reaction.color
+                              : "#554B41",
+                        }}
                       >
                         {
-                          item.label
+                          reaction.label
                         }
                       </Text>
-
                     </TouchableOpacity>
                   );
                 }
               )}
-
             </View>
-
           </View>
 
-          <View className="mx-4 mt-5 rounded-[10px] border border-[#E5DCC4] overflow-hidden">
+          {/* =================================
+              Contexto sensorial
+              ================================= */}
 
-            <View className="bg-[#F7F0DC] px-4 py-4">
-
-              <Text className="text-[#554B41] text-[21px] font-bold">
-                Resumo da interação
-              </Text>
-
-              <Text className="text-[#80775C] text-[16px] mt-1">
-                Confira se está tudo certo:
-              </Text>
-
-            </View>
-
-            <View className="px-4 py-4">
-
-              <View className="flex-row items-center">
-
-                <View className="flex-1 h-[98px] rounded-[10px] border border-[#9BC78C] bg-[#F4FAEF] items-center justify-center">
-
-                  <Ionicons
-                    name="happy-outline"
-                    size={38}
-                    color="#3D8B3D"
-                  />
-
-                  <Text className="text-[#3D8B3D] font-bold mt-1">
-                    {emotion}
-                  </Text>
-
-                </View>
-
-                <Text className="text-[#554B41] text-[28px] mx-2">
-                  +
-                </Text>
-
-                <View className="flex-1 h-[98px] rounded-[10px] border border-[#E5DCC4] bg-[#FFFCEF] items-center justify-center">
-
-                  <Ionicons
-                    name="color-palette-outline"
-                    size={36}
-                    color="#806A42"
-                  />
-
-                  <Text className="text-[#554B41] font-bold mt-1">
-                    {aspect}
-                  </Text>
-
-                </View>
-
-                <Text className="text-[#554B41] text-[28px] mx-2">
-                  +
-                </Text>
-
-                <View className="flex-[2.2] h-[98px] rounded-[10px] border border-[#E5DCC4] bg-[#F7F0DC] flex-row items-center px-1">
-
-                  <View className="w-[72px] h-[72px] rounded-[8px] overflow-hidden shrink-0">
-
-                    <Image
-                      source={require(
-                        "../../../assets/images/foods/feijao.png"
-                      )}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                      }}
-                      resizeMode="cover"
-                    />
-
-                  </View>
-
-                  <Text
-                    numberOfLines={
-                      4
-                    }
-                    className="flex-1 min-w-0 ml-1 text-[#554B41] text-[10px] font-bold"
-                  >
-                    Feijão
-                  </Text>
-
-                </View>
-
-              </View>
-
-              <View className="flex-row items-center mt-5">
-
+          <View className="bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-4 mt-4">
+            <View className="flex-row items-center">
+              <View className="w-[40px] h-[40px] rounded-full bg-[#C6BB9A] items-center justify-center">
                 <Ionicons
-                  name="calendar-outline"
+                  name="radio-outline"
                   size={21}
-                  color="#6F4E24"
+                  color="#554B41"
                 />
-
-                <Text
-                  numberOfLines={
-                    1
-                  }
-                  adjustsFontSizeToFit
-                  minimumFontScale={
-                    0.75
-                  }
-                  className="flex-1 ml-2 text-[#554B41] text-[15px]"
-                >
-                  Hoje, 08 de maio de 2025 às 09:41
-                </Text>
-
-                <TouchableOpacity
-                  activeOpacity={
-                    0.8
-                  }
-                  className="flex-row items-center ml-2"
-                >
-
-                  <Ionicons
-                    name="pencil-outline"
-                    size={18}
-                    color="#6F4E24"
-                  />
-
-                  <Text
-                    numberOfLines={
-                      1
-                    }
-                    className="text-[#6F4E24] ml-1 text-[14px]"
-                  >
-                    Editar
-                  </Text>
-
-                </TouchableOpacity>
-
               </View>
 
-              <View className="mt-5">
-
-                <Text className="text-[#554B41] text-[16px] font-bold">
-
-                  Observações
-
-                  <Text className="font-normal">
-                    {" "} (opcional)
-                  </Text>
-
+              <View className="flex-1 ml-3">
+                <Text className="text-[#554B41] text-[15px] font-bold">
+                  Contexto sensorial atual
                 </Text>
 
-                <TextInput
-                  value={
-                    observation
-                  }
-                  onChangeText={
-                    setObservation
-                  }
-                  placeholder="Adicione observações sobre esse momento..."
-                  placeholderTextColor="#B8B4AA"
-                  multiline
-                  textAlignVertical="top"
-                  className="mt-2 min-h-[70px] border border-[#E5DCC4] rounded-[10px] px-3 py-3 text-[#554B41]"
-                />
-
+                <Text className="text-[#80775C] text-[13px] mt-1">
+                  {sensoryContext ===
+                  1
+                    ? "Gostou"
+                    : sensoryContext ===
+                      2
+                    ? "Não gostou"
+                    : "Neutro"}
+                </Text>
               </View>
-
             </View>
 
+            <Text className="text-[#80775C] text-[12px] leading-5 mt-3">
+              Depois da reação, pressione Cor, Sabor, Cheiro, Textura ou Temperatura no dispositivo.
+            </Text>
+
+            {captureMessage ? (
+              <View className="bg-[#FFFCEF] rounded-[10px] px-3 py-3 mt-3">
+                <Text className="text-[#554B41] text-[13px] font-medium">
+                  {captureMessage}
+                </Text>
+              </View>
+            ) : null}
           </View>
 
-          <View className="mx-4 mt-5">
+          {/* =================================
+              Alimento
+              ================================= */}
 
-            <TouchableOpacity
-              onPress={
-                handleSubmit
-              }
-              activeOpacity={
-                0.85
-              }
-              className="h-[62px] rounded-[10px] bg-[#4D9B43] items-center justify-center flex-row"
-            >
+          <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5 mt-4">
+            <Text className="text-[#554B41] text-[20px] font-bold">
+              Alimento
+            </Text>
 
+            <Text className="text-[#80775C] text-[13px] mt-1">
+              Selecione o alimento oferecido nesta interação.
+            </Text>
+
+            <View className="h-[50px] bg-[#FFFCEF] border border-[#C6BB9A] rounded-[10px] px-3 flex-row items-center mt-4">
               <Ionicons
-                name="checkmark-circle-outline"
-                size={27}
-                color="white"
+                name="search"
+                size={20}
+                color="#80775C"
               />
 
-              <Text className="text-white text-[18px] font-bold ml-2">
-                Confirmar e salvar
+              <TextInput
+                value={
+                  foodSearch
+                }
+                onChangeText={
+                  setFoodSearch
+                }
+                placeholder="Buscar alimento..."
+                placeholderTextColor="#A7A7A7"
+                className="flex-1 ml-2 text-[#554B41] text-[15px]"
+              />
+            </View>
+
+            {loadingFoods ? (
+              <View className="items-center py-8">
+                <ActivityIndicator
+                  size="large"
+                  color="#4D9B43"
+                />
+
+                <Text className="text-[#80775C] text-[13px] mt-3">
+                  Carregando alimentos...
+                </Text>
+              </View>
+            ) : foodsError ? (
+              <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+                <Text className="text-[#D9534F] text-[13px] text-center font-medium">
+                  {foodsError}
+                </Text>
+              </View>
+            ) : filteredFoods.length ===
+              0 ? (
+              <Text className="text-[#80775C] text-[13px] text-center py-7">
+                Nenhum alimento encontrado.
               </Text>
+            ) : (
+              <View className="mt-3">
+                {filteredFoods.map(
+                  (
+                    food
+                  ) => {
+                    const selected =
+                      selectedFood?.id ===
+                      food.id;
 
-            </TouchableOpacity>
+                    return (
+                      <TouchableOpacity
+                        key={
+                          food.id
+                        }
+                        activeOpacity={
+                          0.8
+                        }
+                        onPress={() => {
+                          setSelectedFood(
+                            food
+                          );
 
-            <TouchableOpacity
-              onPress={
-                onClose
-              }
-              activeOpacity={
-                0.85
-              }
-              className="h-[62px] mt-3 rounded-[10px] border border-[#C98F7C] items-center justify-center"
-            >
+                          setSubmitError(
+                            ""
+                          );
+                        }}
+                        className="min-h-[58px] rounded-[10px] border px-3 mb-2 flex-row items-center"
+                        style={{
+                          backgroundColor:
+                            selected
+                              ? "#EDF6E8"
+                              : "#FFFCEF",
 
-              <Text className="text-[#9B5547] text-[18px] font-medium">
-                Cancelar
-              </Text>
+                          borderColor:
+                            selected
+                              ? "#83BF6E"
+                              : "#D5CCB5",
+                        }}
+                      >
+                        <View className="w-[38px] h-[38px] rounded-full bg-[#C6BB9A] items-center justify-center">
+                          <Ionicons
+                            name="restaurant-outline"
+                            size={20}
+                            color="#554B41"
+                          />
+                        </View>
 
-            </TouchableOpacity>
+                        <View className="flex-1 ml-3">
+                          <Text
+                            numberOfLines={
+                              1
+                            }
+                            className="text-[#554B41] text-[15px] font-bold"
+                          >
+                            {
+                              food.nome
+                            }
+                          </Text>
 
+                          <Text
+                            numberOfLines={
+                              1
+                            }
+                            className="text-[#80775C] text-[12px] mt-1"
+                          >
+                            {
+                              food.categoria
+                            }
+                          </Text>
+                        </View>
+
+                        {selected ? (
+                          <Ionicons
+                            name="checkmark-circle"
+                            size={23}
+                            color="#4D9B43"
+                          />
+                        ) : (
+                          <Ionicons
+                            name="chevron-forward"
+                            size={20}
+                            color="#A3987B"
+                          />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  }
+                )}
+              </View>
+            )}
           </View>
 
+          {/* =================================
+              Feedbacks sensoriais
+              ================================= */}
+
+          <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5 mt-4">
+            <Text className="text-[#554B41] text-[20px] font-bold">
+              Feedback sensorial
+            </Text>
+
+            <Text className="text-[#80775C] text-[13px] mt-1">
+              Os dados abaixo são atualizados pelos botões físicos.
+            </Text>
+
+            <View className="mt-4">
+              {SENSORY_ASPECTS.map(
+                (
+                  aspect
+                ) => {
+                  const feedback =
+                    sensoryFeedbacks.find(
+                      (
+                        item
+                      ) =>
+                        item.atributo ===
+                        aspect.key
+                    );
+
+                  const foodValue =
+                    selectedFood?.[
+                      aspect.key
+                    ];
+
+                  return (
+                    <View
+                      key={
+                        aspect.key
+                      }
+                      className="min-h-[72px] bg-[#FFFCEF] border border-[#D5CCB5] rounded-[10px] px-3 py-3 mb-3 flex-row items-center"
+                    >
+                      <View className="w-[42px] h-[42px] rounded-full bg-[#C6BB9A] items-center justify-center">
+                        <Ionicons
+                          name={
+                            aspect.icon
+                          }
+                          size={21}
+                          color="#554B41"
+                        />
+                      </View>
+
+                      <View className="flex-1 ml-3">
+                        <Text className="text-[#554B41] text-[15px] font-bold">
+                          {
+                            aspect.label
+                          }
+                        </Text>
+
+                        <Text
+                          numberOfLines={
+                            1
+                          }
+                          className="text-[#80775C] text-[12px] mt-1"
+                        >
+                          {foodValue ||
+                            "Selecione um alimento"}
+                        </Text>
+                      </View>
+
+                      {feedback ? (
+                        <View className="items-end ml-2">
+                          <View
+                            className="rounded-full px-3 py-1"
+                            style={{
+                              backgroundColor:
+                                feedback.gostou
+                                  ? "#EDF6E8"
+                                  : "#FCEBE8",
+                            }}
+                          >
+                            <Text
+                              className="text-[11px] font-bold"
+                              style={{
+                                color:
+                                  feedback.gostou
+                                    ? "#4D9B43"
+                                    : "#D9534F",
+                              }}
+                            >
+                              {feedback.gostou
+                                ? "Gostou"
+                                : "Não gostou"}
+                            </Text>
+                          </View>
+
+                          <TouchableOpacity
+                            activeOpacity={
+                              0.8
+                            }
+                            onPress={() =>
+                              removeFeedback(
+                                aspect.key
+                              )
+                            }
+                            className="mt-2"
+                          >
+                            <Text className="text-[#9B5547] text-[11px] font-medium">
+                              remover
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <Text className="text-[#A3987B] text-[11px] ml-2">
+                          Não informado
+                        </Text>
+                      )}
+                    </View>
+                  );
+                }
+              )}
+            </View>
+          </View>
+
+          {/* =================================
+              Resumo
+              ================================= */}
+
+          <View className="bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-4 mt-4">
+            <Text className="text-[#554B41] text-[18px] font-bold">
+              Resumo
+            </Text>
+
+            <View className="flex-row items-center mt-3">
+              <Ionicons
+                name="happy-outline"
+                size={20}
+                color="#806A42"
+              />
+
+              <Text className="text-[#554B41] text-[14px] ml-2">
+                Reação:{" "}
+                <Text className="font-bold">
+                  {emotion}
+                </Text>
+              </Text>
+            </View>
+
+            <View className="flex-row items-center mt-2">
+              <Ionicons
+                name="restaurant-outline"
+                size={20}
+                color="#806A42"
+              />
+
+              <Text className="flex-1 text-[#554B41] text-[14px] ml-2">
+                Alimento:{" "}
+                <Text className="font-bold">
+                  {selectedFood?.nome ||
+                    "não selecionado"}
+                </Text>
+              </Text>
+            </View>
+
+            <View className="flex-row items-center mt-2">
+              <Ionicons
+                name="analytics-outline"
+                size={20}
+                color="#806A42"
+              />
+
+              <Text className="text-[#554B41] text-[14px] ml-2">
+                Feedbacks sensoriais:{" "}
+                <Text className="font-bold">
+                  {
+                    sensoryFeedbacks.length
+                  }
+                </Text>
+              </Text>
+            </View>
+
+            <View className="flex-row items-center mt-2">
+              <Ionicons
+                name="calendar-outline"
+                size={20}
+                color="#806A42"
+              />
+
+              <Text className="text-[#554B41] text-[14px] ml-2">
+                {currentDate}
+              </Text>
+            </View>
+          </View>
+
+          {submitError ? (
+            <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+              <Text className="text-[#D9534F] text-[14px] font-medium text-center">
+                {submitError}
+              </Text>
+            </View>
+          ) : null}
+
+          {/* =================================
+              Ações
+              ================================= */}
+
+          <TouchableOpacity
+            activeOpacity={
+              0.85
+            }
+            onPress={
+              handleSubmit
+            }
+            disabled={
+              saving
+            }
+            className="h-[56px] bg-[#4D9B43] rounded-[10px] items-center justify-center flex-row mt-5"
+            style={{
+              opacity:
+                saving
+                  ? 0.65
+                  : 1,
+            }}
+          >
+            {saving ? (
+              <ActivityIndicator
+                size="small"
+                color="#FFFFFF"
+              />
+            ) : (
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="#FFFFFF"
+              />
+            )}
+
+            <Text className="text-white text-[16px] font-bold ml-2">
+              {saving
+                ? "Salvando..."
+                : "Confirmar e salvar"}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={
+              0.8
+            }
+            disabled={
+              saving
+            }
+            onPress={
+              onClose
+            }
+            className="h-[52px] border border-[#C98F7C] rounded-[10px] items-center justify-center mt-3"
+          >
+            <Text className="text-[#9B5547] text-[15px] font-medium">
+              Cancelar
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
-
-        <BottomNavigation
-          active="dashboard"
-        />
-
-      </SafeAreaView>
-
+      </View>
     </Modal>
   );
 }

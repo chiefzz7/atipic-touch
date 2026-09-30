@@ -1,5 +1,6 @@
 import React, {
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -38,6 +39,10 @@ import {
   getFeedingLogs,
 } from "../../services/dashboard/dashboard";
 
+import {
+  createFeedingLog,
+} from "../../services/feedingLogs/feedingLogs";
+
 import bluetoothService from "../../services/bluetooth/bluetoothService";
 
 import AvatarHeader from "../../components/AvatarHeader";
@@ -45,27 +50,116 @@ import BottomNavigation from "../../components/BottomNavigation";
 import SectionCard from "../../components/SectionCard";
 import InteractionModal from "../../components/InteractionModal";
 
+// ========================================
+// Converter evento BLE para reação
+// ========================================
+
+function getBleReaction(
+  evento
+) {
+  if (
+    evento?.tipo ===
+    "sensorial"
+  ) {
+    return null;
+  }
+
+  if (
+    evento?.botao ===
+      "aceitou" ||
+    Number(
+      evento?.value
+    ) === 1
+  ) {
+    return {
+      value:
+        1,
+
+      label:
+        "Gostou",
+    };
+  }
+
+  if (
+    evento?.botao ===
+      "rejeitou" ||
+    Number(
+      evento?.value
+    ) === 2
+  ) {
+    return {
+      value:
+        2,
+
+      label:
+        "Não gostou",
+    };
+  }
+
+  if (
+    evento?.botao ===
+      "neutro" ||
+    Number(
+      evento?.value
+    ) === 3
+  ) {
+    return {
+      value:
+        3,
+
+      label:
+        "Neutro",
+    };
+  }
+
+  return null;
+}
+
 export default function DashboardScreen() {
   const insets =
     useSafeAreaInsets();
 
-  const [modalVisible, setModalVisible] =
-    useState(false);
+  const [
+    modalVisible,
+    setModalVisible,
+  ] = useState(false);
 
-  const [feedingLogs, setFeedingLogs] =
-    useState([]);
+  const modalVisibleRef =
+    useRef(false);
 
-  const [child, setChild] =
-    useState(null);
+  const [
+    interactionOrigin,
+    setInteractionOrigin,
+  ] = useState(
+    "IOT"
+  );
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    feedingLogs,
+    setFeedingLogs,
+  ] = useState([]);
 
-  const [error, setError] =
-    useState(null);
+  const [
+    child,
+    setChild,
+  ] = useState(null);
 
-  const [bleReaction, setBleReaction] =
-    useState("Gostou");
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState(null);
+
+  const [
+    bleReaction,
+    setBleReaction,
+  ] = useState(
+    "Gostou"
+  );
 
   const [
     availableChildren,
@@ -83,55 +177,224 @@ export default function DashboardScreen() {
   ] = useState(null);
 
   // ========================================
+  // Manter ref sincronizada
+  // ========================================
+
+  useEffect(() => {
+    modalVisibleRef.current =
+      modalVisible;
+  }, [
+    modalVisible,
+  ]);
+
+  // ========================================
   // Eventos do ESP32
+  //
+  // O Dashboard abre a interação somente
+  // com a PRIMEIRA reação.
+  //
+  // Depois que o modal está aberto,
+  // o próprio InteractionModal passa a
+  // consumir reação/contexto + sensoriais.
   // ========================================
 
   useEffect(() => {
     const removerListener =
-      bluetoothService.adicionarListener(
-        (evento) => {
-          let reaction = null;
+      bluetoothService
+        .adicionarListener(
+          (
+            evento
+          ) => {
+            // Aspectos sensoriais são
+            // processados pelo modal.
+            if (
+              evento?.tipo ===
+              "sensorial"
+            ) {
+              return;
+            }
 
-          if (
-            evento?.botao === "aceitou" ||
-            evento?.value === 1
-          ) {
-            reaction = "Gostou";
+            const reaction =
+              getBleReaction(
+                evento
+              );
 
-          } else if (
-            evento?.botao === "rejeitou" ||
-            evento?.value === 2
-          ) {
-            reaction = "Não gostou";
+            if (
+              !reaction
+            ) {
+              return;
+            }
 
-          } else if (
-            evento?.botao === "neutro" ||
-            evento?.value === 3
-          ) {
-            reaction = "Neutro";
+            // Modal já está aberto:
+            // não altera a reação geral.
+            // O InteractionModal receberá
+            // este mesmo evento e usará
+            // apenas como contexto sensorial.
+            if (
+              modalVisibleRef
+                .current
+            ) {
+              return;
+            }
+
+            console.log(
+              "REAÇÃO GERAL RECEBIDA DO ESP32:",
+              reaction.label
+            );
+
+            setBleReaction(
+              reaction.label
+            );
+
+            setInteractionOrigin(
+              "IOT"
+            );
+
+            modalVisibleRef.current =
+              true;
+
+            setModalVisible(
+              true
+            );
           }
-
-          if (!reaction) {
-            return;
-          }
-
-          console.log(
-            "REAÇÃO RECEBIDA DO ESP32:",
-            reaction
-          );
-
-          setBleReaction(
-            reaction
-          );
-
-          setModalVisible(
-            true
-          );
-        }
-      );
+        );
 
     return removerListener;
   }, []);
+
+  // ========================================
+  // Fechar interação
+  // ========================================
+
+  function handleCloseInteraction() {
+    modalVisibleRef.current =
+      false;
+
+    setModalVisible(
+      false
+    );
+  }
+
+  // ========================================
+  // Abrir interação manualmente
+  // ========================================
+
+  function handleOpenManualInteraction() {
+    setBleReaction(
+      "Gostou"
+    );
+
+    setInteractionOrigin(
+      "MANUAL"
+    );
+
+    modalVisibleRef.current =
+      true;
+
+    setModalVisible(
+      true
+    );
+  }
+
+  // ========================================
+  // Salvar interação
+  // ========================================
+
+  async function handleInteractionSubmit({
+    reaction,
+    food,
+    feedbacks,
+  }) {
+    if (
+      !child?.id
+    ) {
+      throw new Error(
+        "Nenhuma criança selecionada."
+      );
+    }
+
+    if (
+      !food?.id
+    ) {
+      throw new Error(
+        "Selecione um alimento."
+      );
+    }
+
+    console.log(
+      "========== INTERAÇÃO =========="
+    );
+
+    console.log(
+      "CRIANÇA:",
+      child.id
+    );
+
+    console.log(
+      "ALIMENTO:",
+      food
+    );
+
+    console.log(
+      "REAÇÃO:",
+      reaction
+    );
+
+    console.log(
+      "ORIGEM:",
+      interactionOrigin
+    );
+
+    console.log(
+      "FEEDBACKS SENSORIAIS:",
+      feedbacks
+    );
+
+    const createdLog =
+      await createFeedingLog({
+        criancaId:
+          child.id,
+
+        alimentoId:
+          food.id,
+
+        reacao:
+          reaction,
+
+        origem:
+          interactionOrigin,
+
+        feedbacks:
+          Array.isArray(
+            feedbacks
+          )
+            ? feedbacks
+            : [],
+      });
+
+    console.log(
+      "REGISTRO CRIADO:",
+      createdLog
+    );
+
+    // Recarrega o histórico porque
+    // o GET retorna também alimento
+    // e sensoryFeedbacks completos.
+    const updatedLogs =
+      await getFeedingLogs(
+        child.id
+      );
+
+    setFeedingLogs(
+      Array.isArray(
+        updatedLogs
+      )
+        ? updatedLogs
+        : []
+    );
+
+    return createdLog;
+  }
 
   // ========================================
   // Carregar dados da criança
@@ -140,7 +403,9 @@ export default function DashboardScreen() {
   async function loadChildData(
     selectedChild
   ) {
-    if (!selectedChild?.id) {
+    if (
+      !selectedChild?.id
+    ) {
       throw new Error(
         "Criança inválida."
       );
@@ -171,7 +436,9 @@ export default function DashboardScreen() {
     );
 
     setFeedingLogs(
-      Array.isArray(data)
+      Array.isArray(
+        data
+      )
         ? data
         : []
     );
@@ -184,17 +451,21 @@ export default function DashboardScreen() {
   useEffect(() => {
     async function loadDashboard() {
       try {
-        setLoading(true);
-        setError(null);
+        setLoading(
+          true
+        );
 
-        // Busca somente as crianças
-        // vinculadas ao responsável
-        // autenticado.
+        setError(
+          null
+        );
+
         const children =
           await getChildren();
 
         const childrenList =
-          Array.isArray(children)
+          Array.isArray(
+            children
+          )
             ? children
             : [];
 
@@ -207,9 +478,9 @@ export default function DashboardScreen() {
           childrenList
         );
 
-        // Nenhuma criança cadastrada.
         if (
-          childrenList.length === 0
+          childrenList.length ===
+          0
         ) {
           throw new Error(
             "Nenhuma criança cadastrada para este responsável."
@@ -224,7 +495,8 @@ export default function DashboardScreen() {
         // ====================================
 
         if (
-          childrenList.length === 1
+          childrenList.length ===
+          1
         ) {
           const onlyChild =
             childrenList[0];
@@ -247,19 +519,21 @@ export default function DashboardScreen() {
         const storedChildIsValid =
           storedChild?.id &&
           childrenList.some(
-            (currentChild) =>
+            (
+              currentChild
+            ) =>
               currentChild.id ===
               storedChild.id
           );
 
-        // Já existe uma criança selecionada
-        // e ela pertence ao responsável atual.
         if (
           storedChildIsValid
         ) {
           const currentChild =
             childrenList.find(
-              (item) =>
+              (
+                item
+              ) =>
                 item.id ===
                 storedChild.id
             );
@@ -271,12 +545,9 @@ export default function DashboardScreen() {
           return;
         }
 
-        // Não existe seleção válida.
-        // O responsável precisa escolher.
         setChildSelectionVisible(
           true
         );
-
       } catch (err) {
         console.error(
           "Erro ao carregar Dashboard:",
@@ -285,20 +556,20 @@ export default function DashboardScreen() {
 
         setError(
           err?.message ||
-          "Não foi possível carregar o Dashboard."
+            "Não foi possível carregar o Dashboard."
         );
-
       } finally {
-        setLoading(false);
+        setLoading(
+          false
+        );
       }
     }
 
     loadDashboard();
-
   }, []);
 
   // ========================================
-  // Selecionar criança no modal
+  // Selecionar criança
   // ========================================
 
   async function handleSelectChild(
@@ -316,7 +587,9 @@ export default function DashboardScreen() {
         selectedChild.id
       );
 
-      setError(null);
+      setError(
+        null
+      );
 
       await saveSelectedChild(
         selectedChild
@@ -333,7 +606,6 @@ export default function DashboardScreen() {
       await loadChildData(
         selectedChild
       );
-
     } catch (err) {
       console.error(
         "Erro ao selecionar criança:",
@@ -342,9 +614,8 @@ export default function DashboardScreen() {
 
       setError(
         err?.message ||
-        "Não foi possível selecionar a criança."
+          "Não foi possível selecionar a criança."
       );
-
     } finally {
       setSelectingChildId(
         null
@@ -361,10 +632,19 @@ export default function DashboardScreen() {
   // ========================================
 
   const sortedLogs =
-    [...feedingLogs].sort(
-      (a, b) =>
-        new Date(b.timestamp) -
-        new Date(a.timestamp)
+    [
+      ...feedingLogs,
+    ].sort(
+      (
+        a,
+        b
+      ) =>
+        new Date(
+          b.timestamp
+        ) -
+        new Date(
+          a.timestamp
+        )
     );
 
   const lastMeal =
@@ -377,14 +657,19 @@ export default function DashboardScreen() {
     );
 
   const getReactionLabel =
-    (reaction) => {
+    (
+      reaction
+    ) => {
       if (
-        typeof reaction === "string"
+        typeof reaction ===
+        "string"
       ) {
         return reaction;
       }
 
-      switch (reaction) {
+      switch (
+        reaction
+      ) {
         case 1:
           return "Gostou";
 
@@ -401,14 +686,18 @@ export default function DashboardScreen() {
 
   const reactionData = [
     {
-      label: "Gostou",
+      label:
+        "Gostou",
 
       value:
         recentLogs.filter(
-          (log) =>
+          (
+            log
+          ) =>
             getReactionLabel(
               log.reacao
-            ) === "Gostou"
+            ) ===
+            "Gostou"
         ).length,
 
       icon:
@@ -422,14 +711,18 @@ export default function DashboardScreen() {
     },
 
     {
-      label: "Neutro",
+      label:
+        "Neutro",
 
       value:
         recentLogs.filter(
-          (log) =>
+          (
+            log
+          ) =>
             getReactionLabel(
               log.reacao
-            ) === "Neutro"
+            ) ===
+            "Neutro"
         ).length,
 
       icon:
@@ -448,7 +741,9 @@ export default function DashboardScreen() {
 
       value:
         recentLogs.filter(
-          (log) =>
+          (
+            log
+          ) =>
             getReactionLabel(
               log.reacao
             ) ===
@@ -467,8 +762,12 @@ export default function DashboardScreen() {
   ];
 
   const formatDate =
-    (timestamp) => {
-      if (!timestamp) {
+    (
+      timestamp
+    ) => {
+      if (
+        !timestamp
+      ) {
         return "";
       }
 
@@ -477,25 +776,32 @@ export default function DashboardScreen() {
           timestamp
         );
 
-      return date.toLocaleString(
-        "pt-BR",
-        {
-          day:
-            "2-digit",
-          month:
-            "2-digit",
-          hour:
-            "2-digit",
-          minute:
-            "2-digit",
-        }
-      );
+      return date
+        .toLocaleString(
+          "pt-BR",
+          {
+            day:
+              "2-digit",
+
+            month:
+              "2-digit",
+
+            hour:
+              "2-digit",
+
+            minute:
+              "2-digit",
+          }
+        );
     };
 
   const getMealImage =
-    (foodName) => {
+    (
+      foodName
+    ) => {
       if (
-        foodName === "Feijão"
+        foodName ===
+        "Feijão"
       ) {
         return require(
           "../../../assets/images/foods/feijao.png"
@@ -539,10 +845,8 @@ export default function DashboardScreen() {
           hasNotification={
             true
           }
-          onNotificationPress={() =>
-            setModalVisible(
-              true
-            )
+          onNotificationPress={
+            handleOpenManualInteraction
           }
         />
 
@@ -557,7 +861,6 @@ export default function DashboardScreen() {
               Carregando histórico alimentar...
             </Text>
           </View>
-
         ) : error ? (
           <View className="items-center justify-center py-20 px-6">
             <Ionicons
@@ -574,9 +877,12 @@ export default function DashboardScreen() {
               {error}
             </Text>
           </View>
-
         ) : (
           <>
+            {/* =================================
+                Última refeição
+                ================================= */}
+
             <View className="mt-2">
               <SectionCard
                 title="Última refeição"
@@ -602,6 +908,7 @@ export default function DashboardScreen() {
                         style={{
                           width:
                             "100%",
+
                           height:
                             "100%",
                         }}
@@ -654,9 +961,7 @@ export default function DashboardScreen() {
                                 ? "sad-outline"
                                 : "remove-circle-outline"
                             }
-                            size={
-                              17
-                            }
+                            size={17}
                             color={
                               getReactionLabel(
                                 lastMeal.reacao
@@ -697,13 +1002,11 @@ export default function DashboardScreen() {
 
                         {lastMeal
                           .alimento
-                          ?.cor && (
+                          ?.cor ? (
                           <View className="flex-row items-center bg-[#F8F0D9] rounded-full px-3 py-1">
                             <Ionicons
                               name="color-palette-outline"
-                              size={
-                                17
-                              }
+                              size={17}
                               color="#806A42"
                             />
 
@@ -715,11 +1018,10 @@ export default function DashboardScreen() {
                               }
                             </Text>
                           </View>
-                        )}
+                        ) : null}
                       </View>
                     </View>
                   </View>
-
                 ) : (
                   <Text className="text-[#80775C] text-[14px]">
                     Nenhuma refeição encontrada.
@@ -727,6 +1029,10 @@ export default function DashboardScreen() {
                 )}
               </SectionCard>
             </View>
+
+            {/* =================================
+                Resumo
+                ================================= */}
 
             <View className="mt-5">
               <SectionCard
@@ -752,9 +1058,7 @@ export default function DashboardScreen() {
                           name={
                             item.icon
                           }
-                          size={
-                            30
-                          }
+                          size={30}
                           color={
                             item.iconColor
                           }
@@ -797,6 +1101,10 @@ export default function DashboardScreen() {
               </SectionCard>
             </View>
 
+            {/* =================================
+                Alimentos recentes
+                ================================= */}
+
             <View className="mt-5">
               <SectionCard
                 title="Alimentos recentes"
@@ -816,9 +1124,7 @@ export default function DashboardScreen() {
 
                       <Ionicons
                         name="arrow-forward"
-                        size={
-                          17
-                        }
+                        size={17}
                         color="#4D9B43"
                         style={{
                           marginLeft:
@@ -912,9 +1218,7 @@ export default function DashboardScreen() {
                                     ? "sad-outline"
                                     : "remove-outline"
                                 }
-                                size={
-                                  22
-                                }
+                                size={22}
                                 color={
                                   reaction ===
                                   "Gostou"
@@ -929,9 +1233,7 @@ export default function DashboardScreen() {
 
                             <Ionicons
                               name="chevron-forward"
-                              size={
-                                18
-                              }
+                              size={18}
                               color="#A3987B"
                               style={{
                                 marginLeft:
@@ -950,7 +1252,7 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* ===================================
-          Modal de seleção de criança
+          Seleção de criança
           =================================== */}
 
       <Modal
@@ -967,9 +1269,7 @@ export default function DashboardScreen() {
               <View className="w-[58px] h-[58px] rounded-full bg-[#E5D8B0] items-center justify-center">
                 <Ionicons
                   name="people"
-                  size={
-                    30
-                  }
+                  size={30}
                   color="#6F4E24"
                 />
               </View>
@@ -1014,9 +1314,7 @@ export default function DashboardScreen() {
                       <View className="w-[46px] h-[46px] rounded-full bg-[#F2F0E8] items-center justify-center">
                         <Ionicons
                           name="person"
-                          size={
-                            25
-                          }
+                          size={25}
                           color="#A3987B"
                         />
                       </View>
@@ -1040,13 +1338,10 @@ export default function DashboardScreen() {
                           size="small"
                           color="#4D9B43"
                         />
-
                       ) : (
                         <Ionicons
                           name="chevron-forward"
-                          size={
-                            22
-                          }
+                          size={22}
                           color="#A3987B"
                         />
                       )}
@@ -1059,6 +1354,10 @@ export default function DashboardScreen() {
         </View>
       </Modal>
 
+      {/* ===================================
+          Interação alimentar
+          =================================== */}
+
       <InteractionModal
         visible={
           modalVisible
@@ -1066,22 +1365,12 @@ export default function DashboardScreen() {
         initialEmotion={
           bleReaction
         }
-        onClose={() =>
-          setModalVisible(
-            false
-          )
+        onClose={
+          handleCloseInteraction
         }
-        onSubmit={(
-          experience
-        ) => {
-          console.log(
-            experience
-          );
-
-          setModalVisible(
-            false
-          );
-        }}
+        onSubmit={
+          handleInteractionSubmit
+        }
       />
 
       <BottomNavigation
