@@ -21,7 +21,8 @@ import {
 } from "expo-router";
 
 export default function WelcomeScreen() {
-  const router = useRouter();
+  const router =
+    useRouter();
 
   const insets =
     useSafeAreaInsets();
@@ -53,10 +54,8 @@ export default function WelcomeScreen() {
     );
 
   const loginTop =
-    buttonTop + 87;
+    buttonTop + 82;
 
-  // Círculo real:
-  // largura e altura iguais.
   const circleSize =
     Math.max(
       width * 1.7,
@@ -67,9 +66,14 @@ export default function WelcomeScreen() {
     <View
       className="flex-1 items-center bg-[#FFFCEF]"
       style={{
-        overflow: "hidden",
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
+        overflow:
+          "hidden",
+
+        paddingTop:
+          insets.top,
+
+        paddingBottom:
+          insets.bottom,
       }}
     >
       <StatusBar
@@ -77,14 +81,24 @@ export default function WelcomeScreen() {
       />
 
       <View
-        className="absolute rounded-full bg-[#E5D8B0]"
         pointerEvents="none"
+        className="absolute rounded-full bg-[#E5DCC4]"
         style={{
-          width: circleSize,
-          height: circleSize,
-          top: height * 0.10,
+          width:
+            circleSize,
+
+          height:
+            circleSize,
+
+          top:
+            height *
+            0.1,
+
           left:
-            (width - circleSize) /
+            (
+              width -
+              circleSize
+            ) /
             2,
         }}
       />
@@ -96,21 +110,35 @@ export default function WelcomeScreen() {
         resizeMode="contain"
         pointerEvents="none"
         style={{
-          position: "absolute",
-          width: imageSize,
-          height: imageSize,
-          top: imageTop,
+          position:
+            "absolute",
+
+          width:
+            imageSize,
+
+          height:
+            imageSize,
+
+          top:
+            imageTop,
+
           borderRadius:
-            imageSize / 2,
+            imageSize /
+            2,
         }}
       />
 
       <TouchableOpacity
-        activeOpacity={0.85}
-        className="absolute h-[83px] bg-[#D8C792] items-center justify-center rounded-[7px]"
+        activeOpacity={
+          0.85
+        }
+        className="absolute h-[72px] bg-[#83BF6E] items-center justify-center rounded-[10px]"
         style={{
-          width: buttonWidth,
-          top: buttonTop,
+          width:
+            buttonWidth,
+
+          top:
+            buttonTop,
         }}
         onPress={() =>
           router.push(
@@ -118,16 +146,19 @@ export default function WelcomeScreen() {
           )
         }
       >
-        <Text className="text-white text-[24px] font-bold">
+        <Text className="text-white text-[22px] font-bold">
           Criar minha conta
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        activeOpacity={0.7}
+        activeOpacity={
+          0.7
+        }
         className="absolute items-center"
         style={{
-          top: loginTop,
+          top:
+            loginTop,
         }}
         onPress={() =>
           router.push(
@@ -135,10 +166,10 @@ export default function WelcomeScreen() {
           )
         }
       >
-        <Text className="text-[#6E6246] text-[18px]">
+        <Text className="text-[#80775C] text-[18px]">
           Já tem uma conta?{" "}
 
-          <Text className="font-bold">
+          <Text className="font-bold text-[#4D9B43]">
             Entrar
           </Text>
         </Text>

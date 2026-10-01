@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+} from 'react';
+
 import {
   View,
   Text,
@@ -6,7 +9,12 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+
+import {
+  Link,
+  useRouter,
+} from 'expo-router';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Input from '../../components/ui/Input';
@@ -15,100 +23,134 @@ import GoogleButton from '../../components/ui/GoogleButton';
 import Footer from '../../components/ui/Footer';
 
 export default function LoginScreen() {
-  const router = useRouter();
+  const router =
+    useRouter();
 
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [
+    email,
+    setEmail,
+  ] = useState('');
 
-  const handleLogin = async () => {
-    if (!email || !senha) {
-      window.alert(
-        'Atenção\n\nPor favor, preencha todos os campos.'
-      );
-      return;
-    }
+  const [
+    senha,
+    setSenha,
+  ] = useState('');
 
-    setLoading(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(false);
 
-    try {
-      const response = await fetch(
-        'http://localhost:8000/api/auth/login',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            senha,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.detail || 'Erro ao realizar login.'
-        );
-      }
-
-      if (data.perfil !== 'PROFISSIONAL') {
+  const handleLogin =
+    async () => {
+      if (
+        !email ||
+        !senha
+      ) {
         window.alert(
-          'Acesso Restrito\n\nEste portal é exclusivo para profissionais'
+          'Atenção\n\nPor favor, preencha todos os campos.'
         );
+
         return;
       }
 
-      await AsyncStorage.setItem(
-        '@atipictouch:token',
-        data.access_token
-      );
+      setLoading(true);
 
-      await AsyncStorage.setItem(
-        '@atipictouch:user_id',
-        data.usuario_id
-      );
+      try {
+        const response =
+          await fetch(
+            'http://localhost:8000/api/auth/login',
+            {
+              method:
+                'POST',
+              headers: {
+                'Content-Type':
+                  'application/json',
+              },
+              body:
+                JSON.stringify(
+                  {
+                    email,
+                    senha,
+                  }
+                ),
+            }
+          );
 
-      await AsyncStorage.setItem(
-        '@atipictouch:perfil',
-        data.perfil
-      );
+        const data =
+          await response.json();
 
-      router.replace('/patients');
+        if (!response.ok) {
+          throw new Error(
+            data.detail ||
+              'Erro ao realizar login.'
+          );
+        }
 
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Erro inesperado ao realizar login.';
+        if (
+          data.perfil !==
+          'PROFISSIONAL'
+        ) {
+          window.alert(
+            'Acesso Restrito\n\nEste portal é exclusivo para profissionais'
+          );
 
-      window.alert(
-        `Erro de Autenticação\n\n${message}`
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+          return;
+        }
+
+        await AsyncStorage.setItem(
+          '@atipictouch:token',
+          data.access_token
+        );
+
+        await AsyncStorage.setItem(
+          '@atipictouch:user_id',
+          data.usuario_id
+        );
+
+        await AsyncStorage.setItem(
+          '@atipictouch:perfil',
+          data.perfil
+        );
+
+        router.replace(
+          '/patients'
+        );
+      } catch (error) {
+        const message =
+          error instanceof
+          Error
+            ? error.message
+            : 'Erro inesperado ao realizar login.';
+
+        window.alert(
+          `Erro de Autenticação\n\n${message}`
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
-    <View className="flex-1 min-h-screen bg-[#FDFFF1]">
+    <View className="flex-1 min-h-screen bg-[#FFFCEF]">
       <ScrollView
         contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: 'center',
+          justifyContent:
+            'center',
         }}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={
+          false
+        }
         className="w-full"
       >
         <View className="w-full max-w-[1100px] mx-auto flex-1 flex-col md:flex-row items-center justify-center gap-8 lg:gap-16 px-6 py-8 md:py-12">
           <View className="flex-1 w-full max-w-[460px] items-center md:items-start justify-center">
-            <Text className="text-3xl md:text-4xl lg:text-[42px] font-extrabold text-[#212134] mb-3 text-center md:text-left tracking-tight">
+            <Text className="text-3xl md:text-4xl lg:text-[42px] font-extrabold text-[#554B41] mb-3 text-center md:text-left tracking-tight">
               AtipicTouch
             </Text>
 
-            <Text className="text-[14px] md:text-[15px] text-[#6B7280] text-center md:text-left leading-relaxed mb-6">
+            <Text className="text-[14px] md:text-[15px] text-[#80775C] text-center md:text-left leading-relaxed mb-6">
               Sistema IoT para auxílio de mães de crianças não verbais com seletividade alimentar
             </Text>
 
@@ -122,13 +164,12 @@ export default function LoginScreen() {
           </View>
 
           <View className="flex-1 w-full max-w-[440px] items-center justify-center">
-            <View className="bg-white rounded-2xl w-full p-6 md:p-8 shadow-sm border border-gray-100">
-
-              <Text className="text-2xl md:text-[26px] font-bold text-[#212134] text-center mb-1.5">
+            <View className="bg-[#E5DCC4] rounded-[10px] w-full p-6 md:p-8 border border-[#C6BB9A]">
+              <Text className="text-2xl md:text-[26px] font-bold text-[#554B41] text-center mb-1.5">
                 Bem-vindo(a) de volta!
               </Text>
 
-              <Text className="text-[13px] md:text-[14px] text-[#9CA3AF] text-center mb-6">
+              <Text className="text-[13px] md:text-[14px] text-[#80775C] text-center mb-6">
                 Faça login para acessar o painel do especialista
               </Text>
 
@@ -138,7 +179,9 @@ export default function LoginScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={
+                  setEmail
+                }
               />
 
               <Input
@@ -146,39 +189,51 @@ export default function LoginScreen() {
                 placeholder="Digite sua senha"
                 secureTextEntry
                 value={senha}
-                onChangeText={setSenha}
+                onChangeText={
+                  setSenha
+                }
               />
 
               <View className="w-full mt-2">
                 <Button
-                  title={loading ? 'Autenticando...' : 'Entrar'}
-                  onPress={handleLogin}
-                  disabled={loading}
+                  title={
+                    loading
+                      ? 'Autenticando...'
+                      : 'Entrar'
+                  }
+                  onPress={
+                    handleLogin
+                  }
+                  disabled={
+                    loading
+                  }
                 />
               </View>
 
               <TouchableOpacity className="mb-5">
-                <Text className="text-center text-xs md:text-sm text-[#4B5563] font-medium hover:underline">
+                <Text className="text-center text-xs md:text-sm text-[#554B41] font-medium hover:text-[#4D9B43] transition-colors">
                   Esqueceu sua senha?
                 </Text>
               </TouchableOpacity>
 
               <GoogleButton />
 
-              <Link href="/register" asChild>
+              <Link
+                href="/register"
+                asChild
+              >
                 <TouchableOpacity className="mt-2">
-                  <Text className="text-center text-xs md:text-sm text-[#9CA3AF]">
+                  <Text className="text-center text-xs md:text-sm text-[#80775C]">
                     Não tem uma conta?{' '}
-                    <Text className="text-[#528F33] font-bold hover:underline">
+
+                    <Text className="text-[#4D9B43] font-bold">
                       Clique aqui para criar uma
                     </Text>
                   </Text>
                 </TouchableOpacity>
               </Link>
-
             </View>
           </View>
-
         </View>
       </ScrollView>
 

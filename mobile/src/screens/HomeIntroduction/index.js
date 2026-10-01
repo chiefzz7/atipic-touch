@@ -1,87 +1,234 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, SafeAreaView, ScrollView, useWindowDimensions } from "react-native";
-import { useRouter } from "expo-router";
+
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  useWindowDimensions,
+} from "react-native";
+
+import {
+  StatusBar,
+} from "expo-status-bar";
+
+import {
+  useRouter,
+} from "expo-router";
 
 import ScreenContainer from "../../components/ScreenContainer";
 
 export default function HomeIntroduction() {
-  const router = useRouter();
-  const { width, height } = useWindowDimensions();
+  const router =
+    useRouter();
 
-  const isSmallScreen = height < 750;
-  const broccoliSize = Math.min(width * 0.72, 280);
+  const {
+    width,
+    height,
+  } =
+    useWindowDimensions();
+
+  const isSmallScreen =
+    height < 750;
+
+  const broccoliSize =
+    Math.min(
+      width * 0.72,
+      280
+    );
+
+  const circleWidth =
+    Math.max(
+      width * 1.75,
+      700
+    );
 
   return (
     <SafeAreaView className="flex-1 bg-[#FFFCEF]">
-      <ScreenContainer>
+      <StatusBar
+        style="dark"
+      />
 
+      <ScreenContainer>
         <ScrollView
           className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingBottom: 20 }}
-        >
+          showsVerticalScrollIndicator={
+            false
+          }
+          contentContainerStyle={{
+            flexGrow:
+              1,
 
+            paddingHorizontal:
+              20,
+
+            paddingBottom:
+              20,
+          }}
+        >
           <View
-            className="absolute rounded-full bg-[#E5D8B0]"
-            style={{ width: Math.max(width * 1.75, 700), height: isSmallScreen ? 650 : 720, top: -130, left: -(Math.max(width * 1.75, 700) - width) / 2 }}
+            pointerEvents="none"
+            className="absolute rounded-full bg-[#E5DCC4]"
+            style={{
+              width:
+                circleWidth,
+
+              height:
+                isSmallScreen
+                  ? 650
+                  : 720,
+
+              top:
+                -130,
+
+              left:
+                -(
+                  circleWidth -
+                  width
+                ) /
+                2,
+            }}
           />
 
           <Image
-            source={require("../../../assets/images/introducao_fitas.png")}
+            source={require(
+              "../../../assets/images/introducao_fitas.png"
+            )}
             resizeMode="cover"
             className="absolute"
-            style={{ width: width, height: isSmallScreen ? 270 : 300, top: 0, left: 0 }}
+            style={{
+              width:
+                width,
+
+              height:
+                isSmallScreen
+                  ? 270
+                  : 300,
+
+              top:
+                0,
+
+              left:
+                0,
+            }}
           />
 
           <View className="items-center pt-[60px]">
-
             <Text
-              className={`text-center text-white font-semibold ${isSmallScreen ? "text-[42px]" : "text-[48px]"}`}
-              style={{ lineHeight: isSmallScreen ? 48 : 56 }}
+              className={`text-center text-[#554B41] font-bold ${
+                isSmallScreen
+                  ? "text-[40px]"
+                  : "text-[46px]"
+              }`}
+              style={{
+                lineHeight:
+                  isSmallScreen
+                    ? 46
+                    : 52,
+              }}
             >
-              Cadastro{"\n"}Finalizado!
+              Cadastro{"\n"}
+              finalizado!
             </Text>
 
             <Text
-              className={`text-[#555555] text-center font-medium mt-8 ${isSmallScreen ? "text-[18px]" : "text-[20px]"}`}
+              className={`text-[#4D9B43] text-center font-bold mt-8 ${
+                isSmallScreen
+                  ? "text-[18px]"
+                  : "text-[20px]"
+              }`}
             >
               Perfil criado com sucesso!
             </Text>
 
-            <Text className={`text-[#555555] text-center mt-4 ${isSmallScreen ? "text-[17px]" : "text-[18px]"}`}>
-              Tudo certo, <Text className="font-semibold">Maria!</Text>
+            <Text
+              className={`text-[#554B41] text-center mt-4 ${
+                isSmallScreen
+                  ? "text-[17px]"
+                  : "text-[18px]"
+              }`}
+            >
+              Tudo certo,{" "}
+
+              <Text className="font-bold">
+                Maria!
+              </Text>
             </Text>
 
             <Text
-              className={`text-[#555555] text-center mt-2 ${isSmallScreen ? "text-[17px]" : "text-[18px]"}`}
-              style={{ lineHeight: isSmallScreen ? 24 : 28 }}
+              className={`text-[#80775C] text-center mt-2 ${
+                isSmallScreen
+                  ? "text-[16px]"
+                  : "text-[18px]"
+              }`}
+              style={{
+                lineHeight:
+                  isSmallScreen
+                    ? 24
+                    : 28,
+              }}
             >
               Agora precisamos habilitar o dispositivo auxiliador. Fazendo com que a alimentação seja apenas mais uma etapa divertida!
             </Text>
 
             <TouchableOpacity
-              activeOpacity={0.85}
-              onPress={() => router.replace("/device")}
-              className="w-full items-center justify-center bg-[#A3C78C] rounded-[17px]"
-              style={{ height: isSmallScreen ? 68 : 76, marginTop: isSmallScreen ? 24 : 34 }}
+              activeOpacity={
+                0.85
+              }
+              onPress={() =>
+                router.replace(
+                  "/device"
+                )
+              }
+              className="w-full items-center justify-center bg-[#83BF6E] rounded-[10px]"
+              style={{
+                height:
+                  isSmallScreen
+                    ? 58
+                    : 62,
+
+                marginTop:
+                  isSmallScreen
+                    ? 24
+                    : 34,
+              }}
             >
-              <Text className={`text-white font-bold ${isSmallScreen ? "text-[22px]" : "text-[26px]"}`}>
+              <Text
+                className={`text-white font-bold ${
+                  isSmallScreen
+                    ? "text-[18px]"
+                    : "text-[20px]"
+                }`}
+              >
                 Ir para tela inicial
               </Text>
             </TouchableOpacity>
-
           </View>
 
           <View className="flex-1 items-start justify-end">
             <Image
-              source={require("../../../assets/images/home_brocolis.png")}
+              source={require(
+                "../../../assets/images/home_brocolis.png"
+              )}
               resizeMode="contain"
-              style={{ width: broccoliSize, height: broccoliSize, marginLeft: -70, marginBottom: -20 }}
+              style={{
+                width:
+                  broccoliSize,
+
+                height:
+                  broccoliSize,
+
+                marginLeft:
+                  -70,
+
+                marginBottom:
+                  -20,
+              }}
             />
           </View>
-
         </ScrollView>
-
       </ScreenContainer>
     </SafeAreaView>
   );

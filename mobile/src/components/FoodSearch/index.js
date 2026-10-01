@@ -25,7 +25,7 @@ export default function FoodSearch({
 
   return (
     <View className="flex-row items-center mb-4">
-      <View className="flex-1 flex-row items-center bg-white rounded-[10px] h-[50px] px-3 mr-3 border border-[#C6BB9A]">
+      <View className="flex-1 flex-row items-center bg-[#FFFCEF] rounded-[10px] h-[50px] px-3 mr-3 border border-[#DDD3B9]">
         <Ionicons
           name="search"
           size={20}
@@ -35,10 +35,8 @@ export default function FoodSearch({
         <TextInput
           className="flex-1 ml-2 text-[#554B41] text-[15px]"
           placeholder="Buscar alimento..."
-          placeholderTextColor="#B5AE9D"
-          value={
-            value
-          }
+          placeholderTextColor="#A3987B"
+          value={value}
           onChangeText={
             onChangeText
           }

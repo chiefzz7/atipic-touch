@@ -89,7 +89,8 @@ export default function LoginScreen() {
   const cardWidth =
     Math.min(
       width -
-        horizontalPadding * 2,
+        horizontalPadding *
+          2,
       390
     );
 
@@ -102,8 +103,8 @@ export default function LoginScreen() {
 
   const labelSize =
     width < 360
-      ? 20
-      : 23;
+      ? 18
+      : 20;
 
   const broccoliWidth =
     Math.min(
@@ -182,17 +183,22 @@ export default function LoginScreen() {
         await fetch(
           `${API_URL}/api/auth/login`,
           {
-            method: "POST",
+            method:
+              "POST",
+
             headers: {
               Accept:
                 "application/json",
+
               "Content-Type":
                 "application/json",
             },
+
             body:
               JSON.stringify({
                 email:
                   email.trim(),
+
                 senha:
                   password,
               }),
@@ -202,7 +208,9 @@ export default function LoginScreen() {
       const data =
         await response.json();
 
-      if (!response.ok) {
+      if (
+        !response.ok
+      ) {
         setError(
           "E-mail ou senha inválidos."
         );
@@ -218,7 +226,8 @@ export default function LoginScreen() {
         await getChildren();
 
       if (
-        children.length > 0
+        children.length >
+        0
       ) {
         router.replace(
           "/device"
@@ -228,14 +237,14 @@ export default function LoginScreen() {
           "/child-introduction"
         );
       }
-
     } catch (error) {
       setError(
         "Não foi possível conectar ao servidor."
       );
-
     } finally {
-      setLoading(false);
+      setLoading(
+        false
+      );
     }
   }
 
@@ -243,9 +252,14 @@ export default function LoginScreen() {
     <View
       className="flex-1 bg-[#FFFCEF]"
       style={{
-        overflow: "hidden",
-        paddingTop: insets.top,
-        paddingBottom: insets.bottom,
+        overflow:
+          "hidden",
+
+        paddingTop:
+          insets.top,
+
+        paddingBottom:
+          insets.bottom,
       }}
     >
       <StatusBar
@@ -254,16 +268,26 @@ export default function LoginScreen() {
 
       <View
         pointerEvents="none"
-        className="absolute rounded-full bg-[#E5D8B0]"
+        className="absolute rounded-full bg-[#E5DCC4]"
         style={{
-          width: circleSize,
-          height: circleSize,
+          width:
+            circleSize,
+
+          height:
+            circleSize,
+
           top:
             keyboardVisible
-              ? height * 0.02
-              : height * 0.10,
+              ? height *
+                0.02
+              : height *
+                0.1,
+
           left:
-            (width - circleSize) /
+            (
+              width -
+              circleSize
+            ) /
             2,
         }}
       />
@@ -271,27 +295,37 @@ export default function LoginScreen() {
       <KeyboardAvoidingView
         className="flex-1"
         behavior={
-          Platform.OS === "ios"
+          Platform.OS ===
+          "ios"
             ? "padding"
             : undefined
         }
       >
         <ScrollView
-          ref={scrollViewRef}
+          ref={
+            scrollViewRef
+          }
           contentContainerStyle={{
-            flexGrow: 1,
-            alignItems: "center",
+            flexGrow:
+              1,
+
+            alignItems:
+              "center",
+
             justifyContent:
               keyboardVisible ||
               isSmallScreen
                 ? "flex-start"
                 : "center",
+
             paddingHorizontal:
               horizontalPadding,
+
             paddingTop:
               keyboardVisible
                 ? 80
                 : 0,
+
             paddingBottom:
               keyboardVisible
                 ? 40
@@ -304,12 +338,14 @@ export default function LoginScreen() {
           }
         >
           <Text
-            className="text-[#3F361E] font-bold italic"
+            className="text-[#554B41] font-bold"
             style={{
               fontSize:
                 titleSize,
+
               textAlign:
                 "center",
+
               marginBottom:
                 keyboardVisible
                   ? 20
@@ -318,16 +354,18 @@ export default function LoginScreen() {
                   : 35,
             }}
           >
-            Bem-Vindo(a)!
+            Bem-vindo(a)!
           </Text>
 
           <View
-            className="items-center bg-[#C6BB9A] rounded-[7px]"
+            className="items-center bg-[#E5DCC4] border border-[#C6BB9A] rounded-[10px]"
             style={{
               width:
                 cardWidth,
+
               paddingHorizontal:
                 25,
+
               paddingVertical:
                 keyboardVisible
                   ? 18
@@ -337,12 +375,13 @@ export default function LoginScreen() {
             }}
           >
             <Text
-              className="text-white font-bold text-center"
+              className="text-[#554B41] font-bold text-center"
               style={{
                 fontSize:
-                  width < 360
-                    ? 25
-                    : 27,
+                  width <
+                  360
+                    ? 24
+                    : 26,
               }}
             >
               Login do responsável
@@ -350,10 +389,11 @@ export default function LoginScreen() {
 
             <View className="w-full mt-5">
               <Text
-                className="text-white text-center"
+                className="text-[#554B41] text-center font-medium"
                 style={{
                   fontSize:
                     labelSize,
+
                   marginBottom:
                     7,
                 }}
@@ -362,7 +402,9 @@ export default function LoginScreen() {
               </Text>
 
               <TextInput
-                value={email}
+                value={
+                  email
+                }
                 onChangeText={
                   setEmail
                 }
@@ -371,22 +413,27 @@ export default function LoginScreen() {
                 }
                 keyboardType="email-address"
                 autoCapitalize="none"
-                autoCorrect={false}
+                autoCorrect={
+                  false
+                }
                 returnKeyType="next"
-                className="w-full rounded-[7px] bg-white px-4 text-[18px] text-black"
+                placeholder="Digite seu e-mail"
+                placeholderTextColor="#A3987B"
+                className="w-full rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
                 style={{
                   height:
-                    45,
+                    52,
                 }}
               />
             </View>
 
             <View className="w-full mt-4">
               <Text
-                className="text-white text-center"
+                className="text-[#554B41] text-center font-medium"
                 style={{
                   fontSize:
                     labelSize,
+
                   marginBottom:
                     7,
                 }}
@@ -406,29 +453,29 @@ export default function LoginScreen() {
                 }
                 secureTextEntry
                 autoCapitalize="none"
-                autoCorrect={false}
+                autoCorrect={
+                  false
+                }
                 returnKeyType="done"
                 onSubmitEditing={
                   handleLogin
                 }
-                className="w-full rounded-[7px] bg-white px-4 text-[18px] text-black"
+                placeholder="Digite sua senha"
+                placeholderTextColor="#A3987B"
+                className="w-full rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
                 style={{
                   height:
-                    45,
+                    52,
                 }}
               />
             </View>
 
             {error ? (
-              <Text
-                className="text-red-700 text-center font-bold"
-                style={{
-                  marginTop:
-                    12,
-                }}
-              >
-                {error}
-              </Text>
+              <View className="w-full bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+                <Text className="text-[#D9534F] text-center font-medium">
+                  {error}
+                </Text>
+              </View>
             ) : null}
 
             <TouchableOpacity
@@ -441,7 +488,7 @@ export default function LoginScreen() {
               activeOpacity={
                 0.8
               }
-              className="items-center justify-center rounded-[7px] bg-[#A3987B]"
+              className="items-center justify-center rounded-[10px] bg-[#83BF6E]"
               style={{
                 width:
                   Math.min(
@@ -449,14 +496,17 @@ export default function LoginScreen() {
                       0.72,
                     260
                   ),
+
                 height:
-                  65,
+                  58,
+
                 marginTop:
                   keyboardVisible
                     ? 22
                     : isSmallScreen
                     ? 25
                     : 32,
+
                 opacity:
                   loading
                     ? 0.6
@@ -467,9 +517,10 @@ export default function LoginScreen() {
                 className="text-white font-bold"
                 style={{
                   fontSize:
-                    width < 360
-                      ? 27
-                      : 32,
+                    width <
+                    360
+                      ? 20
+                      : 22,
                 }}
               >
                 {loading
@@ -481,7 +532,7 @@ export default function LoginScreen() {
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {!keyboardVisible && (
+      {!keyboardVisible ? (
         <Image
           source={require(
             "../../../assets/images/login_brocolis.png"
@@ -491,17 +542,22 @@ export default function LoginScreen() {
           style={{
             position:
               "absolute",
+
             width:
               broccoliWidth,
+
             height:
               broccoliWidth,
+
             left:
-              -width * 0.1,
+              -width *
+              0.1,
+
             bottom:
               insets.bottom,
           }}
         />
-      )}
+      ) : null}
     </View>
   );
 }

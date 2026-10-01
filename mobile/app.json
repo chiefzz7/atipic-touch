@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "Atipic Touch",
     "slug": "mobile",
+    "scheme": "atipictouch",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,15 +11,16 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFCEF"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.atipictouch.mobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFCEF"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
@@ -27,14 +29,25 @@
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.anonymous.mobile"
+      "package": "com.atipictouch.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "react-native-ble-plx",
+      [
+        "react-native-ble-plx",
+        {
+          "bluetoothAlwaysPermission": "O Atipic Touch utiliza Bluetooth para se conectar ao dispositivo auxiliar."
+        }
+      ],
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f5031d37-cddf-4132-87ae-6fc8a57d60db"
+      }
+    }
   }
 }

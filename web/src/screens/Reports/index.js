@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
 import {
   View,
   Text,
@@ -8,9 +12,13 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+
+import {
+  Feather,
+} from '@expo/vector-icons';
 
 import DashboardLayout from '../../components/layout/DashboardLayout';
+
 import {
   ReportCard,
   PatientSummaryWidget,
@@ -22,6 +30,7 @@ import {
   BehavioralFactorsWidget,
   SignatureWidget,
 } from '../../components/report/ReportWidgets';
+
 import Footer from '../../components/ui/Footer';
 
 import useReportData from '../../hooks/useReportData';
@@ -50,82 +59,197 @@ export default function ReportsScreen() {
     setSelectedDate,
     formatPeriod,
     selecionarPeriodo,
-  } = usePeriodFilter(logs);
+  } =
+    usePeriodFilter(
+      logs
+    );
 
-  const [showPeriodModal, setShowPeriodModal] = useState(false);
+  const [
+    showPeriodModal,
+    setShowPeriodModal,
+  ] = useState(false);
 
   useEffect(() => {
-    if (logs.length === 0) {
+    if (
+      logs.length ===
+      0
+    ) {
       return;
     }
 
-    const latestLog = [...logs]
-      .filter(log => log.timestamp)
-      .sort(
-        (a, b) =>
-          new Date(b.timestamp) - new Date(a.timestamp)
-      )[0];
+    const latestLog =
+      [...logs]
+        .filter(
+          (log) =>
+            log.timestamp
+        )
+        .sort(
+          (
+            a,
+            b
+          ) =>
+            new Date(
+              b.timestamp
+            ) -
+            new Date(
+              a.timestamp
+            )
+        )[0];
 
     if (latestLog) {
-      setSelectedDate(new Date(latestLog.timestamp));
-    }
-  }, [logs, setSelectedDate]);
-
-  const foodStats = calcularFoodStats(logsFiltrados);
-
-  const maisAceitos = calcularMaisAceitos(foodStats);
-
-  const menosAceitos = calcularMenosAceitos(foodStats);
-
-  const handlePrint = () => {
-    if (Platform.OS === 'web') {
-      window.print();
-    }
-  };
-
-  const selecionarPeriodoReports = type => {
-    selecionarPeriodo(type);
-    setShowPeriodModal(false);
-  };
-
-  const navegarPeriodo = direction => {
-    if (periodType === 'all' || !selectedDate) {
-      return;
-    }
-
-    const nextDate = new Date(selectedDate);
-
-    if (periodType === 'day') {
-      nextDate.setDate(
-        nextDate.getDate() + direction
+      setSelectedDate(
+        new Date(
+          latestLog.timestamp
+        )
       );
     }
+  }, [
+    logs,
+    setSelectedDate,
+  ]);
 
-    if (periodType === 'week') {
-      nextDate.setDate(
-        nextDate.getDate() + direction * 7
+  const foodStats =
+    calcularFoodStats(
+      logsFiltrados
+    );
+
+  const maisAceitos =
+    calcularMaisAceitos(
+      foodStats
+    );
+
+  const menosAceitos =
+    calcularMenosAceitos(
+      foodStats
+    );
+
+  const handlePrint =
+    () => {
+      if (
+        Platform.OS ===
+        'web'
+      ) {
+        window.print();
+      }
+    };
+
+  const selecionarPeriodoReports =
+    (type) => {
+      selecionarPeriodo(
+        type
       );
-    }
 
-    if (periodType === 'month') {
-      nextDate.setMonth(
-        nextDate.getMonth() + direction
+      setShowPeriodModal(
+        false
       );
-    }
+    };
 
-    setSelectedDate(nextDate);
-  };
+  const navegarPeriodo =
+    (direction) => {
+      if (
+        periodType ===
+          'all' ||
+        !selectedDate
+      ) {
+        return;
+      }
+
+      const nextDate =
+        new Date(
+          selectedDate
+        );
+
+      if (
+        periodType ===
+        'day'
+      ) {
+        nextDate.setDate(
+          nextDate.getDate() +
+            direction
+        );
+      }
+
+      if (
+        periodType ===
+        'week'
+      ) {
+        nextDate.setDate(
+          nextDate.getDate() +
+            direction * 7
+        );
+      }
+
+      if (
+        periodType ===
+        'month'
+      ) {
+        nextDate.setMonth(
+          nextDate.getMonth() +
+            direction
+        );
+      }
+
+      setSelectedDate(
+        nextDate
+      );
+    };
+
+  const renderPeriodOption =
+    (
+      type,
+      label,
+      icon
+    ) => {
+      const active =
+        periodType ===
+        type;
+
+      return (
+        <TouchableOpacity
+          onPress={() =>
+            selecionarPeriodoReports(
+              type
+            )
+          }
+          className={`flex-row items-center justify-between p-4 rounded-[10px] border mb-3 ${
+            active
+              ? 'bg-[#EDF6E8] border-[#83BF6E]'
+              : 'bg-[#F7F0DC] border-[#DDD3B9]'
+          }`}
+        >
+          <View className="flex-row items-center">
+            <Feather
+              name={icon}
+              size={18}
+              color="#4D9B43"
+            />
+
+            <Text className="ml-3 text-[14px] font-bold text-[#554B41]">
+              {label}
+            </Text>
+          </View>
+
+          {active ? (
+            <Feather
+              name="check"
+              size={18}
+              color="#4D9B43"
+            />
+          ) : null}
+        </TouchableOpacity>
+      );
+    };
 
   if (loading) {
     return (
       <DashboardLayout>
-        <View className="flex-1 items-center justify-center bg-[#FDFFF1]">
+        <View className="flex-1 items-center justify-center bg-[#FFFCEF]">
           <ActivityIndicator
             size="large"
-            color="#528F33"
+            color="#4D9B43"
           />
 
-          <Text className="mt-3 text-[14px] text-[#6B7280]">
+          <Text className="mt-3 text-[14px] text-[#80775C]">
             Carregando relatório...
           </Text>
         </View>
@@ -136,24 +260,26 @@ export default function ReportsScreen() {
   if (error) {
     return (
       <DashboardLayout>
-        <View className="flex-1 items-center justify-center bg-[#FDFFF1] p-6">
+        <View className="flex-1 items-center justify-center bg-[#FFFCEF] p-6">
           <Feather
             name="alert-circle"
             size={40}
             color="#D9534F"
           />
 
-          <Text className="mt-4 text-[18px] font-bold text-[#212134]">
+          <Text className="mt-4 text-[18px] font-bold text-[#554B41]">
             Não foi possível carregar o relatório
           </Text>
 
-          <Text className="mt-2 text-[14px] text-[#6B7280] text-center">
+          <Text className="mt-2 text-[14px] text-[#80775C] text-center">
             {error}
           </Text>
 
           <TouchableOpacity
-            onPress={carregarDados}
-            className="mt-5 bg-[#528F33] px-5 py-3 rounded-xl"
+            onPress={
+              carregarDados
+            }
+            className="mt-5 bg-[#83BF6E] px-5 py-3 rounded-[10px] hover:bg-[#4D9B43] transition-colors"
           >
             <Text className="text-white font-bold">
               Tentar novamente
@@ -167,51 +293,62 @@ export default function ReportsScreen() {
   return (
     <DashboardLayout>
       <ScrollView
-        className="flex-1 bg-[#FDFFF1] p-6 lg:p-8 print:bg-white print:p-0"
-        showsVerticalScrollIndicator={false}
+        className="flex-1 bg-[#FFFCEF] p-6 lg:p-8 print:bg-white print:p-0"
+        showsVerticalScrollIndicator={
+          false
+        }
       >
         <View className="flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 print:hidden">
           <View>
-            <Text className="text-[32px] font-extrabold text-[#212134]">
+            <Text className="text-[32px] font-extrabold text-[#554B41]">
               Relatório Clínico
             </Text>
 
-            <Text className="text-[15px] text-[#6B7280] font-medium mt-1">
+            <Text className="text-[15px] text-[#80775C] font-medium mt-1">
               Visão estruturada para prontuário
             </Text>
           </View>
 
           <View className="flex-row gap-3">
             <TouchableOpacity
-              onPress={() => setShowPeriodModal(true)}
-              className="flex-row items-center bg-white border border-[#A3C78B] px-4 py-2.5 rounded-xl shadow-sm"
+              onPress={() =>
+                setShowPeriodModal(
+                  true
+                )
+              }
+              className="flex-row items-center bg-[#F7F0DC] border border-[#A3C78C] px-4 py-2.5 rounded-[10px]"
             >
               <Feather
                 name="calendar"
                 size={16}
-                color="#528F33"
+                color="#4D9B43"
               />
 
-              <Text className="ml-2 text-[14px] font-bold text-[#528F33]">
+              <Text className="ml-2 text-[14px] font-bold text-[#4D9B43]">
                 {formatPeriod()}
               </Text>
 
               <Feather
                 name="chevron-down"
                 size={14}
-                color="#528F33"
-                style={{ marginLeft: 8 }}
+                color="#4D9B43"
+                style={{
+                  marginLeft:
+                    8,
+                }}
               />
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={handlePrint}
-              className="flex-row items-center bg-[#528F33] px-5 py-2.5 rounded-xl shadow-sm hover:bg-[#457a2a] transition-colors"
+              onPress={
+                handlePrint
+              }
+              className="flex-row items-center bg-[#83BF6E] px-5 py-2.5 rounded-[10px] hover:bg-[#4D9B43] transition-colors"
             >
               <Feather
                 name="download"
                 size={16}
-                color="#fff"
+                color="#FFFFFF"
               />
 
               <Text className="ml-2 text-[14px] font-bold text-white">
@@ -223,221 +360,154 @@ export default function ReportsScreen() {
 
         <View className="flex-row items-center justify-center gap-2 mb-6 print:hidden">
           <TouchableOpacity
-            onPress={() => navegarPeriodo(-1)}
-            disabled={periodType === 'all'}
-            className={`w-10 h-10 rounded-xl items-center justify-center border ${
-              periodType === 'all'
-                ? 'bg-gray-100 border-gray-200'
-                : 'bg-white border-gray-200'
+            onPress={() =>
+              navegarPeriodo(-1)
+            }
+            disabled={
+              periodType ===
+              'all'
+            }
+            className={`w-10 h-10 rounded-[10px] items-center justify-center border ${
+              periodType ===
+              'all'
+                ? 'bg-[#E5DCC4] border-[#DDD3B9]'
+                : 'bg-[#F7F0DC] border-[#DDD3B9]'
             }`}
           >
             <Feather
               name="chevron-left"
               size={20}
               color={
-                periodType === 'all'
-                  ? '#D1D5DB'
-                  : '#528F33'
+                periodType ===
+                'all'
+                  ? '#A3987B'
+                  : '#4D9B43'
               }
             />
           </TouchableOpacity>
 
           <View className="min-w-[220px] items-center px-4 py-2">
-            <Text className="text-[15px] font-bold text-[#212134]">
+            <Text className="text-[15px] font-bold text-[#554B41]">
               {formatPeriod()}
             </Text>
 
-            {periodType !== 'all' && (
-              <Text className="text-[11px] text-[#6B7280] mt-1">
+            {periodType !==
+            'all' ? (
+              <Text className="text-[11px] text-[#80775C] mt-1">
                 Use as setas para navegar entre períodos
               </Text>
-            )}
+            ) : null}
           </View>
 
           <TouchableOpacity
-            onPress={() => navegarPeriodo(1)}
-            disabled={periodType === 'all'}
-            className={`w-10 h-10 rounded-xl items-center justify-center border ${
-              periodType === 'all'
-                ? 'bg-gray-100 border-gray-200'
-                : 'bg-white border-gray-200'
+            onPress={() =>
+              navegarPeriodo(1)
+            }
+            disabled={
+              periodType ===
+              'all'
+            }
+            className={`w-10 h-10 rounded-[10px] items-center justify-center border ${
+              periodType ===
+              'all'
+                ? 'bg-[#E5DCC4] border-[#DDD3B9]'
+                : 'bg-[#F7F0DC] border-[#DDD3B9]'
             }`}
           >
             <Feather
               name="chevron-right"
               size={20}
               color={
-                periodType === 'all'
-                  ? '#D1D5DB'
-                  : '#528F33'
+                periodType ===
+                'all'
+                  ? '#A3987B'
+                  : '#4D9B43'
               }
             />
           </TouchableOpacity>
         </View>
 
         <Modal
-          visible={showPeriodModal}
+          visible={
+            showPeriodModal
+          }
           transparent
           animationType="fade"
-          onRequestClose={() => setShowPeriodModal(false)}
+          onRequestClose={() =>
+            setShowPeriodModal(
+              false
+            )
+          }
         >
           <TouchableOpacity
             activeOpacity={1}
-            onPress={() => setShowPeriodModal(false)}
+            onPress={() =>
+              setShowPeriodModal(
+                false
+              )
+            }
             className="flex-1 bg-black/30 items-center justify-center p-6"
           >
             <TouchableOpacity
               activeOpacity={1}
               onPress={() => {}}
-              className="bg-white rounded-2xl w-full max-w-[420px] p-6 shadow-lg"
+              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] w-full max-w-[420px] p-6"
             >
               <View className="flex-row justify-between items-center mb-5">
-                <Text className="text-[18px] font-bold text-[#212134]">
+                <Text className="text-[18px] font-bold text-[#554B41]">
                   Selecionar período
                 </Text>
 
                 <TouchableOpacity
-                  onPress={() => setShowPeriodModal(false)}
+                  onPress={() =>
+                    setShowPeriodModal(
+                      false
+                    )
+                  }
                 >
                   <Feather
                     name="x"
                     size={20}
-                    color="#6B7280"
+                    color="#80775C"
                   />
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity
-                onPress={() =>
-                  selecionarPeriodoReports('day')
-                }
-                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
-                  periodType === 'day'
-                    ? 'bg-[#F1F7EC] border-[#528F33]'
-                    : 'bg-white border-gray-200'
-                }`}
-              >
-                <View className="flex-row items-center">
-                  <Feather
-                    name="calendar"
-                    size={18}
-                    color="#528F33"
-                  />
+              {renderPeriodOption(
+                'day',
+                'Dia',
+                'calendar'
+              )}
 
-                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
-                    Dia
-                  </Text>
-                </View>
+              {renderPeriodOption(
+                'week',
+                'Semana',
+                'calendar'
+              )}
 
-                {periodType === 'day' && (
-                  <Feather
-                    name="check"
-                    size={18}
-                    color="#528F33"
-                  />
-                )}
-              </TouchableOpacity>
+              {renderPeriodOption(
+                'month',
+                'Mês',
+                'calendar'
+              )}
 
-              <TouchableOpacity
-                onPress={() =>
-                  selecionarPeriodoReports('week')
-                }
-                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
-                  periodType === 'week'
-                    ? 'bg-[#F1F7EC] border-[#528F33]'
-                    : 'bg-white border-gray-200'
-                }`}
-              >
-                <View className="flex-row items-center">
-                  <Feather
-                    name="calendar"
-                    size={18}
-                    color="#528F33"
-                  />
-
-                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
-                    Semana
-                  </Text>
-                </View>
-
-                {periodType === 'week' && (
-                  <Feather
-                    name="check"
-                    size={18}
-                    color="#528F33"
-                  />
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() =>
-                  selecionarPeriodoReports('month')
-                }
-                className={`flex-row items-center justify-between p-4 rounded-xl border mb-3 ${
-                  periodType === 'month'
-                    ? 'bg-[#F1F7EC] border-[#528F33]'
-                    : 'bg-white border-gray-200'
-                }`}
-              >
-                <View className="flex-row items-center">
-                  <Feather
-                    name="calendar"
-                    size={18}
-                    color="#528F33"
-                  />
-
-                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
-                    Mês
-                  </Text>
-                </View>
-
-                {periodType === 'month' && (
-                  <Feather
-                    name="check"
-                    size={18}
-                    color="#528F33"
-                  />
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() =>
-                  selecionarPeriodoReports('all')
-                }
-                className={`flex-row items-center justify-between p-4 rounded-xl border ${
-                  periodType === 'all'
-                    ? 'bg-[#F1F7EC] border-[#528F33]'
-                    : 'bg-white border-gray-200'
-                }`}
-              >
-                <View className="flex-row items-center">
-                  <Feather
-                    name="list"
-                    size={18}
-                    color="#528F33"
-                  />
-
-                  <Text className="ml-3 text-[14px] font-bold text-[#212134]">
-                    Todos os registros
-                  </Text>
-                </View>
-
-                {periodType === 'all' && (
-                  <Feather
-                    name="check"
-                    size={18}
-                    color="#528F33"
-                  />
-                )}
-              </TouchableOpacity>
+              {renderPeriodOption(
+                'all',
+                'Todos os registros',
+                'list'
+              )}
             </TouchableOpacity>
           </TouchableOpacity>
         </Modal>
 
         <View className="w-full max-w-[1200px] self-center flex-col gap-5 mb-20">
           <PatientSummaryWidget
-            child={selectedChild}
-            logs={logsFiltrados}
+            child={
+              selectedChild
+            }
+            logs={
+              logsFiltrados
+            }
           />
 
           <View className="flex-col lg:flex-row gap-5">
@@ -446,7 +516,9 @@ export default function ReportsScreen() {
               flexClass="flex-[1]"
             >
               <QuickMetricsGrid
-                logs={logsFiltrados}
+                logs={
+                  logsFiltrados
+                }
               />
             </ReportCard>
 
@@ -455,7 +527,9 @@ export default function ReportsScreen() {
               flexClass="flex-[2]"
             >
               <SensoryMatrixWidget
-                logs={logsFiltrados}
+                logs={
+                  logsFiltrados
+                }
               />
             </ReportCard>
           </View>
@@ -466,8 +540,12 @@ export default function ReportsScreen() {
               flexClass="flex-[1]"
             >
               <HorizontalBarChart
-                data={maisAceitos}
-                positive={true}
+                data={
+                  maisAceitos
+                }
+                positive={
+                  true
+                }
               />
             </ReportCard>
 
@@ -476,8 +554,12 @@ export default function ReportsScreen() {
               flexClass="flex-[1]"
             >
               <HorizontalBarChart
-                data={menosAceitos}
-                positive={false}
+                data={
+                  menosAceitos
+                }
+                positive={
+                  false
+                }
               />
             </ReportCard>
 
@@ -486,14 +568,18 @@ export default function ReportsScreen() {
               flexClass="flex-[1.2]"
             >
               <BehavioralFactorsWidget
-                logs={logsFiltrados}
+                logs={
+                  logsFiltrados
+                }
               />
             </ReportCard>
           </View>
 
           <ReportCard title="6. Mapeamento do Repertório Alimentar">
             <RepertoireWidget
-              logs={logsFiltrados}
+              logs={
+                logsFiltrados
+              }
             />
           </ReportCard>
 
@@ -504,10 +590,12 @@ export default function ReportsScreen() {
 
             <ReportCard
               title="7. Profissional Responsável"
-              flexClass="flex-[1] justify-center items-center bg-[#F2F7ED]"
+              flexClass="flex-[1] justify-center items-center bg-[#EDF6E8]"
             >
               <SignatureWidget
-                professional={professional}
+                professional={
+                  professional
+                }
               />
             </ReportCard>
           </View>

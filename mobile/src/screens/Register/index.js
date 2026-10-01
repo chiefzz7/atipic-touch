@@ -49,7 +49,8 @@ export default function RegisterScreen() {
 
   const {
     width,
-  } = useWindowDimensions();
+  } =
+    useWindowDimensions();
 
   const [
     nome,
@@ -94,7 +95,7 @@ export default function RegisterScreen() {
   const cardWidth =
     Math.min(
       width - 32,
-      355
+      390
     );
 
   useEffect(() => {
@@ -130,7 +131,8 @@ export default function RegisterScreen() {
     setTimeout(() => {
       scrollViewRef.current?.scrollTo({
         y,
-        animated: true,
+        animated:
+          true,
       });
     }, 250);
   }
@@ -150,24 +152,29 @@ export default function RegisterScreen() {
         );
 
     if (
-      numbers.length === 0
+      numbers.length ===
+      0
     ) {
       return "";
     }
 
     if (
-      numbers.length <= 2
+      numbers.length <=
+      2
     ) {
       return `(${numbers}`;
     }
 
     if (
-      numbers.length <= 7
+      numbers.length <=
+      7
     ) {
       return `(${numbers.slice(
         0,
         2
-      )}) ${numbers.slice(2)}`;
+      )}) ${numbers.slice(
+        2
+      )}`;
     }
 
     return `(${numbers.slice(
@@ -176,15 +183,21 @@ export default function RegisterScreen() {
     )}) ${numbers.slice(
       2,
       7
-    )}-${numbers.slice(7)}`;
+    )}-${numbers.slice(
+      7
+    )}`;
   }
 
   function validateForm() {
-    if (!nome.trim()) {
+    if (
+      !nome.trim()
+    ) {
       return "Informe seu nome.";
     }
 
-    if (!email.trim()) {
+    if (
+      !email.trim()
+    ) {
       return "Informe seu e-mail.";
     }
 
@@ -193,11 +206,15 @@ export default function RegisterScreen() {
         email.trim()
       );
 
-    if (!emailValido) {
+    if (
+      !emailValido
+    ) {
       return "Informe um e-mail válido.";
     }
 
-    if (!telefone.trim()) {
+    if (
+      !telefone.trim()
+    ) {
       return "Informe seu telefone.";
     }
 
@@ -205,12 +222,15 @@ export default function RegisterScreen() {
       return "Informe uma senha.";
     }
 
-    if (!confirmarSenha) {
+    if (
+      !confirmarSenha
+    ) {
       return "Confirme sua senha.";
     }
 
     if (
-      senha !== confirmarSenha
+      senha !==
+      confirmarSenha
     ) {
       return "As senhas não coincidem.";
     }
@@ -223,19 +243,24 @@ export default function RegisterScreen() {
       await fetch(
         `${API_URL}/api/auth/login`,
         {
-          method: "POST",
+          method:
+            "POST",
+
           headers: {
             Accept:
               "application/json",
+
             "Content-Type":
               "application/json",
           },
+
           body:
             JSON.stringify({
               email:
                 email
                   .trim()
                   .toLowerCase(),
+
               senha,
             }),
         }
@@ -245,7 +270,8 @@ export default function RegisterScreen() {
       await response
         .json()
         .catch(
-          () => null
+          () =>
+            null
         );
 
     if (
@@ -286,12 +312,15 @@ export default function RegisterScreen() {
       await registerUser({
         nome:
           nome.trim(),
+
         email:
           email
             .trim()
             .toLowerCase(),
+
         telefone:
           telefone.trim(),
+
         senha,
       });
 
@@ -300,13 +329,11 @@ export default function RegisterScreen() {
       router.replace(
         "/child-introduction"
       );
-
     } catch (error) {
       setError(
         error.message ||
-        "Não foi possível realizar o cadastro."
+          "Não foi possível realizar o cadastro."
       );
-
     } finally {
       setLoading(
         false
@@ -320,6 +347,7 @@ export default function RegisterScreen() {
       style={{
         paddingTop:
           insets.top,
+
         paddingBottom:
           insets.bottom,
       }}
@@ -338,34 +366,37 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         contentContainerStyle={{
+          paddingHorizontal:
+            16,
+
           paddingBottom:
             keyboardVisible
               ? 320
               : 30,
         }}
       >
-        <View className="items-center mt-[20px]">
-          <View className="w-[338px] max-w-[92%] h-[8px] rounded-full bg-[#EDE8D0] overflow-hidden">
-            <View className="w-1/2 h-full bg-[#6B5A2A]" />
+        <View className="items-center mt-5">
+          <View className="w-full max-w-[390px] h-[8px] rounded-full bg-[#E5DCC4] overflow-hidden">
+            <View className="w-1/2 h-full bg-[#4D9B43]" />
           </View>
 
-          <Text className="mt-4 text-[24px] text-[#574A24] font-normal">
-            Passo 1 de 2.
+          <Text className="mt-4 text-[20px] text-[#80775C] font-medium">
+            Passo 1 de 2
           </Text>
         </View>
 
         <View
-          className="self-center mt-5 rounded-[7px] bg-[#C6BB9A] px-4 py-5"
+          className="self-center mt-5 rounded-[10px] bg-[#E5DCC4] border border-[#C6BB9A] px-4 py-5"
           style={{
             width:
               cardWidth,
           }}
         >
-          <Text className="text-center text-[32px] font-bold text-white">
+          <Text className="text-center text-[28px] font-bold text-[#554B41]">
             Cadastro responsável
           </Text>
 
-          <Text className="mt-7 text-center text-[24px] text-white">
+          <Text className="mt-7 text-center text-[18px] font-medium text-[#554B41]">
             Seu Nome (ou apelido)
           </Text>
 
@@ -380,13 +411,13 @@ export default function RegisterScreen() {
               )
             }
             placeholder="Digite seu nome"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#A3987B"
             autoCapitalize="words"
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[49px] rounded-[7px] bg-white px-4 text-[18px] text-black"
+            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
           />
 
-          <Text className="mt-2 text-center text-[24px] text-white">
+          <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
             Seu E-mail
           </Text>
 
@@ -401,17 +432,17 @@ export default function RegisterScreen() {
               )
             }
             placeholder="Digite seu e-mail"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#A3987B"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={
               false
             }
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
+            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
           />
 
-          <Text className="mt-2 text-center text-[24px] text-white">
+          <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
             Seu Telefone
           </Text>
 
@@ -434,13 +465,13 @@ export default function RegisterScreen() {
               )
             }
             placeholder="Digite seu telefone"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#A3987B"
             keyboardType="phone-pad"
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
+            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
           />
 
-          <Text className="mt-2 text-center text-[24px] text-white">
+          <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
             Crie uma senha
           </Text>
 
@@ -455,14 +486,14 @@ export default function RegisterScreen() {
               )
             }
             placeholder="Digite sua senha"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#A3987B"
             secureTextEntry
             autoCapitalize="none"
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
+            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
           />
 
-          <Text className="mt-2 text-center text-[24px] text-white">
+          <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
             Confirme sua senha
           </Text>
 
@@ -479,20 +510,22 @@ export default function RegisterScreen() {
               )
             }
             placeholder="Digite novamente sua senha"
-            placeholderTextColor="#999999"
+            placeholderTextColor="#A3987B"
             secureTextEntry
             autoCapitalize="none"
             returnKeyType="done"
             onSubmitEditing={
               handleRegister
             }
-            className="self-center mt-3 w-full h-[50px] rounded-[7px] bg-white px-4 text-[18px] text-black"
+            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
           />
 
           {error ? (
-            <Text className="mt-4 text-center text-[16px] font-semibold text-red-700">
-              {error}
-            </Text>
+            <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+              <Text className="text-center text-[14px] font-medium text-[#D9534F]">
+                {error}
+              </Text>
+            </View>
           ) : null}
 
           <TouchableOpacity
@@ -502,7 +535,7 @@ export default function RegisterScreen() {
             disabled={
               loading
             }
-            className="self-center mt-7 w-full h-[72px] rounded-[7px] bg-[#A3987B] items-center justify-center"
+            className="self-center mt-7 w-full h-[58px] rounded-[10px] bg-[#83BF6E] items-center justify-center"
             activeOpacity={
               0.8
             }
@@ -513,7 +546,7 @@ export default function RegisterScreen() {
                   : 1,
             }}
           >
-            <Text className="text-[32px] font-bold text-white">
+            <Text className="text-[22px] font-bold text-white">
               {loading
                 ? "Cadastrando..."
                 : "Continuar"}

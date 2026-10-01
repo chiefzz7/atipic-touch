@@ -1,28 +1,35 @@
 import React from 'react';
-import { View, Text, TextInput } from 'react-native';
 
-export default function Input({ 
-  label, 
-  placeholder, 
-  secureTextEntry, 
-  keyboardType, 
+import {
+  View,
+  Text,
+  TextInput,
+} from 'react-native';
+
+export default function Input({
+  label,
+  placeholder,
+  secureTextEntry,
+  keyboardType,
   autoCapitalize,
-  value,           
-  onChangeText     
+  value,
+  onChangeText,
 }) {
   return (
     <View className="w-full mb-4">
-      <Text className="text-[11px] font-bold text-[#4B5563] mb-2 uppercase tracking-wide">
+      <Text className="text-[11px] font-bold text-[#554B41] mb-2 uppercase tracking-wide">
         {label}
       </Text>
+
       <TextInput
         placeholder={placeholder}
+        placeholderTextColor="#A3987B"
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
-        value={value}             
-        onChangeText={onChangeText} 
-        className="w-full bg-[#F3F4F6] rounded-xl h-[52px] px-4 text-black outline-none focus:ring-1 focus:ring-gray-300"
+        value={value}
+        onChangeText={onChangeText}
+        className="w-full h-[52px] bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
       />
     </View>
   );
