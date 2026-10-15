@@ -8,7 +8,6 @@ import {
   ScrollView,
   View,
   Text,
-  Image,
   TouchableOpacity,
   ActivityIndicator,
   Modal,
@@ -49,10 +48,6 @@ import AvatarHeader from "../../components/AvatarHeader";
 import BottomNavigation from "../../components/BottomNavigation";
 import SectionCard from "../../components/SectionCard";
 import InteractionModal from "../../components/InteractionModal";
-
-// ========================================
-// Converter evento BLE para reação
-// ========================================
 
 function getBleReaction(
   evento
@@ -176,27 +171,12 @@ export default function DashboardScreen() {
     setSelectingChildId,
   ] = useState(null);
 
-  // ========================================
-  // Manter ref sincronizada
-  // ========================================
-
   useEffect(() => {
     modalVisibleRef.current =
       modalVisible;
   }, [
     modalVisible,
   ]);
-
-  // ========================================
-  // Eventos do ESP32
-  //
-  // O Dashboard abre a interação somente
-  // com a PRIMEIRA reação.
-  //
-  // Depois que o modal está aberto,
-  // o próprio InteractionModal passa a
-  // consumir reação/contexto + sensoriais.
-  // ========================================
 
   useEffect(() => {
     const removerListener =
@@ -205,8 +185,6 @@ export default function DashboardScreen() {
           (
             evento
           ) => {
-            // Aspectos sensoriais são
-            // processados pelo modal.
             if (
               evento?.tipo ===
               "sensorial"
@@ -225,11 +203,6 @@ export default function DashboardScreen() {
               return;
             }
 
-            // Modal já está aberto:
-            // não altera a reação geral.
-            // O InteractionModal receberá
-            // este mesmo evento e usará
-            // apenas como contexto sensorial.
             if (
               modalVisibleRef
                 .current
@@ -262,10 +235,6 @@ export default function DashboardScreen() {
     return removerListener;
   }, []);
 
-  // ========================================
-  // Fechar interação
-  // ========================================
-
   function handleCloseInteraction() {
     modalVisibleRef.current =
       false;
@@ -274,10 +243,6 @@ export default function DashboardScreen() {
       false
     );
   }
-
-  // ========================================
-  // Abrir interação manualmente
-  // ========================================
 
   function handleOpenManualInteraction() {
     setBleReaction(
@@ -295,10 +260,6 @@ export default function DashboardScreen() {
       true
     );
   }
-
-  // ========================================
-  // Salvar interação
-  // ========================================
 
   async function handleInteractionSubmit({
     reaction,
@@ -377,9 +338,6 @@ export default function DashboardScreen() {
       createdLog
     );
 
-    // Recarrega o histórico porque
-    // o GET retorna também alimento
-    // e sensoryFeedbacks completos.
     const updatedLogs =
       await getFeedingLogs(
         child.id
@@ -395,10 +353,6 @@ export default function DashboardScreen() {
 
     return createdLog;
   }
-
-  // ========================================
-  // Carregar dados da criança
-  // ========================================
 
   async function loadChildData(
     selectedChild
@@ -444,10 +398,6 @@ export default function DashboardScreen() {
     );
   }
 
-  // ========================================
-  // Inicialização do Dashboard
-  // ========================================
-
   useEffect(() => {
     async function loadDashboard() {
       try {
@@ -490,10 +440,6 @@ export default function DashboardScreen() {
         const storedChild =
           await getSelectedChild();
 
-        // ====================================
-        // Apenas uma criança
-        // ====================================
-
         if (
           childrenList.length ===
           1
@@ -511,10 +457,6 @@ export default function DashboardScreen() {
 
           return;
         }
-
-        // ====================================
-        // Mais de uma criança
-        // ====================================
 
         const storedChildIsValid =
           storedChild?.id &&
@@ -567,10 +509,6 @@ export default function DashboardScreen() {
 
     loadDashboard();
   }, []);
-
-  // ========================================
-  // Selecionar criança
-  // ========================================
 
   async function handleSelectChild(
     selectedChild
@@ -626,10 +564,6 @@ export default function DashboardScreen() {
       );
     }
   }
-
-  // ========================================
-  // Dados do Dashboard
-  // ========================================
 
   const sortedLogs =
     [
@@ -795,24 +729,6 @@ export default function DashboardScreen() {
         );
     };
 
-  const getMealImage =
-    (
-      foodName
-    ) => {
-      if (
-        foodName ===
-        "Feijão"
-      ) {
-        return require(
-          "../../../assets/images/foods/feijao.png"
-        );
-      }
-
-      return require(
-        "../../../assets/images/foods/feijao.png"
-      );
-    };
-
   return (
     <View
       className="flex-1 bg-[#FFFCEF]"
@@ -879,10 +795,6 @@ export default function DashboardScreen() {
           </View>
         ) : (
           <>
-            {/* =================================
-                Última refeição
-                ================================= */}
-
             <View className="mt-2">
               <SectionCard
                 title="Última refeição"
@@ -896,24 +808,14 @@ export default function DashboardScreen() {
               >
                 {lastMeal ? (
                   <View className="flex-row items-center">
-                    <View className="w-[90px] h-[90px] rounded-[10px] overflow-hidden bg-[#F4F0E5]">
-                      <Image
-                        source={
-                          getMealImage(
-                            lastMeal
-                              .alimento
-                              ?.nome
-                          )
-                        }
-                        style={{
-                          width:
-                            "100%",
-
-                          height:
-                            "100%",
-                        }}
-                        resizeMode="cover"
-                      />
+                    <View className="w-[90px] h-[90px] rounded-[10px] bg-[#F7F0DC] items-center justify-center">
+                      <View className="w-[54px] h-[54px] rounded-full bg-[#A3987B] items-center justify-center">
+                        <Ionicons
+                          name="restaurant-outline"
+                          size={28}
+                          color="#FFFCEF"
+                        />
+                      </View>
                     </View>
 
                     <View className="flex-1 ml-4">
@@ -1030,10 +932,6 @@ export default function DashboardScreen() {
               </SectionCard>
             </View>
 
-            {/* =================================
-                Resumo
-                ================================= */}
-
             <View className="mt-5">
               <SectionCard
                 title="Como está indo?"
@@ -1100,10 +998,6 @@ export default function DashboardScreen() {
                 </View>
               </SectionCard>
             </View>
-
-            {/* =================================
-                Alimentos recentes
-                ================================= */}
 
             <View className="mt-5">
               <SectionCard
@@ -1251,10 +1145,6 @@ export default function DashboardScreen() {
         )}
       </ScrollView>
 
-      {/* ===================================
-          Seleção de criança
-          =================================== */}
-
       <Modal
         visible={
           childSelectionVisible
@@ -1353,10 +1243,6 @@ export default function DashboardScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* ===================================
-          Interação alimentar
-          =================================== */}
 
       <InteractionModal
         visible={
