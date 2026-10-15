@@ -26,6 +26,68 @@ import BottomNavigation from "../../components/BottomNavigation";
 
 import bluetoothService from "../../services/bluetooth/bluetoothService";
 
+import {
+  getChildren,
+} from "../../services/children/children";
+
+import {
+  getSelectedChild,
+} from "../../services/children/selectedChild";
+
+function calculateAge(
+  birthDate
+) {
+  if (!birthDate) {
+    return "";
+  }
+
+  const [
+    year,
+    month,
+    day,
+  ] =
+    birthDate
+      .split("-")
+      .map(Number);
+
+  if (
+    !year ||
+    !month ||
+    !day
+  ) {
+    return "";
+  }
+
+  const today =
+    new Date();
+
+  let age =
+    today.getFullYear() -
+    year;
+
+  const birthdayHasPassed =
+    today.getMonth() + 1 >
+      month ||
+    (
+      today.getMonth() + 1 ===
+        month &&
+      today.getDate() >=
+        day
+    );
+
+  if (
+    !birthdayHasPassed
+  ) {
+    age -= 1;
+  }
+
+  return `${age} ${
+    age === 1
+      ? "ano"
+      : "anos"
+  }`;
+}
+
 export default function Device() {
   const insets =
     useSafeAreaInsets();
@@ -45,8 +107,88 @@ export default function Device() {
     setError,
   ] = useState("");
 
+  const [
+    child,
+    setChild,
+  ] = useState(null);
+
   useEffect(() => {
-    let mounted = true;
+    let mounted =
+      true;
+
+    async function loadChild() {
+      try {
+        const children =
+          await getChildren();
+
+        const childrenList =
+          Array.isArray(
+            children
+          )
+            ? children
+            : [];
+
+        if (
+          childrenList.length ===
+          0
+        ) {
+          return;
+        }
+
+        const selectedChild =
+          await getSelectedChild();
+
+        const validSelectedChild =
+          selectedChild?.id
+            ? childrenList.find(
+                (
+                  currentChild
+                ) =>
+                  currentChild.id ===
+                  selectedChild.id
+              )
+            : null;
+
+        if (
+          validSelectedChild
+        ) {
+          if (mounted) {
+            setChild(
+              validSelectedChild
+            );
+          }
+
+          return;
+        }
+
+        if (
+          childrenList.length ===
+            1 &&
+          mounted
+        ) {
+          setChild(
+            childrenList[0]
+          );
+        }
+      } catch (childError) {
+        console.warn(
+          "Não foi possível carregar a criança no Device:",
+          childError
+        );
+      }
+    }
+
+    loadChild();
+
+    return () => {
+      mounted =
+        false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted =
+      true;
 
     async function verificarConexao() {
       const conectado =
@@ -65,7 +207,9 @@ export default function Device() {
     const removerListener =
       bluetoothService
         .adicionarListenerConexao(
-          (conectado) => {
+          (
+            conectado
+          ) => {
             if (mounted) {
               setConnected(
                 conectado
@@ -75,7 +219,8 @@ export default function Device() {
         );
 
     return () => {
-      mounted = false;
+      mounted =
+        false;
 
       removerListener();
     };
@@ -190,7 +335,18 @@ export default function Device() {
             120,
         }}
       >
-        <AvatarHeader />
+        <AvatarHeader
+          childName={
+            child?.nome ||
+            "Criança"
+          }
+          age={
+            calculateAge(
+              child
+                ?.dataNascimento
+            )
+          }
+        />
 
         <View className="mt-2">
           <SectionCard

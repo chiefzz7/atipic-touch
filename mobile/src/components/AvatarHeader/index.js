@@ -13,8 +13,8 @@ import {
 export default function AvatarHeader({
   variant = "device",
   greeting = "Bom dia",
-  childName = "João",
-  age = "3 anos",
+  childName = "Criança",
+  age = "",
   hasNotification = false,
   onNotificationPress,
   onMenuPress,
@@ -56,9 +56,11 @@ export default function AvatarHeader({
               {childName}
             </Text>
 
-            <Text className="text-[#FFFCEF] text-[17px] mt-1">
-              {age}
-            </Text>
+            {age ? (
+              <Text className="text-[#FFFCEF] text-[17px] mt-1">
+                {age}
+              </Text>
+            ) : null}
           </>
         )}
       </View>

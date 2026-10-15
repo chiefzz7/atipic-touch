@@ -35,6 +35,68 @@ import {
   deleteFood,
 } from "../../services/foods/foods";
 
+import {
+  getChildren,
+} from "../../services/children/children";
+
+import {
+  getSelectedChild,
+} from "../../services/children/selectedChild";
+
+function calculateAge(
+  birthDate
+) {
+  if (!birthDate) {
+    return "";
+  }
+
+  const [
+    year,
+    month,
+    day,
+  ] =
+    birthDate
+      .split("-")
+      .map(Number);
+
+  if (
+    !year ||
+    !month ||
+    !day
+  ) {
+    return "";
+  }
+
+  const today =
+    new Date();
+
+  let age =
+    today.getFullYear() -
+    year;
+
+  const birthdayHasPassed =
+    today.getMonth() + 1 >
+      month ||
+    (
+      today.getMonth() + 1 ===
+        month &&
+      today.getDate() >=
+        day
+    );
+
+  if (
+    !birthdayHasPassed
+  ) {
+    age -= 1;
+  }
+
+  return `${age} ${
+    age === 1
+      ? "ano"
+      : "anos"
+  }`;
+}
+
 export default function EditFoodScreen() {
   const router =
     useRouter();
@@ -72,6 +134,85 @@ export default function EditFoodScreen() {
     setError,
   ] = useState("");
 
+  const [
+    child,
+    setChild,
+  ] = useState(null);
+
+  useEffect(() => {
+    let mounted =
+      true;
+
+    async function loadChild() {
+      try {
+        const children =
+          await getChildren();
+
+        const childrenList =
+          Array.isArray(
+            children
+          )
+            ? children
+            : [];
+
+        if (
+          childrenList.length ===
+          0
+        ) {
+          return;
+        }
+
+        const selectedChild =
+          await getSelectedChild();
+
+        const validSelectedChild =
+          selectedChild?.id
+            ? childrenList.find(
+                (
+                  currentChild
+                ) =>
+                  currentChild.id ===
+                  selectedChild.id
+              )
+            : null;
+
+        if (
+          validSelectedChild
+        ) {
+          if (mounted) {
+            setChild(
+              validSelectedChild
+            );
+          }
+
+          return;
+        }
+
+        if (
+          childrenList.length ===
+            1 &&
+          mounted
+        ) {
+          setChild(
+            childrenList[0]
+          );
+        }
+      } catch (err) {
+        console.warn(
+          "Não foi possível carregar a criança na tela de alimentos:",
+          err
+        );
+      }
+    }
+
+    loadChild();
+
+    return () => {
+      mounted =
+        false;
+    };
+  }, []);
+
   async function loadFoods() {
     try {
       setLoading(
@@ -84,7 +225,11 @@ export default function EditFoodScreen() {
         await getFoods();
 
       setFoods(
-        data
+        Array.isArray(
+          data
+        )
+          ? data
+          : []
       );
     } catch (err) {
       console.error(
@@ -109,7 +254,9 @@ export default function EditFoodScreen() {
   const filteredFoods =
     useMemo(() => {
       return foods.filter(
-        (food) =>
+        (
+          food
+        ) =>
           food.nome
             ?.toLowerCase()
             .includes(
@@ -132,9 +279,13 @@ export default function EditFoodScreen() {
       );
 
       setFoods(
-        (prev) =>
-          prev.filter(
-            (food) =>
+        (
+          previousFoods
+        ) =>
+          previousFoods.filter(
+            (
+              food
+            ) =>
               food.id !==
               selectedFood.id
           )
@@ -179,7 +330,18 @@ export default function EditFoodScreen() {
             120,
         }}
       >
-        <AvatarHeader />
+        <AvatarHeader
+          childName={
+            child?.nome ||
+            "Criança"
+          }
+          age={
+            calculateAge(
+              child
+                ?.dataNascimento
+            )
+          }
+        />
 
         <View className="mt-2">
           <SectionCard
@@ -197,6 +359,7 @@ export default function EditFoodScreen() {
                 router.push({
                   pathname:
                     "/food-register",
+
                   params: {
                     mode:
                       "create",
@@ -274,9 +437,11 @@ export default function EditFoodScreen() {
           router.push({
             pathname:
               "/food-register",
+
             params: {
               mode:
                 "edit",
+
               food:
                 JSON.stringify(
                   selectedFood
