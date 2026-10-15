@@ -234,7 +234,8 @@ export default function ProfileScreen() {
       !Array.isArray(
         themes
       ) ||
-      themes.length === 0
+      themes.length ===
+        0
     ) {
       return "Não informado";
     }
@@ -451,24 +452,12 @@ export default function ProfileScreen() {
                         }
                         className="bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full"
                       >
-                        <View className="w-[64px] h-[64px] rounded-full overflow-hidden relative">
-                          <Image
-                            source={require(
-                              "../../../assets/images/crianca_placeholder.png"
-                            )}
-                            className="w-full h-full"
-                            resizeMode="cover"
+                        <View className="w-[64px] h-[64px] rounded-full bg-[#A3987B] items-center justify-center">
+                          <Ionicons
+                            name="person-outline"
+                            size={32}
+                            color="#FFFCEF"
                           />
-
-                          <View className="absolute bottom-0 right-0 bg-[#554B41] rounded-full p-1">
-                            <Ionicons
-                              name="person"
-                              size={
-                                14
-                              }
-                              color="#FFFCEF"
-                            />
-                          </View>
                         </View>
 
                         <View className="flex-1 ml-4">
@@ -588,22 +577,12 @@ export default function ProfileScreen() {
                 }
                 className="mt-3 bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full"
               >
-                <View className="w-[64px] h-[64px] rounded-full overflow-hidden relative">
-                  <Image
-                    source={require(
-                      "../../../assets/images/responsavel_placeholder.png"
-                    )}
-                    className="w-full h-full"
-                    resizeMode="cover"
+                <View className="w-[64px] h-[64px] rounded-full bg-[#A3987B] items-center justify-center">
+                  <Ionicons
+                    name="person-outline"
+                    size={32}
+                    color="#FFFCEF"
                   />
-
-                  <View className="absolute bottom-0 right-0 bg-[#554B41] rounded-full p-1">
-                    <Ionicons
-                      name="person"
-                      size={14}
-                      color="#FFFCEF"
-                    />
-                  </View>
                 </View>
 
                 <Text
