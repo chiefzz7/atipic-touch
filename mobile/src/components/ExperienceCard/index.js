@@ -10,7 +10,7 @@ export default function ExperienceCard({
 
   return (
 
-    <View className="bg-[#FFFCEF] rounded-[7px] p-4 mb-2">
+    <View className="bg-[#FFFCEF] rounded-[16px] p-4 mb-2">
 
       <View className="flex-row items-center mb-2">
 

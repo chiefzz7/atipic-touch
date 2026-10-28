@@ -764,7 +764,7 @@ export default function InteractionModal({
               Reação geral
               ================================= */}
 
-          <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5 mt-5">
+          <View className="bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-5 mt-5">
             <Text className="text-[#554B41] text-[20px] font-bold">
               Reação geral
             </Text>
@@ -796,7 +796,7 @@ export default function InteractionModal({
                           reaction
                         )
                       }
-                      className={`flex-1 min-h-[104px] rounded-[10px] border items-center justify-center ${
+                      className={`flex-1 min-h-[104px] rounded-[16px] border items-center justify-center ${
                         index !==
                         REACTIONS.length -
                           1
@@ -807,7 +807,7 @@ export default function InteractionModal({
                         borderColor:
                           selected
                             ? reaction.color
-                            : "#D5CCB5",
+                            : "#E7DFC6",
 
                         backgroundColor:
                           selected
@@ -856,9 +856,9 @@ export default function InteractionModal({
               Contexto sensorial
               ================================= */}
 
-          <View className="bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-4 mt-4">
+          <View className="bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-4 mt-4">
             <View className="flex-row items-center">
-              <View className="w-[40px] h-[40px] rounded-full bg-[#C6BB9A] items-center justify-center">
+              <View className="w-[40px] h-[40px] rounded-full bg-[#EFEAD6] items-center justify-center">
                 <Ionicons
                   name="radio-outline"
                   size={21}
@@ -888,7 +888,7 @@ export default function InteractionModal({
             </Text>
 
             {captureMessage ? (
-              <View className="bg-[#FFFCEF] rounded-[10px] px-3 py-3 mt-3">
+              <View className="bg-[#FFFCEF] rounded-[16px] px-3 py-3 mt-3">
                 <Text className="text-[#554B41] text-[13px] font-medium">
                   {captureMessage}
                 </Text>
@@ -900,7 +900,7 @@ export default function InteractionModal({
               Alimento
               ================================= */}
 
-          <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5 mt-4">
+          <View className="bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-5 mt-4">
             <Text className="text-[#554B41] text-[20px] font-bold">
               Alimento
             </Text>
@@ -909,7 +909,7 @@ export default function InteractionModal({
               Selecione o alimento oferecido nesta interação.
             </Text>
 
-            <View className="h-[50px] bg-[#FFFCEF] border border-[#C6BB9A] rounded-[10px] px-3 flex-row items-center mt-4">
+            <View className="h-[50px] bg-white border border-[#E7DFC6] rounded-[16px] px-3 flex-row items-center mt-4">
               <Ionicons
                 name="search"
                 size={20}
@@ -924,7 +924,7 @@ export default function InteractionModal({
                   setFoodSearch
                 }
                 placeholder="Buscar alimento..."
-                placeholderTextColor="#A7A7A7"
+                placeholderTextColor="#A3987B"
                 className="flex-1 ml-2 text-[#554B41] text-[15px]"
               />
             </View>
@@ -941,7 +941,7 @@ export default function InteractionModal({
                 </Text>
               </View>
             ) : foodsError ? (
-              <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+              <View className="bg-[#FCEBE8] rounded-[16px] px-3 py-3 mt-4">
                 <Text className="text-[#D9534F] text-[13px] text-center font-medium">
                   {foodsError}
                 </Text>
@@ -978,20 +978,20 @@ export default function InteractionModal({
                             ""
                           );
                         }}
-                        className="min-h-[58px] rounded-[10px] border px-3 mb-2 flex-row items-center"
+                        className="min-h-[58px] rounded-[16px] border px-3 mb-2 flex-row items-center"
                         style={{
                           backgroundColor:
                             selected
                               ? "#EDF6E8"
-                              : "#FFFCEF",
+                              : "#FFFFFF",
 
                           borderColor:
                             selected
-                              ? "#83BF6E"
-                              : "#D5CCB5",
+                              ? "#438C3B"
+                              : "#E7DFC6",
                         }}
                       >
-                        <View className="w-[38px] h-[38px] rounded-full bg-[#C6BB9A] items-center justify-center">
+                        <View className="w-[38px] h-[38px] rounded-full bg-[#EFEAD6] items-center justify-center">
                           <Ionicons
                             name="restaurant-outline"
                             size={20}
@@ -1048,7 +1048,7 @@ export default function InteractionModal({
               Feedbacks sensoriais
               ================================= */}
 
-          <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5 mt-4">
+          <View className="bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-5 mt-4">
             <Text className="text-[#554B41] text-[20px] font-bold">
               Feedback sensorial
             </Text>
@@ -1081,9 +1081,9 @@ export default function InteractionModal({
                       key={
                         aspect.key
                       }
-                      className="min-h-[72px] bg-[#FFFCEF] border border-[#D5CCB5] rounded-[10px] px-3 py-3 mb-3 flex-row items-center"
+                      className="min-h-[72px] bg-white border border-[#E7DFC6] rounded-[16px] px-3 py-3 mb-3 flex-row items-center"
                     >
-                      <View className="w-[42px] h-[42px] rounded-full bg-[#C6BB9A] items-center justify-center">
+                      <View className="w-[42px] h-[42px] rounded-full bg-[#EFEAD6] items-center justify-center">
                         <Ionicons
                           name={
                             aspect.icon
@@ -1169,7 +1169,7 @@ export default function InteractionModal({
               Resumo
               ================================= */}
 
-          <View className="bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-4 mt-4">
+          <View className="bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-4 mt-4">
             <Text className="text-[#554B41] text-[18px] font-bold">
               Resumo
             </Text>
@@ -1236,7 +1236,7 @@ export default function InteractionModal({
           </View>
 
           {submitError ? (
-            <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+            <View className="bg-[#FCEBE8] rounded-[16px] px-3 py-3 mt-4">
               <Text className="text-[#D9534F] text-[14px] font-medium text-center">
                 {submitError}
               </Text>
@@ -1257,7 +1257,7 @@ export default function InteractionModal({
             disabled={
               saving
             }
-            className="h-[56px] bg-[#4D9B43] rounded-[10px] items-center justify-center flex-row mt-5"
+            className="h-[56px] bg-[#438C3B] rounded-[18px] items-center justify-center flex-row mt-5"
             style={{
               opacity:
                 saving
@@ -1295,7 +1295,7 @@ export default function InteractionModal({
             onPress={
               onClose
             }
-            className="h-[52px] border border-[#C98F7C] rounded-[10px] items-center justify-center mt-3"
+            className="h-[52px] border border-[#C98F7C] rounded-[16px] items-center justify-center mt-3"
           >
             <Text className="text-[#9B5547] text-[15px] font-medium">
               Cancelar

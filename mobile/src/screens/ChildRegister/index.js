@@ -309,11 +309,11 @@ export default function ChildRegister() {
           </Text>
 
           <View className="w-full h-[8px] bg-[#E8E3D7] rounded-full overflow-hidden">
-            <View className="h-full w-full bg-[#A3C78C] rounded-full" />
+            <View className="h-full w-full bg-[#438C3B] rounded-full" />
           </View>
         </View>
 
-        <View className="w-full h-[190px] bg-[#E5DCC4] rounded-[10px] items-center justify-center mb-4">
+        <View className="w-full h-[190px] bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] items-center justify-center mb-4">
           <View className="relative">
             <View className="w-[110px] h-[110px] rounded-full bg-[#F2F0E8] items-center justify-center">
               <Ionicons
@@ -327,7 +327,7 @@ export default function ChildRegister() {
               activeOpacity={
                 0.8
               }
-              className="absolute -right-2 bottom-0 w-[44px] h-[44px] bg-[#83BF6E] rounded-full items-center justify-center"
+              className="absolute -right-2 bottom-0 w-[44px] h-[44px] bg-[#438C3B] rounded-full items-center justify-center"
             >
               <Ionicons
                 name="camera"
@@ -338,7 +338,7 @@ export default function ChildRegister() {
           </View>
         </View>
 
-        <View className="bg-[#E5DCC4] rounded-[10px] px-4 py-5">
+        <View className="bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-5">
           <Text className="text-[#554B41] text-[20px] font-bold mb-5">
             Dados da criança
           </Text>
@@ -354,9 +354,9 @@ export default function ChildRegister() {
             onChangeText={
               setNome
             }
-            className="w-full h-[54px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 mb-4 text-[#554B41] text-[15px]"
+            className="w-full h-[54px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 mb-4 text-[#554B41] text-[15px]"
             placeholder="Digite o nome completo"
-            placeholderTextColor="#A7A7A7"
+            placeholderTextColor="#A3987B"
           />
 
           <Text className="text-[#554B41] text-[15px] font-medium mb-2">
@@ -376,9 +376,9 @@ export default function ChildRegister() {
                 )
               );
             }}
-            className="w-full h-[54px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 mb-4 text-[#554B41] text-[15px]"
+            className="w-full h-[54px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 mb-4 text-[#554B41] text-[15px]"
             placeholder="dd/mm/aaaa"
-            placeholderTextColor="#A7A7A7"
+            placeholderTextColor="#A3987B"
             keyboardType="numeric"
             maxLength={
               10
@@ -399,11 +399,11 @@ export default function ChildRegister() {
                   "masculino"
                 )
               }
-              className={`w-[48%] h-[82px] rounded-[10px] items-center justify-center border ${
+              className={`w-[48%] h-[82px] rounded-[16px] items-center justify-center border ${
                 sexo ===
                 "masculino"
-                  ? "border-[#83BF6E] bg-[#EDF6E8]"
-                  : "border-[#DDD3B9] bg-[#F7F0DC]"
+                  ? "border-[#438C3B] bg-[#EDF6E8]"
+                  : "border-[#E7DFC6] bg-[#FBF8EE]"
               }`}
             >
               <Image
@@ -428,11 +428,11 @@ export default function ChildRegister() {
                   "feminino"
                 )
               }
-              className={`w-[48%] h-[82px] rounded-[10px] items-center justify-center border ${
+              className={`w-[48%] h-[82px] rounded-[16px] items-center justify-center border ${
                 sexo ===
                 "feminino"
-                  ? "border-[#83BF6E] bg-[#EDF6E8]"
-                  : "border-[#DDD3B9] bg-[#F7F0DC]"
+                  ? "border-[#438C3B] bg-[#EDF6E8]"
+                  : "border-[#E7DFC6] bg-[#FBF8EE]"
               }`}
             >
               <Image
@@ -460,9 +460,9 @@ export default function ChildRegister() {
             onChangeText={
               setTemasPreferidos
             }
-            className="w-full min-h-[96px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-3 text-[#554B41] text-[15px]"
+            className="w-full min-h-[96px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41] text-[15px]"
             placeholder="Ex.: dinossauros, carros, desenhos..."
-            placeholderTextColor="#A7A7A7"
+            placeholderTextColor="#A3987B"
             multiline
             textAlignVertical="top"
           />
@@ -482,9 +482,9 @@ export default function ChildRegister() {
             onChangeText={
               setRestricoesMedicas
             }
-            className="w-full min-h-[96px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-3 text-[#554B41] text-[15px]"
+            className="w-full min-h-[96px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41] text-[15px]"
             placeholder="Se houver, insira as restrições..."
-            placeholderTextColor="#A7A7A7"
+            placeholderTextColor="#A3987B"
             multiline
             textAlignVertical="top"
           />
@@ -500,15 +500,15 @@ export default function ChildRegister() {
             onChangeText={
               setObservacoes
             }
-            className="w-full min-h-[96px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-3 text-[#554B41] text-[15px]"
+            className="w-full min-h-[96px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41] text-[15px]"
             placeholder="Digite alguma observação..."
-            placeholderTextColor="#A7A7A7"
+            placeholderTextColor="#A3987B"
             multiline
             textAlignVertical="top"
           />
 
           {error ? (
-            <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+            <View className="bg-[#FCEBE8] rounded-[16px] px-3 py-3 mt-4">
               <Text className="text-[#D9534F] text-[14px] font-medium text-center">
                 {error}
               </Text>

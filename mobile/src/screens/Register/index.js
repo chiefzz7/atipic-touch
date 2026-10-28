@@ -377,7 +377,7 @@ export default function RegisterScreen() {
       >
         <View className="items-center mt-5">
           <View className="w-full max-w-[390px] h-[8px] rounded-full bg-[#E5DCC4] overflow-hidden">
-            <View className="w-1/2 h-full bg-[#4D9B43]" />
+            <View className="w-1/2 h-full bg-[#438C3B]" />
           </View>
 
           <Text className="mt-4 text-[20px] text-[#80775C] font-medium">
@@ -386,7 +386,7 @@ export default function RegisterScreen() {
         </View>
 
         <View
-          className="self-center mt-5 rounded-[10px] bg-[#E5DCC4] border border-[#C6BB9A] px-4 py-5"
+          className="self-center mt-5 rounded-[16px] bg-white border border-[#EFE7D0] shadow-sm px-4 py-5"
           style={{
             width:
               cardWidth,
@@ -414,7 +414,7 @@ export default function RegisterScreen() {
             placeholderTextColor="#A3987B"
             autoCapitalize="words"
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+            className="self-center mt-3 w-full h-[52px] rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
           />
 
           <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
@@ -439,7 +439,7 @@ export default function RegisterScreen() {
               false
             }
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+            className="self-center mt-3 w-full h-[52px] rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
           />
 
           <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
@@ -468,7 +468,7 @@ export default function RegisterScreen() {
             placeholderTextColor="#A3987B"
             keyboardType="phone-pad"
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+            className="self-center mt-3 w-full h-[52px] rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
           />
 
           <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
@@ -490,7 +490,7 @@ export default function RegisterScreen() {
             secureTextEntry
             autoCapitalize="none"
             returnKeyType="next"
-            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+            className="self-center mt-3 w-full h-[52px] rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
           />
 
           <Text className="mt-4 text-center text-[18px] font-medium text-[#554B41]">
@@ -517,11 +517,11 @@ export default function RegisterScreen() {
             onSubmitEditing={
               handleRegister
             }
-            className="self-center mt-3 w-full h-[52px] rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+            className="self-center mt-3 w-full h-[52px] rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
           />
 
           {error ? (
-            <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+            <View className="bg-[#FCEBE8] rounded-[16px] px-3 py-3 mt-4">
               <Text className="text-center text-[14px] font-medium text-[#D9534F]">
                 {error}
               </Text>
@@ -535,7 +535,7 @@ export default function RegisterScreen() {
             disabled={
               loading
             }
-            className="self-center mt-7 w-full h-[58px] rounded-[10px] bg-[#83BF6E] items-center justify-center"
+            className="self-center mt-7 w-full h-[58px] rounded-[18px] bg-[#438C3B] items-center justify-center"
             activeOpacity={
               0.8
             }

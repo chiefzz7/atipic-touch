@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 
 import {
@@ -45,7 +46,14 @@ import {
 import {
   getSelectedChild,
   saveSelectedChild,
+  clearSelectedChild,
 } from "../../services/children/selectedChild";
+
+import {
+  clearSession,
+} from "../../services/auth/auth";
+
+import bluetoothService from "../../services/bluetooth/bluetoothService";
 
 export default function ProfileScreen() {
   const router =
@@ -58,6 +66,11 @@ export default function ProfileScreen() {
     expanded,
     setExpanded,
   ] = useState(true);
+
+  const [
+    loggingOut,
+    setLoggingOut,
+  ] = useState(false);
 
   const [
     notifications,
@@ -311,6 +324,60 @@ export default function ProfileScreen() {
     }
   }
 
+  async function performLogout() {
+    try {
+      setLoggingOut(true);
+
+      // Encerra a conexão BLE (se houver) antes de sair
+      try {
+        await bluetoothService.desconectar();
+      } catch (bleError) {
+        console.warn(
+          "Não foi possível desconectar o dispositivo ao sair:",
+          bleError
+        );
+      }
+
+      await clearSelectedChild();
+
+      // Remove o token e avisa o _layout (subscribeAuth)
+      await clearSession();
+
+      router.replace("/login");
+    } catch (err) {
+      console.error("Erro ao sair da conta:", err);
+
+      setLoggingOut(false);
+
+      Alert.alert(
+        "Erro",
+        "Não foi possível sair da conta. Tente novamente."
+      );
+    }
+  }
+
+  function handleLogout() {
+    if (loggingOut) {
+      return;
+    }
+
+    Alert.alert(
+      "Sair da conta",
+      "Tem certeza que deseja sair? Você precisará fazer login novamente.",
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Sair",
+          style: "destructive",
+          onPress: performLogout,
+        },
+      ]
+    );
+  }
+
   const childrenLabel =
     `${children.length} ${
       children.length === 1
@@ -340,7 +407,7 @@ export default function ProfileScreen() {
             120,
         }}
       >
-        <View className="relative min-h-[120px] mt-4 mb-2 rounded-[10px] bg-[#E5DCC4] px-4 py-4 overflow-hidden">
+        <View className="relative min-h-[120px] mt-4 mb-2 rounded-[16px] bg-white border border-[#EFE7D0] shadow-sm px-4 py-4 overflow-hidden">
           <Text className="text-[#554B41] text-[32px] font-bold">
             Perfil
           </Text>
@@ -450,9 +517,9 @@ export default function ProfileScreen() {
                             child
                           )
                         }
-                        className="bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full"
+                        className="bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-4 flex-row items-center w-full"
                       >
-                        <View className="w-[64px] h-[64px] rounded-full bg-[#A3987B] items-center justify-center">
+                        <View className="w-[64px] h-[64px] rounded-full bg-[#6E8F5C] items-center justify-center">
                           <Ionicons
                             name="person-outline"
                             size={32}
@@ -481,7 +548,7 @@ export default function ProfileScreen() {
                           </Text>
                         </View>
 
-                        <View className="w-[38px] h-[38px] rounded-full bg-[#A3987B] items-center justify-center">
+                        <View className="w-[38px] h-[38px] rounded-full bg-[#6E8F5C] items-center justify-center">
                           <Ionicons
                             name="create-outline"
                             size={19}
@@ -550,7 +617,7 @@ export default function ProfileScreen() {
                   "/child-register"
                 )
               }
-              className="mt-4 border border-dashed border-[#A3987B] rounded-[10px] h-[72px] flex-row items-center px-4"
+              className="mt-4 border border-dashed border-[#A3987B] rounded-[16px] h-[72px] flex-row items-center px-4"
             >
               <View className="w-[42px] h-[42px] rounded-full border border-[#554B41] items-center justify-center">
                 <Ionicons
@@ -575,9 +642,9 @@ export default function ProfileScreen() {
                 onPress={
                   openResponsibleEdit
                 }
-                className="mt-3 bg-[#C6BB9A] rounded-[10px] px-4 py-4 flex-row items-center w-full"
+                className="mt-3 bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-4 flex-row items-center w-full"
               >
-                <View className="w-[64px] h-[64px] rounded-full bg-[#A3987B] items-center justify-center">
+                <View className="w-[64px] h-[64px] rounded-full bg-[#6E8F5C] items-center justify-center">
                   <Ionicons
                     name="person-outline"
                     size={32}
@@ -597,7 +664,7 @@ export default function ProfileScreen() {
                   }
                 </Text>
 
-                <View className="w-[38px] h-[38px] rounded-full bg-[#A3987B] items-center justify-center">
+                <View className="w-[38px] h-[38px] rounded-full bg-[#6E8F5C] items-center justify-center">
                   <Ionicons
                     name="create-outline"
                     size={19}
@@ -644,6 +711,37 @@ export default function ProfileScreen() {
                 />
               </View>
             </ProfileSection>
+
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleLogout}
+              disabled={loggingOut}
+              accessibilityRole="button"
+              accessibilityLabel="Sair da conta"
+              className="mt-6 h-[56px] rounded-[18px] bg-[#FCEBE8] border border-[#F3CFC9] flex-row items-center justify-center"
+              style={{
+                opacity: loggingOut ? 0.7 : 1,
+              }}
+            >
+              {loggingOut ? (
+                <ActivityIndicator
+                  size="small"
+                  color="#A33B36"
+                />
+              ) : (
+                <Ionicons
+                  name="log-out-outline"
+                  size={22}
+                  color="#A33B36"
+                />
+              )}
+
+              <Text className="ml-2 text-[#A33B36] text-[16px] font-bold">
+                {loggingOut
+                  ? "Saindo..."
+                  : "Sair da conta"}
+              </Text>
+            </TouchableOpacity>
           </>
         )}
       </ScrollView>

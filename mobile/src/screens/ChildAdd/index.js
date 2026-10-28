@@ -36,7 +36,7 @@ export default function ChildAdd() {
         </View>
 
         <TouchableOpacity
-          className="absolute right-[75px] bottom-[45px] w-[48px] h-[48px] bg-[#A3C78C] rounded-full items-center justify-center"
+          className="absolute right-[75px] bottom-[45px] w-[48px] h-[48px] bg-[#438C3B] rounded-full items-center justify-center"
           activeOpacity={0.8}
         >
 
@@ -56,43 +56,43 @@ export default function ChildAdd() {
       >
 
         <Text
-          className="text-[#404040] text-lg font-semibold mb-5"
+          className="text-[#554B41] text-lg font-semibold mb-5"
         >
           Dados da criança
         </Text>
 
 
         <Text
-          className="text-[#555555] text-sm mb-2"
+          className="text-[#554B41] text-sm mb-2"
         >
           Nome Completo
         </Text>
 
 
         <TextInput
-          className="w-full h-[52px] bg-[#FAF8F1] rounded-2xl px-4 mb-4 text-[#444]"
+          className="w-full h-[52px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 mb-4 text-[#554B41]"
           placeholder="Digite o nome completo"
-          placeholderTextColor="#A7A7A7"
+          placeholderTextColor="#A3987B"
         />
 
 
         <Text
-          className="text-[#555555] text-sm mb-2"
+          className="text-[#554B41] text-sm mb-2"
         >
           Data de nascimento
         </Text>
 
 
         <TextInput
-          className="w-full h-[52px] bg-[#FAF8F1] rounded-2xl px-4 mb-4 text-[#444]"
+          className="w-full h-[52px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 mb-4 text-[#554B41]"
           placeholder="dd/mm/aaaa"
-          placeholderTextColor="#A7A7A7"
+          placeholderTextColor="#A3987B"
           keyboardType="numeric"
         />
 
 
         <Text
-          className="text-[#555555] text-sm mb-3"
+          className="text-[#554B41] text-sm mb-3"
         >
           Sexo
         </Text>
@@ -103,10 +103,10 @@ export default function ChildAdd() {
 
           <TouchableOpacity
             onPress={() => setSexo("masculino")}
-            className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${
+            className={`w-[44%] h-[75px] rounded-[16px] items-center justify-center border ${
               sexo === "masculino"
-                ? "border-[#A3C78C] bg-[#F1F8EC]"
-                : "border-[#E7E2D8]"
+                ? "border-[#438C3B] bg-[#EDF6E8]"
+                : "border-[#E7DFC6] bg-[#FBF8EE]"
             }`}
           >
 
@@ -116,7 +116,7 @@ export default function ChildAdd() {
               resizeMode="cover"
             />
 
-            <Text className="text-[#555] text-sm">
+            <Text className="text-[#554B41] text-sm">
               Masculino
             </Text>
 
@@ -124,10 +124,10 @@ export default function ChildAdd() {
 
           <TouchableOpacity
             onPress={() => setSexo("feminino")}
-            className={`w-[44%] h-[75px] rounded-2xl items-center justify-center border ${
+            className={`w-[44%] h-[75px] rounded-[16px] items-center justify-center border ${
               sexo === "feminino"
-                ? "border-[#A3C78C] bg-[#F1F8EC]"
-                : "border-[#E7E2D8]"
+                ? "border-[#438C3B] bg-[#EDF6E8]"
+                : "border-[#E7DFC6] bg-[#FBF8EE]"
             }`}
           >
 
@@ -137,7 +137,7 @@ export default function ChildAdd() {
               resizeMode="cover"
             />
 
-            <Text className="text-[#555] text-sm">
+            <Text className="text-[#554B41] text-sm">
               Feminino
             </Text>
 
@@ -148,38 +148,38 @@ export default function ChildAdd() {
 
 
 <Text
-          className="text-[#555555] text-sm mb-2"
+          className="text-[#554B41] text-sm mb-2"
         >
           Restrições
         </Text>
 
 
         <TextInput
-          className="w-full h-[100px] bg-[#FAF8F1] rounded-2xl px-4 py-3 text-[#444]"
+          className="w-full h-[100px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41]"
           placeholder="Se houver, insira as restrições..."
-          placeholderTextColor="#A7A7A7"
+          placeholderTextColor="#A3987B"
           multiline
           textAlignVertical="top"
         />
 
         <Text
-          className="text-[#555555] text-sm mb-2"
+          className="text-[#554B41] text-sm mb-2"
         >
           Observações
         </Text>
 
 
         <TextInput
-          className="w-full h-[100px] bg-[#FAF8F1] rounded-2xl px-4 py-3 text-[#444]"
+          className="w-full h-[100px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41]"
           placeholder="Digite alguma observação..."
-          placeholderTextColor="#A7A7A7"
+          placeholderTextColor="#A3987B"
           multiline
           textAlignVertical="top"
         />
 
 
         <TouchableOpacity
-          className="w-full h-[55px] bg-[#A3C78C] rounded-2xl items-center justify-center mt-6"
+          className="w-full h-[55px] bg-[#438C3B] rounded-[16px] items-center justify-center mt-6"
           activeOpacity={0.85}
         >
 

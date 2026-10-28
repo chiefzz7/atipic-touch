@@ -30,7 +30,7 @@ export default function FoodActionModal({
       }
     >
       <View className="flex-1 bg-black/40 items-center justify-center px-6">
-        <View className="w-full max-w-[340px] bg-[#FFFCEF] rounded-[10px] p-5">
+        <View className="w-full max-w-[340px] bg-[#FFFCEF] rounded-[28px] p-5">
           <Text
             numberOfLines={
               2
@@ -51,7 +51,7 @@ export default function FoodActionModal({
             onPress={
               onEdit
             }
-            className="min-h-[56px] flex-row items-center bg-[#C6BB9A] rounded-[10px] px-4 mb-3"
+            className="min-h-[56px] flex-row items-center bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 mb-3"
           >
             <Ionicons
               name="create-outline"
@@ -71,7 +71,7 @@ export default function FoodActionModal({
             onPress={
               onDelete
             }
-            className="min-h-[56px] flex-row items-center bg-[#E8C9C9] rounded-[10px] px-4 mb-5"
+            className="min-h-[56px] flex-row items-center bg-[#FCEBE8] rounded-[16px] px-4 mb-5"
           >
             <Ionicons
               name="trash-outline"

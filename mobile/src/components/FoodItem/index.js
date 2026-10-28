@@ -22,9 +22,9 @@ export default function FoodItem({
       onPress={
         onPress
       }
-      className="w-full min-h-[64px] bg-[#C6BB9A] rounded-[10px] flex-row items-center px-3 mb-3"
+      className="w-full min-h-[64px] bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] flex-row items-center px-3 mb-3"
     >
-      <View className="w-[46px] h-[46px] rounded-full bg-[#A3987B] items-center justify-center">
+      <View className="w-[46px] h-[46px] rounded-full bg-[#6E8F5C] items-center justify-center">
         <Ionicons
           name="restaurant-outline"
           size={24}

@@ -32,7 +32,7 @@ export default function ProfileOption({
       onPress={
         onPress
       }
-      className="min-h-[54px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 mb-2 flex-row items-center"
+      className="min-h-[54px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 mb-2 flex-row items-center"
     >
       <Ionicons
         name={icon}

@@ -132,7 +132,7 @@ export default function WelcomeScreen() {
         activeOpacity={
           0.85
         }
-        className="absolute h-[72px] bg-[#83BF6E] items-center justify-center rounded-[10px]"
+        className="absolute h-[72px] bg-[#438C3B] items-center justify-center rounded-[24px]"
         style={{
           width:
             buttonWidth,

@@ -108,7 +108,7 @@ export default function ChildIntroductionScreen() {
           <View className="w-full items-center">
             <View className="w-full h-[8px] bg-[#FFFCEF] rounded-full overflow-hidden">
               <View
-                className="h-full bg-[#4D9B43] rounded-full"
+                className="h-full bg-[#438C3B] rounded-full"
                 style={{
                   width:
                     "48%",
@@ -224,7 +224,7 @@ export default function ChildIntroductionScreen() {
                 "/child-register"
               )
             }
-            className="w-full items-center justify-center rounded-[10px] bg-[#83BF6E]"
+            className="w-full items-center justify-center rounded-[18px] bg-[#438C3B]"
             style={{
               height:
                 isSmallScreen

@@ -33,7 +33,7 @@ export default function ImagePicker({ image, title = "Adicionar imagem", onChang
       onPress={pickImage}
       className="items-center justify-center self-center"
     >
-      <View className="w-[190px] h-[190px] rounded-full border-2 border-dashed border-[#6E6246] bg-[#F4F0DE] items-center justify-center overflow-hidden">
+      <View className="w-[190px] h-[190px] rounded-full border-2 border-dashed border-[#6E8F5C] bg-[#FBF8EE] items-center justify-center overflow-hidden">
 
         {image ? (
           <Image

@@ -22,6 +22,10 @@ import {
 } from "expo-status-bar";
 
 import {
+  useRouter,
+} from "expo-router";
+
+import {
   Ionicons,
 } from "@expo/vector-icons";
 
@@ -111,6 +115,9 @@ function getBleReaction(
 }
 
 export default function DashboardScreen() {
+  const router =
+    useRouter();
+
   const insets =
     useSafeAreaInsets();
 
@@ -520,6 +527,18 @@ export default function DashboardScreen() {
       return;
     }
 
+    if (
+      child?.id &&
+      selectedChild.id ===
+        child.id
+    ) {
+      setChildSelectionVisible(
+        false
+      );
+
+      return;
+    }
+
     try {
       setSelectingChildId(
         selectedChild.id
@@ -742,7 +761,7 @@ export default function DashboardScreen() {
       />
 
       <ScrollView
-        className="flex-1 px-3 pt-2"
+        className="flex-1 px-4 pt-2"
         showsVerticalScrollIndicator={
           false
         }
@@ -763,6 +782,11 @@ export default function DashboardScreen() {
           }
           onNotificationPress={
             handleOpenManualInteraction
+          }
+          onMenuPress={() =>
+            setChildSelectionVisible(
+              true
+            )
           }
         />
 
@@ -798,6 +822,7 @@ export default function DashboardScreen() {
             <View className="mt-2">
               <SectionCard
                 title="Última refeição"
+                icon="time-outline"
                 subtitle={
                   lastMeal
                     ? formatDate(
@@ -808,8 +833,8 @@ export default function DashboardScreen() {
               >
                 {lastMeal ? (
                   <View className="flex-row items-center">
-                    <View className="w-[90px] h-[90px] rounded-[10px] bg-[#F7F0DC] items-center justify-center">
-                      <View className="w-[54px] h-[54px] rounded-full bg-[#A3987B] items-center justify-center">
+                    <View className="w-[84px] h-[84px] rounded-[22px] bg-[#F4EEDA] items-center justify-center">
+                      <View className="w-[52px] h-[52px] rounded-full bg-[#6E8F5C] items-center justify-center">
                         <Ionicons
                           name="restaurant-outline"
                           size={28}
@@ -823,7 +848,7 @@ export default function DashboardScreen() {
                         numberOfLines={
                           2
                         }
-                        className="text-[#554B41] text-[18px] font-bold"
+                        className="text-[#554B41] text-[20px] font-bold"
                       >
                         {
                           lastMeal
@@ -833,7 +858,7 @@ export default function DashboardScreen() {
                         }
                       </Text>
 
-                      <View className="flex-row flex-wrap mt-3">
+                      <View className="flex-row flex-wrap mt-2.5">
                         <View
                           className={`flex-row items-center rounded-full px-3 py-1 mr-2 ${
                             getReactionLabel(
@@ -935,6 +960,7 @@ export default function DashboardScreen() {
             <View className="mt-5">
               <SectionCard
                 title="Como está indo?"
+                icon="stats-chart-outline"
                 subtitle="Resumo das últimas 5 refeições"
               >
                 <View className="flex-row -mx-1">
@@ -946,7 +972,7 @@ export default function DashboardScreen() {
                         key={
                           item.label
                         }
-                        className="flex-1 mx-1 rounded-[10px] p-3 items-center"
+                        className="flex-1 mx-1 rounded-[18px] py-4 px-2 items-center"
                         style={{
                           backgroundColor:
                             item.background,
@@ -963,7 +989,7 @@ export default function DashboardScreen() {
                         />
 
                         <Text
-                          className="text-[24px] font-bold mt-1"
+                          className="text-[30px] font-bold mt-1"
                           style={{
                             color:
                               item.iconColor,
@@ -1002,6 +1028,7 @@ export default function DashboardScreen() {
             <View className="mt-5">
               <SectionCard
                 title="Alimentos recentes"
+                icon="nutrition-outline"
               >
                 <View>
                   <View className="flex-row justify-end mb-2">
@@ -1009,10 +1036,14 @@ export default function DashboardScreen() {
                       activeOpacity={
                         0.7
                       }
-                      onPress={() => {}}
-                      className="flex-row items-center"
+                      onPress={() =>
+                        router.push(
+                          "/food-history"
+                        )
+                      }
+                      className="flex-row items-center bg-[#EAF3E3] rounded-full px-3 py-1.5"
                     >
-                      <Text className="text-[#4D9B43] text-[14px] font-bold">
+                      <Text className="text-[#438C3B] text-[14px] font-bold">
                         Ver histórico
                       </Text>
 
@@ -1063,7 +1094,7 @@ export default function DashboardScreen() {
                                 3
                               ) -
                                 1
-                                ? "border-b border-[#E9E1CF]"
+                                ? "border-b border-[#F0E9D4]"
                                 : ""
                             }`}
                           >
@@ -1092,7 +1123,7 @@ export default function DashboardScreen() {
                             </View>
 
                             <View
-                              className={`w-[38px] h-[38px] rounded-[9px] items-center justify-center ${
+                              className={`w-[40px] h-[40px] rounded-[14px] items-center justify-center ${
                                 reaction ===
                                 "Gostou"
                                   ? "bg-[#EDF6E8]"
@@ -1151,12 +1182,45 @@ export default function DashboardScreen() {
         }
         transparent
         animationType="fade"
-        onRequestClose={() => {}}
+        onRequestClose={() => {
+          if (
+            child?.id &&
+            !selectingChildId
+          ) {
+            setChildSelectionVisible(
+              false
+            );
+          }
+        }}
       >
         <View className="flex-1 bg-black/40 items-center justify-center px-5">
-          <View className="w-full max-w-[420px] bg-[#FFFCEF] rounded-[20px] px-5 py-6">
+          <View className="w-full max-w-[420px] bg-[#FFFCEF] rounded-[28px] px-5 py-6">
+            {child?.id ? (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() =>
+                  setChildSelectionVisible(
+                    false
+                  )
+                }
+                disabled={
+                  selectingChildId !==
+                  null
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Fechar"
+                className="absolute top-3 right-3 w-[36px] h-[36px] rounded-full bg-[#F4EEDA] items-center justify-center z-10"
+              >
+                <Ionicons
+                  name="close"
+                  size={20}
+                  color="#554B41"
+                />
+              </TouchableOpacity>
+            ) : null}
+
             <View className="items-center">
-              <View className="w-[58px] h-[58px] rounded-full bg-[#E5D8B0] items-center justify-center">
+              <View className="w-[58px] h-[58px] rounded-full bg-[#EAF3E3] items-center justify-center">
                 <Ionicons
                   name="people"
                   size={30}
@@ -1199,7 +1263,7 @@ export default function DashboardScreen() {
                           currentChild
                         )
                       }
-                      className="w-full min-h-[70px] border border-[#E5DCC4] bg-white rounded-[12px] px-4 py-3 mb-3 flex-row items-center"
+                      className="w-full min-h-[70px] border border-[#EFE7D0] bg-white rounded-[18px] px-4 py-3 mb-3 flex-row items-center"
                     >
                       <View className="w-[46px] h-[46px] rounded-full bg-[#F2F0E8] items-center justify-center">
                         <Ionicons
@@ -1227,6 +1291,13 @@ export default function DashboardScreen() {
                         <ActivityIndicator
                           size="small"
                           color="#4D9B43"
+                        />
+                      ) : currentChild.id ===
+                        child?.id ? (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={26}
+                          color="#438C3B"
                         />
                       ) : (
                         <Ionicons

@@ -18,6 +18,10 @@ import {
   StatusBar,
 } from "expo-status-bar";
 
+import {
+  Ionicons,
+} from "@expo/vector-icons";
+
 import AvatarHeader from "../../components/AvatarHeader";
 import SectionCard from "../../components/SectionCard";
 import PowerButton from "../../components/PowerButton";
@@ -326,7 +330,7 @@ export default function Device() {
       />
 
       <ScrollView
-        className="flex-1 px-3 pt-2"
+        className="flex-1 px-4 pt-2"
         showsVerticalScrollIndicator={
           false
         }
@@ -350,9 +354,10 @@ export default function Device() {
 
         <View className="mt-2">
           <SectionCard
-            title="Status do dispositivo auxiliador"
+            title="Status do dispositivo"
+            icon="hardware-chip-outline"
           >
-            <View className="items-center pt-2">
+            <View className="items-center">
               <PowerButton
                 onPress={
                   handleConnection
@@ -365,13 +370,41 @@ export default function Device() {
                 }
               />
 
-              <Text className="text-[#554B41] text-[22px] font-medium mt-6 text-center">
-                {connecting
-                  ? "Conectando..."
-                  : connected
-                    ? "Auxiliador conectado"
-                    : "Auxiliador desconectado"}
-              </Text>
+              <View
+                className={`flex-row items-center rounded-full px-4 py-2 mt-2 ${
+                  connecting
+                    ? "bg-[#F8F0D9]"
+                    : connected
+                      ? "bg-[#EAF3E3]"
+                      : "bg-[#FCEBE8]"
+                }`}
+              >
+                <View
+                  className={`w-[10px] h-[10px] rounded-full mr-2 ${
+                    connecting
+                      ? "bg-[#C29424]"
+                      : connected
+                        ? "bg-[#4D9B43]"
+                        : "bg-[#D9534F]"
+                  }`}
+                />
+
+                <Text
+                  className={`text-[17px] font-semibold ${
+                    connecting
+                      ? "text-[#8A6A12]"
+                      : connected
+                        ? "text-[#2F6B28]"
+                        : "text-[#A33B36]"
+                  }`}
+                >
+                  {connecting
+                    ? "Conectando..."
+                    : connected
+                      ? "Auxiliador conectado"
+                      : "Auxiliador desconectado"}
+                </Text>
+              </View>
 
               {connecting && (
                 <View className="items-center mt-3">
@@ -383,12 +416,20 @@ export default function Device() {
               )}
 
               {error !== "" && (
-                <Text className="text-[#9B5547] text-[14px] text-center mt-4 px-3">
-                  {error}
-                </Text>
+                <View className="w-full flex-row items-center bg-[#FCEBE8] rounded-[16px] px-4 py-3 mt-4">
+                  <Ionicons
+                    name="alert-circle-outline"
+                    size={20}
+                    color="#A33B36"
+                  />
+
+                  <Text className="flex-1 ml-2 text-[#A33B36] text-[14px]">
+                    {error}
+                  </Text>
+                </View>
               )}
 
-              <View className="w-full mt-6">
+              <View className="w-full mt-5">
                 <PrimaryButton
                   title={
                     connected
@@ -405,6 +446,26 @@ export default function Device() {
               </View>
             </View>
           </SectionCard>
+        </View>
+
+        {/* Bloco opcional de dicas (apenas visual/estático) */}
+        <View className="mt-5 flex-row bg-[#EAF3E3] rounded-[20px] px-4 py-4">
+          <Ionicons
+            name="information-circle-outline"
+            size={22}
+            color="#438C3B"
+          />
+
+          <View className="flex-1 ml-3">
+            <Text className="text-[#2F6B28] text-[14px] font-bold">
+              Dica de conexão
+            </Text>
+
+            <Text className="text-[#4F6B49] text-[13px] mt-1">
+              Mantenha o Bluetooth do celular ligado e o
+              auxiliador por perto para conectar.
+            </Text>
+          </View>
         </View>
       </ScrollView>
 

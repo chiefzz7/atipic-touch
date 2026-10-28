@@ -346,6 +346,7 @@ export default function EditFoodScreen() {
         <View className="mt-2">
           <SectionCard
             title="Alimentos"
+            icon="nutrition-outline"
             subtitle="Gerencie os alimentos cadastrados."
           >
             <FoodSearch

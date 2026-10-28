@@ -358,7 +358,7 @@ export default function LoginScreen() {
           </Text>
 
           <View
-            className="items-center bg-[#E5DCC4] border border-[#C6BB9A] rounded-[10px]"
+            className="items-center bg-white border border-[#EFE7D0] shadow-sm rounded-[16px]"
             style={{
               width:
                 cardWidth,
@@ -419,7 +419,7 @@ export default function LoginScreen() {
                 returnKeyType="next"
                 placeholder="Digite seu e-mail"
                 placeholderTextColor="#A3987B"
-                className="w-full rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+                className="w-full rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
                 style={{
                   height:
                     52,
@@ -462,7 +462,7 @@ export default function LoginScreen() {
                 }
                 placeholder="Digite sua senha"
                 placeholderTextColor="#A3987B"
-                className="w-full rounded-[10px] bg-[#FFFCEF] border border-[#DDD3B9] px-4 text-[16px] text-[#554B41]"
+                className="w-full rounded-[16px] bg-white border border-[#E7DFC6] px-4 text-[16px] text-[#554B41]"
                 style={{
                   height:
                     52,
@@ -471,7 +471,7 @@ export default function LoginScreen() {
             </View>
 
             {error ? (
-              <View className="w-full bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+              <View className="w-full bg-[#FCEBE8] rounded-[16px] px-3 py-3 mt-4">
                 <Text className="text-[#D9534F] text-center font-medium">
                   {error}
                 </Text>
@@ -488,7 +488,7 @@ export default function LoginScreen() {
               activeOpacity={
                 0.8
               }
-              className="items-center justify-center rounded-[10px] bg-[#83BF6E]"
+              className="items-center justify-center rounded-[18px] bg-[#438C3B]"
               style={{
                 width:
                   Math.min(

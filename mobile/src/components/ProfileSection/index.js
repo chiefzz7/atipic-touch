@@ -19,7 +19,7 @@ export default function ProfileSection({
   onPress,
 }) {
   return (
-    <View className="mt-4 bg-[#E5DCC4] rounded-[10px] overflow-hidden">
+    <View className="mt-4 bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] overflow-hidden">
       <TouchableOpacity
         activeOpacity={
           expandable

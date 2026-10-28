@@ -40,16 +40,16 @@ const COLORS = {
     "#FFFCEF",
 
   card:
-    "#E5DCC4",
+    "#FFFFFF",
 
   input:
-    "#F7F0DC",
+    "#FBF8EE",
 
   option:
     "#FFFCEF",
 
   border:
-    "#DDD3B9",
+    "#E7DFC6",
 
   text:
     "#554B41",
@@ -61,10 +61,10 @@ const COLORS = {
     "#806A42",
 
   green:
-    "#83BF6E",
+    "#438C3B",
 
   greenDark:
-    "#4D9B43",
+    "#2F6B28",
 
   softGreen:
     "#EDF6E8",
@@ -169,7 +169,7 @@ const OPTIONS = {
       label:
         "Verde",
       color:
-        "#83BF6E",
+        "#438C3B",
     },
     {
       label:
@@ -211,7 +211,7 @@ const OPTIONS = {
       label:
         "Bege",
       color:
-        "#C6BB9A",
+        "#E7DFC6",
     },
     {
       label:
@@ -463,7 +463,7 @@ function SelectionOption({
           "center",
 
         borderRadius:
-          10,
+          16,
 
         backgroundColor:
           selected
@@ -509,7 +509,7 @@ function SelectionOption({
                 : 0,
 
             borderColor:
-              "#C6BB9A",
+              "#E7DFC6",
           }}
         />
       ) : (
@@ -621,7 +621,7 @@ function SectionHeader({
             19,
 
           backgroundColor:
-            "#C6BB9A",
+            "#E7DFC6",
 
           alignItems:
             "center",
@@ -707,7 +707,13 @@ function FoodCharacteristic({
           COLORS.card,
 
         borderRadius:
-          10,
+          16,
+
+        borderWidth:
+          1,
+
+        borderColor:
+          "#EFE7D0",
 
         padding:
           14,
@@ -787,7 +793,7 @@ function FoodCharacteristic({
               COLORS.input,
 
             borderRadius:
-              10,
+              16,
 
             paddingHorizontal:
               14,
@@ -1292,7 +1298,13 @@ export default function FoodRegisterScreen() {
               COLORS.card,
 
             borderRadius:
-              10,
+              16,
+
+            borderWidth:
+              1,
+
+            borderColor:
+              "#EFE7D0",
 
             padding:
               14,
@@ -1332,7 +1344,7 @@ export default function FoodRegisterScreen() {
                 COLORS.input,
 
               borderRadius:
-                10,
+                16,
 
               paddingHorizontal:
                 14,
@@ -1529,7 +1541,7 @@ export default function FoodRegisterScreen() {
         />
 
         {error ? (
-          <View className="w-full bg-[#FCEBE8] rounded-[10px] px-4 py-3 mb-4">
+          <View className="w-full bg-[#FCEBE8] rounded-[16px] px-4 py-3 mb-4">
             <Text className="text-[#D9534F] text-[14px] text-center font-medium">
               {error}
             </Text>
@@ -1543,7 +1555,7 @@ export default function FoodRegisterScreen() {
                 54,
 
               borderRadius:
-                10,
+                16,
 
               backgroundColor:
                 COLORS.green,

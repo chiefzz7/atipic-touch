@@ -28,7 +28,7 @@ export default function EmotionSelector({
 ];
 
   return (
-    <View className="bg-[#FFFCEF] rounded-[7px] p-5">
+    <View className="bg-[#FFFCEF] rounded-[16px] p-5">
 
       <Text className="text-xl font-bold text-[#554B41] mb-5">
         Como foi a experiência?

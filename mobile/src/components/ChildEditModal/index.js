@@ -340,14 +340,14 @@ export default function ChildEditModal({
       >
         <View className="flex-1 bg-black/40 items-center justify-center px-5">
           <View
-            className="w-full max-w-[420px] bg-[#FFFCEF] rounded-[10px] overflow-hidden"
+            className="w-full max-w-[420px] bg-[#FFFCEF] rounded-[28px] overflow-hidden"
             style={{
               maxHeight:
                 "88%",
             }}
           >
-            <View className="bg-[#E5DCC4] px-5 py-4 flex-row items-center">
-              <View className="w-[42px] h-[42px] rounded-full bg-[#C6BB9A] items-center justify-center">
+            <View className="bg-white border border-[#EFE7D0] shadow-sm px-5 py-4 flex-row items-center">
+              <View className="w-[42px] h-[42px] rounded-full bg-[#EFEAD6] items-center justify-center">
                 <Ionicons
                   name="person-outline"
                   size={23}
@@ -416,8 +416,8 @@ export default function ChildEditModal({
                   !loading
                 }
                 placeholder="Nome da criança"
-                placeholderTextColor="#A7A7A7"
-                className="w-full h-[54px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 text-[#554B41] text-[15px]"
+                placeholderTextColor="#A3987B"
+                className="w-full h-[54px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 text-[#554B41] text-[15px]"
               />
 
               <Text className="text-[#554B41] text-[14px] font-medium mt-4 mb-2">
@@ -445,8 +445,8 @@ export default function ChildEditModal({
                   10
                 }
                 placeholder="dd/mm/aaaa"
-                placeholderTextColor="#A7A7A7"
-                className="w-full h-[54px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 text-[#554B41] text-[15px]"
+                placeholderTextColor="#A3987B"
+                className="w-full h-[54px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 text-[#554B41] text-[15px]"
               />
 
               <Text className="text-[#554B41] text-[14px] font-medium mt-4 mb-2">
@@ -466,8 +466,8 @@ export default function ChildEditModal({
                 multiline
                 textAlignVertical="top"
                 placeholder="Ex.: dinossauros, carros, desenhos..."
-                placeholderTextColor="#A7A7A7"
-                className="w-full min-h-[90px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-3 text-[#554B41] text-[15px]"
+                placeholderTextColor="#A3987B"
+                className="w-full min-h-[90px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41] text-[15px]"
               />
 
               <Text className="text-[#80775C] text-[12px] mt-1">
@@ -491,12 +491,12 @@ export default function ChildEditModal({
                 multiline
                 textAlignVertical="top"
                 placeholder="Se houver, informe as restrições..."
-                placeholderTextColor="#A7A7A7"
-                className="w-full min-h-[90px] bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] px-4 py-3 text-[#554B41] text-[15px]"
+                placeholderTextColor="#A3987B"
+                className="w-full min-h-[90px] bg-[#FBF8EE] border border-[#E7DFC6] rounded-[16px] px-4 py-3 text-[#554B41] text-[15px]"
               />
 
               {error ? (
-                <View className="bg-[#FCEBE8] rounded-[10px] px-3 py-3 mt-4">
+                <View className="bg-[#FCEBE8] rounded-[16px] px-3 py-3 mt-4">
                   <Text className="text-[#D9534F] text-[14px] font-medium text-center">
                     {error}
                   </Text>

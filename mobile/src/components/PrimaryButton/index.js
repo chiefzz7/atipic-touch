@@ -12,19 +12,24 @@ export default function PrimaryButton({
 }) {
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.85}
       onPress={onPress}
       disabled={disabled}
       accessibilityRole="button"
       accessibilityState={{
         disabled,
       }}
-      className="w-full h-[54px] rounded-[10px] items-center justify-center"
+      className="w-full h-[56px] rounded-[18px] items-center justify-center"
       style={{
         backgroundColor:
           disabled
             ? "#B8B4AA"
-            : "#83BF6E",
+            : "#438C3B",
+        shadowColor: "#438C3B",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: disabled ? 0 : 0.25,
+        shadowRadius: 8,
+        elevation: disabled ? 0 : 3,
       }}
     >
       <Text className="text-white text-[16px] font-bold">

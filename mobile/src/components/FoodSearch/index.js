@@ -25,7 +25,7 @@ export default function FoodSearch({
 
   return (
     <View className="flex-row items-center mb-4">
-      <View className="flex-1 flex-row items-center bg-[#FFFCEF] rounded-[10px] h-[50px] px-3 mr-3 border border-[#DDD3B9]">
+      <View className="flex-1 flex-row items-center bg-white rounded-[16px] h-[50px] px-3 mr-3 border border-[#E7DFC6]">
         <Ionicons
           name="search"
           size={20}
@@ -54,7 +54,7 @@ export default function FoodSearch({
         }
         className="items-center justify-center"
       >
-        <View className="w-[48px] h-[48px] rounded-[10px] bg-[#83BF6E] items-center justify-center">
+        <View className="w-[48px] h-[48px] rounded-[18px] bg-[#438C3B] items-center justify-center">
           <Ionicons
             name="add"
             size={28}

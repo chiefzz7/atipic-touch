@@ -182,7 +182,7 @@ export default function HomeIntroduction() {
                   "/device"
                 )
               }
-              className="w-full items-center justify-center bg-[#83BF6E] rounded-[10px]"
+              className="w-full items-center justify-center bg-[#438C3B] rounded-[18px]"
               style={{
                 height:
                   isSmallScreen
