@@ -28,3 +28,8 @@
 - Botão respeita `disabled`/`loading`; Enter envia o login.
 
 Rodar: `npm install --legacy-peer-deps && npm run web` · Build: `npm run build`
+
+## Página pública "Sobre" (apresentação para a feira)
+- Rota `/sobre` (sem login): slideshow lento da equipe, quem somos, pitch (YouTube) + slides (Canva), o projeto e "Acompanhe como foi" (faixa em movimento + galeria com ampliação).
+- Textos, links, legendas e integrantes: `src/data/projeto.js`. Fotos: `assets/equipe/`.
+- Link "Veja a apresentação" adicionado na tela de login.

@@ -21,3 +21,15 @@ html, body { background: #FFFCEF; -webkit-font-smoothing: antialiased; }
   [data-print-card] { flex: none !important; width: 100% !important; break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; }
   .bg-\[\#FFFCEF\] { background-color: #fff !important; }
 }
+
+/* ---------- Página Sobre: faixa de fotos em movimento ---------- */
+@keyframes at-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track { width: max-content; animation: at-marquee 60s linear infinite; will-change: transform; }
+.marquee-reverse { animation-direction: reverse; }
+.marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}

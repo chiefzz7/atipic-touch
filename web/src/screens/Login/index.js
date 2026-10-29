@@ -241,6 +241,21 @@ export default function LoginScreen() {
                   </Text>
                 </TouchableOpacity>
               </Link>
+
+              <Link
+                href="/sobre"
+                asChild
+              >
+                <TouchableOpacity className="mt-4">
+                  <Text className="text-center text-xs md:text-sm text-[#6B6554]">
+                    Quer conhecer o projeto?{' '}
+
+                    <Text className="text-[#528F33] font-bold">
+                      Veja a apresentação
+                    </Text>
+                  </Text>
+                </TouchableOpacity>
+              </Link>
             </View>
           </View>
         </View>
