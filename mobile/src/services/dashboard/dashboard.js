@@ -1,5 +1,6 @@
 
 import { getToken } from "../auth/auth";
+import { cachedFetch, CACHE_TTL } from "../cache/cache";
 
 const API_URL = "https://atipic-touch-devlop.onrender.com";
 
@@ -9,7 +10,7 @@ const API_URL = "https://atipic-touch-devlop.onrender.com";
  * Endpoint:
  * GET /api/feeding-logs/crianca/{crianca_id}
  */
-export async function getFeedingLogs(criancaId) {
+async function fetchFeedingLogs(criancaId) {
   console.log("========== DASHBOARD API ==========");
   console.log("CRIANÇA ID:", criancaId);
 
@@ -58,4 +59,16 @@ export async function getFeedingLogs(criancaId) {
   } catch {
     throw new Error("A API retornou uma resposta inválida.");
   }
+}
+
+/**
+ * Lista o histórico alimentar (com cache curto por criança).
+ * Use { force: true } para ignorar o cache (ex.: puxar para atualizar).
+ */
+export function getFeedingLogs(criancaId, { force = false } = {}) {
+  return cachedFetch(
+    `logs:${criancaId}`,
+    () => fetchFeedingLogs(criancaId),
+    { ttl: CACHE_TTL.logs, force }
+  );
 }

@@ -12,6 +12,7 @@ import {
 
 import {
   useRouter,
+  usePathname,
 } from "expo-router";
 
 import {
@@ -55,6 +56,9 @@ export default function BottomNavigation({
   const router =
     useRouter();
 
+  const pathname =
+    usePathname();
+
   const insets =
     useSafeAreaInsets();
 
@@ -82,11 +86,21 @@ export default function BottomNavigation({
             <TouchableOpacity
               key={item.key}
               activeOpacity={0.75}
-              onPress={() =>
-                router.push(
+              onPress={() => {
+                // Já está nesta tela: não recarrega
+                if (
+                  pathname ===
                   item.route
-                )
-              }
+                ) {
+                  return;
+                }
+
+                // replace evita empilhar telas
+                // (e a sobreposição na animação)
+                router.replace(
+                  item.route
+                );
+              }}
               accessibilityRole="button"
               accessibilityLabel={
                 item.label

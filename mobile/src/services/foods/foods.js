@@ -1,3 +1,8 @@
+import {
+  cachedFetch,
+  invalidateCache,
+  CACHE_TTL,
+} from "../cache/cache";
 import axios from "axios";
 import { getToken } from "../auth/auth";
 
@@ -5,7 +10,7 @@ const API_URL = "https://atipic-touch-devlop.onrender.com";
 /**
  * Retorna os alimentos cadastrados para o usuário autenticado.
  */
-export async function getFoods() {
+async function fetchFoods() {
   const token = await getToken();
 
   const response = await axios.get(`${API_URL}/api/foods/`, {
@@ -20,7 +25,7 @@ export async function getFoods() {
 /**
  * Cadastra um novo alimento.
  */
-export async function createFood(foodData) {
+async function createFoodRequest(foodData) {
   const token = await getToken();
 
   const response = await axios.post(
@@ -39,7 +44,7 @@ export async function createFood(foodData) {
 /**
  * Atualiza um alimento existente.
  */
-export async function updateFood(foodId, foodData) {
+async function updateFoodRequest(foodId, foodData) {
   const token = await getToken();
 
   const response = await axios.patch(
@@ -58,7 +63,7 @@ export async function updateFood(foodId, foodData) {
 /**
  * Remove um alimento cadastrado.
  */
-export async function deleteFood(foodId) {
+async function deleteFoodRequest(foodId) {
   const token = await getToken();
 
   await axios.delete(`${API_URL}/api/foods/${foodId}`, {
@@ -66,4 +71,37 @@ export async function deleteFood(foodId) {
       Authorization: `Bearer ${token}`,
     },
   });
+}
+
+export function getFoods({ force = false } = {}) {
+  return cachedFetch("foods", fetchFoods, {
+    ttl: CACHE_TTL.foods,
+    force,
+  });
+}
+
+export async function createFood(...args) {
+  const result = await createFoodRequest(...args);
+
+  invalidateCache("foods");
+
+  return result;
+}
+
+export async function updateFood(...args) {
+  const result = await updateFoodRequest(...args);
+
+  invalidateCache("foods");
+  invalidateCache("logs");
+
+  return result;
+}
+
+export async function deleteFood(...args) {
+  const result = await deleteFoodRequest(...args);
+
+  invalidateCache("foods");
+  invalidateCache("logs");
+
+  return result;
 }

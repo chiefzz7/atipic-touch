@@ -1,4 +1,10 @@
 import {
+  cachedFetch,
+  invalidateCache,
+  CACHE_TTL,
+} from "../cache/cache";
+
+import {
   getToken,
 } from "../auth/auth";
 
@@ -28,7 +34,7 @@ function getApiErrorMessage(
   return fallback;
 }
 
-export async function getCurrentUser() {
+async function fetchCurrentUser() {
   const token =
     await getToken();
 
@@ -72,7 +78,7 @@ export async function getCurrentUser() {
   return data;
 }
 
-export async function updateCurrentUser({
+async function updateCurrentUserRequest({
   nome,
   telefone,
 }) {
@@ -127,4 +133,19 @@ export async function updateCurrentUser({
   }
 
   return data;
+}
+
+export function getCurrentUser({ force = false } = {}) {
+  return cachedFetch("user", fetchCurrentUser, {
+    ttl: CACHE_TTL.user,
+    force,
+  });
+}
+
+export async function updateCurrentUser(...args) {
+  const result = await updateCurrentUserRequest(...args);
+
+  invalidateCache("user");
+
+  return result;
 }

@@ -210,7 +210,9 @@ export default function FoodHistoryScreen() {
 
       setChild(currentChild);
 
-      const data = await getFeedingLogs(currentChild.id);
+      const data = await getFeedingLogs(currentChild.id, {
+        force: isRefresh,
+      });
 
       setLogs(Array.isArray(data) ? data : []);
     } catch (err) {

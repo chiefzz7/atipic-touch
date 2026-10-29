@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getChildren } from "../children/children";
+import { clearCache } from "../cache/cache";
 
 const API_URL = "https://atipic-touch-devlop.onrender.com";
 const TOKEN_KEY = "@atipictouch:token";
@@ -17,6 +18,7 @@ function notifyAuth(value) {
 }
 export async function saveSession(accessToken) {
   await AsyncStorage.setItem(TOKEN_KEY, accessToken);
+  clearCache();
   notifyAuth(true);
 }
 
@@ -54,6 +56,7 @@ export async function validateSession() {
 }
 export async function clearSession() {
   await AsyncStorage.removeItem(TOKEN_KEY);
+  clearCache();
   notifyAuth(false);
 }
 

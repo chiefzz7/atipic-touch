@@ -1,4 +1,5 @@
 import { getToken } from "../auth/auth";
+import { invalidateCache } from "../cache/cache";
 
 const API_URL = "https://atipic-touch-devlop.onrender.com";
 
@@ -7,7 +8,7 @@ const API_URL = "https://atipic-touch-devlop.onrender.com";
  *
  * Endpoint: POST /api/feeding-logs/
  */
-export async function createFeedingLog({
+async function createFeedingLogRequest({
   criancaId,
   alimentoId,
   reacao,
@@ -104,4 +105,12 @@ export async function createFeedingLog({
   } catch {
     throw new Error("A API retornou uma resposta inválida.");
   }
+}
+
+export async function createFeedingLog(...args) {
+  const result = await createFeedingLogRequest(...args);
+
+  invalidateCache("logs");
+
+  return result;
 }

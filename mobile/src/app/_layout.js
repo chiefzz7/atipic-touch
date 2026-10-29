@@ -207,7 +207,33 @@ export default function Layout() {
     <Stack
       screenOptions={{
         headerShown: false,
+        animation: "fade",
+        animationDuration: 150,
+        contentStyle: {
+          backgroundColor: "#FFFCEF",
+        },
       }}
-    />
+    >
+      {/* Abas da barra inferior: troca instantânea, sem telas sobrepostas */}
+      <Stack.Screen
+        name="dashboard"
+        options={{ animation: "none" }}
+      />
+
+      <Stack.Screen
+        name="device"
+        options={{ animation: "none" }}
+      />
+
+      <Stack.Screen
+        name="management-food"
+        options={{ animation: "none" }}
+      />
+
+      <Stack.Screen
+        name="profile"
+        options={{ animation: "none" }}
+      />
+    </Stack>
   );
 }

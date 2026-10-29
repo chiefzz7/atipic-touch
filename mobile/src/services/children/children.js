@@ -1,4 +1,10 @@
 import {
+  cachedFetch,
+  invalidateCache,
+  CACHE_TTL,
+} from "../cache/cache";
+
+import {
   getToken,
 } from "../auth/auth";
 
@@ -28,7 +34,7 @@ function getApiErrorMessage(
   return fallback;
 }
 
-export async function registerChild({
+async function registerChildRequest({
   nome,
   dataNascimento,
   temasPreferidos,
@@ -89,7 +95,7 @@ export async function registerChild({
   return data;
 }
 
-export async function getChildren() {
+async function fetchChildren() {
   const token =
     await getToken();
 
@@ -134,7 +140,7 @@ export async function getChildren() {
   return data;
 }
 
-export async function updateChild(
+async function updateChildRequest(
   childId,
   {
     nome,
@@ -204,4 +210,27 @@ export async function updateChild(
   }
 
   return data;
+}
+
+export function getChildren({ force = false } = {}) {
+  return cachedFetch("children", fetchChildren, {
+    ttl: CACHE_TTL.children,
+    force,
+  });
+}
+
+export async function registerChild(...args) {
+  const result = await registerChildRequest(...args);
+
+  invalidateCache("children");
+
+  return result;
+}
+
+export async function updateChild(...args) {
+  const result = await updateChildRequest(...args);
+
+  invalidateCache("children");
+
+  return result;
 }
