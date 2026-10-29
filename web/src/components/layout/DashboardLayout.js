@@ -1,249 +1,136 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, useWindowDimensions } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import { Link, usePathname, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { KEYS, clearSession } from '../../services/api';
+import { useSettings } from '../../context/SettingsContext';
+import { initials } from '../../utils/format';
 
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Platform,
-  Dimensions,
-} from 'react-native';
+const MENU = [
+  { name: 'Dashboard', icon: 'pie-chart', route: '/dashboard' },
+  { name: 'Pacientes', icon: 'users', route: '/patients' },
+  { name: 'Relatórios', icon: 'clipboard', route: '/reports' },
+  { name: 'Configurações', icon: 'settings', route: '/settings' },
+];
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+export default function DashboardLayout({ children }) {
+  const { width } = useWindowDimensions();
+  const isWide = width >= 1024;
+  const [userExpanded, setUserExpanded] = useState(null); // null = automático pela largura
+  const isExpanded = userExpanded ?? isWide;
+  const pathname = usePathname();
+  const router = useRouter();
+  const { settings } = useSettings();
+  const { nome, foto, especialidade } = settings.profile;
 
-import {
-  Link,
-  usePathname,
-} from 'expo-router';
-
-export default function DashboardLayout({
-  children,
-}) {
-  const [
-    isExpanded,
-    setIsExpanded,
-  ] = useState(
-    Platform.OS === 'web' &&
-      Dimensions.get('window').width > 1024
-  );
-
-  const pathname =
-    usePathname();
-
+  // Guarda de rota: sem token, volta ao login.
   useEffect(() => {
-    if (
-      Platform.OS !== 'web'
-    ) {
-      return;
-    }
+    AsyncStorage.getItem(KEYS.token).then((token) => {
+      if (!token) router.replace('/');
+    });
+  }, [router, pathname]);
 
-    const handleResize =
-      () => {
-        if (
-          Dimensions.get('window').width <
-          1024
-        ) {
-          setIsExpanded(false);
-        } else {
-          setIsExpanded(true);
-        }
-      };
+  const sair = useCallback(async () => {
+    await clearSession();
+    router.replace('/');
+  }, [router]);
 
-    window.addEventListener(
-      'resize',
-      handleResize
-    );
-
-    return () =>
-      window.removeEventListener(
-        'resize',
-        handleResize
-      );
-  }, []);
-
-  const menuItems = [
-    {
-      name: 'Dashboard',
-      icon: 'pie-chart',
-      route: '/dashboard',
-    },
-    {
-      name: 'Pacientes',
-      icon: 'users',
-      route: '/patients',
-    },
-    {
-      name: 'Relatórios',
-      icon: 'clipboard',
-      route: '/reports',
-    },
-    {
-      name: 'Configurações',
-      icon: 'settings',
-      route: '/settings',
-    },
-  ];
+  const overlayMobile = isExpanded && width < 768;
 
   return (
-    <View className="flex-1 flex-row bg-[#FFFCEF] print:bg-white overflow-hidden">
+    <View className="flex-1 flex-row bg-[#FFFCEF] print:bg-white overflow-hidden" style={{ minHeight: '100vh' }}>
       <View
-        className={`print:hidden bg-[#E5DCC4] transition-all duration-300 h-full flex-col justify-between py-6 border-r border-[#C6BB9A] z-50 ${
-          isExpanded
-            ? 'w-64 absolute md:relative'
-            : 'w-20'
-        }`}
+        accessibilityRole="navigation"
+        className={`print-hide bg-[#F1E9D2] border-r border-[#DDD3B9] h-full flex-col justify-between py-5 z-50 transition-all duration-200 ${
+          isExpanded ? 'w-64' : 'w-[76px]'
+        } ${overlayMobile ? 'absolute' : 'relative'}`}
       >
         <View>
-          <View
-            className={`flex-row items-center h-12 mb-8 ${
-              isExpanded
-                ? 'px-5'
-                : 'justify-center'
-            }`}
-          >
-            <View className="w-10 h-10 bg-[#4D9B43] rounded-[10px] items-center justify-center">
-              <Text className="text-white font-bold text-lg">
-                AT
-              </Text>
+          <View className={`flex-row items-center h-12 mb-6 ${isExpanded ? 'px-5' : 'justify-center'}`}>
+            <View className="w-10 h-10 bg-[#528F33] rounded-[12px] items-center justify-center">
+              <Text className="text-white font-extrabold text-[15px]">AT</Text>
             </View>
-
             {isExpanded ? (
-              <Text className="ml-3 text-[18px] lg:text-[20px] font-extrabold text-[#554B41] tracking-tight">
-                AtipicTouch
-              </Text>
+              <Text className="ml-3 text-[19px] font-extrabold text-[#212134] tracking-tight">AtipicTouch</Text>
             ) : null}
           </View>
 
           <View className="px-3">
-            {menuItems.map(
-              (
-                item,
-                index
-              ) => {
-                const isActive =
-                  pathname ===
-                    item.route ||
-                  pathname.startsWith(
-                    item.route
-                  );
-
-                return (
-                  <Link
-                    key={index}
-                    href={item.route}
-                    asChild
+            {MENU.map((item) => {
+              const active = pathname === item.route || pathname.startsWith(`${item.route}/`);
+              return (
+                <Link key={item.route} href={item.route} asChild>
+                  <TouchableOpacity
+                    accessibilityLabel={item.name}
+                    activeOpacity={0.8}
+                    className={`flex-row items-center h-11 mb-1.5 rounded-[12px] transition-colors ${
+                      active ? 'bg-[#528F33]' : 'hover:bg-[#E6DCBF]'
+                    } ${isExpanded ? 'px-4' : 'justify-center'}`}
                   >
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      className={`flex-row items-center h-12 mb-2 rounded-[10px] transition-colors ${
-                        isActive
-                          ? 'bg-[#C6BB9A]'
-                          : 'hover:bg-[#D8CEB2]'
-                      } ${
-                        isExpanded
-                          ? 'px-4'
-                          : 'justify-center'
-                      }`}
-                    >
-                      <Feather
-                        name={item.icon}
-                        size={20}
-                        color={
-                          isActive
-                            ? '#4D9B43'
-                            : '#80775C'
-                        }
-                      />
-
-                      {isExpanded ? (
-                        <Text
-                          className={`ml-4 text-[14px] lg:text-[15px] font-medium ${
-                            isActive
-                              ? 'text-[#554B41] font-bold'
-                              : 'text-[#80775C]'
-                          }`}
-                        >
-                          {item.name}
-                        </Text>
-                      ) : null}
-                    </TouchableOpacity>
-                  </Link>
-                );
-              }
-            )}
+                    <Feather name={item.icon} size={19} color={active ? '#FFFFFF' : '#6B6554'} />
+                    {isExpanded ? (
+                      <Text className={`ml-3.5 text-[14px] ${active ? 'text-white font-bold' : 'text-[#6B6554] font-medium'}`}>
+                        {item.name}
+                      </Text>
+                    ) : null}
+                  </TouchableOpacity>
+                </Link>
+              );
+            })}
           </View>
         </View>
 
         <View className="px-3">
-          <Link
-            href="/"
-            asChild
-          >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              className={`flex-row items-center h-12 rounded-[10px] hover:bg-[#F3DCD6] transition-colors ${
-                isExpanded
-                  ? 'px-4'
-                  : 'justify-center'
-              }`}
-            >
-              <Feather
-                name="log-out"
-                size={20}
-                color="#D9534F"
-              />
-
-              {isExpanded ? (
-                <Text className="ml-4 text-[14px] lg:text-[15px] font-medium text-[#D9534F]">
-                  Sair
-                </Text>
-              ) : null}
-            </TouchableOpacity>
-          </Link>
-
-          {Platform.OS === 'web' ? (
-            <TouchableOpacity
-              onPress={() =>
-                setIsExpanded(
-                  !isExpanded
-                )
-              }
-              className="mt-6 flex-row items-center justify-center h-10 border-t border-[#C6BB9A]"
-            >
-              <Feather
-                name={
-                  isExpanded
-                    ? 'chevron-left'
-                    : 'chevron-right'
-                }
-                size={20}
-                color="#80775C"
-              />
-            </TouchableOpacity>
+          {isExpanded ? (
+            <Link href="/settings" asChild>
+              <TouchableOpacity className="flex-row items-center p-3 mb-3 rounded-[12px] bg-white/70 hover:bg-white transition-colors">
+                <View className="w-9 h-9 rounded-full bg-[#A3C78B] items-center justify-center overflow-hidden">
+                  {foto ? (
+                    <Image source={{ uri: foto }} style={{ width: 36, height: 36 }} />
+                  ) : (
+                    <Text className="text-[#212134] font-extrabold text-[13px]">{initials(nome)}</Text>
+                  )}
+                </View>
+                <View className="ml-3 flex-1">
+                  <Text numberOfLines={1} className="text-[#212134] text-[13px] font-bold">{nome || 'Meu perfil'}</Text>
+                  <Text numberOfLines={1} className="text-[#6B6554] text-[11px]">{especialidade || 'Profissional'}</Text>
+                </View>
+              </TouchableOpacity>
+            </Link>
           ) : null}
+
+          <TouchableOpacity
+            onPress={sair}
+            accessibilityLabel="Sair"
+            activeOpacity={0.8}
+            className={`flex-row items-center h-11 rounded-[12px] hover:bg-[#F3DCD6] transition-colors ${
+              isExpanded ? 'px-4' : 'justify-center'
+            }`}
+          >
+            <Feather name="log-out" size={19} color="#D9534F" />
+            {isExpanded ? <Text className="ml-3.5 text-[14px] font-medium text-[#D9534F]">Sair</Text> : null}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setUserExpanded(!isExpanded)}
+            accessibilityLabel={isExpanded ? 'Recolher menu' : 'Expandir menu'}
+            className="mt-4 flex-row items-center justify-center h-10 border-t border-[#DDD3B9]"
+          >
+            <Feather name={isExpanded ? 'chevron-left' : 'chevron-right'} size={19} color="#6B6554" />
+          </TouchableOpacity>
         </View>
       </View>
 
       <View className="flex-1 relative">
-        {isExpanded &&
-        Dimensions.get('window').width <
-          768 ? (
+        {overlayMobile ? (
           <TouchableOpacity
             activeOpacity={1}
-            onPress={() =>
-              setIsExpanded(false)
-            }
-            className="absolute inset-0 bg-black/20 z-40"
+            onPress={() => setUserExpanded(false)}
+            className="absolute inset-0 bg-[#212134]/30 z-40"
           />
         ) : null}
-
-        <View className="flex-1 w-full max-w-[1600px] mx-auto">
-          {children}
-        </View>
+        <View className="flex-1 w-full max-w-[1600px] mx-auto">{children}</View>
       </View>
     </View>
   );

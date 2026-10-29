@@ -88,22 +88,22 @@ export function BarChartCor({
 
   return (
     <View>
-      <Text className="text-[13px] font-bold text-[#554B41] mb-1">
+      <Text className="text-[13px] font-bold text-[#212134] mb-1">
         Aceitação por Cor
       </Text>
 
-      <Text className="text-[10px] text-[#80775C] mb-4">
+      <Text className="text-[10px] text-[#6B6554] mb-4">
         Taxa de aceitação por grupo de cores
       </Text>
 
       {data.length === 0 ? (
         <View className="h-24 items-center justify-center">
-          <Text className="text-[11px] text-[#A3987B]">
+          <Text className="text-[11px] text-[#9A9279]">
             Dados de cor ainda não disponíveis.
           </Text>
         </View>
       ) : (
-        <View className="flex-row items-end justify-between h-24 border-b border-l border-[#DDD3B9] pb-1 pl-2">
+        <View className="flex-row items-end justify-between h-24 border-b border-l border-[#DCE7D2] pb-1 pl-2">
           {data.map(
             (
               item,
@@ -126,7 +126,7 @@ export function BarChartCor({
                   key={index}
                   className="items-center flex-1"
                 >
-                  <Text className="text-[9px] text-[#80775C] mb-1">
+                  <Text className="text-[9px] text-[#6B6554] mb-1">
                     {
                       item.value
                     }
@@ -134,20 +134,20 @@ export function BarChartCor({
                   </Text>
 
                   <View
-                    className="w-6 bg-[#4D9B43] rounded-t-sm"
+                    className="w-6 bg-[#528F33] rounded-t-sm"
                     style={{
                       height:
                         `${height}%`,
                     }}
                   />
 
-                  <Text className="text-[8px] font-medium text-[#554B41] mt-1">
+                  <Text className="text-[8px] font-medium text-[#212134] mt-1">
                     {
                       item.label
                     }
                   </Text>
 
-                  <Text className="text-[7px] text-[#A3987B]">
+                  <Text className="text-[7px] text-[#9A9279]">
                     n=
                     {
                       item.total
@@ -223,32 +223,32 @@ export function RadarChartTextura({
 
   return (
     <View>
-      <Text className="text-[13px] font-bold text-[#554B41] mb-1">
+      <Text className="text-[13px] font-bold text-[#212134] mb-1">
         Feedback de Textura
       </Text>
 
-      <Text className="text-[10px] text-[#80775C] mb-4">
+      <Text className="text-[10px] text-[#6B6554] mb-4">
         Percepção da criança sobre a textura
       </Text>
 
       {total === 0 ? (
         <View className="h-24 items-center justify-center">
-          <Text className="text-[11px] text-[#A3987B]">
+          <Text className="text-[11px] text-[#9A9279]">
             Nenhum feedback de textura encontrado.
           </Text>
         </View>
       ) : (
         <View className="h-24 items-center justify-center">
-          <Text className="text-[26px] font-extrabold text-[#4D9B43]">
+          <Text className="text-[26px] font-extrabold text-[#528F33]">
             {taxa}%
           </Text>
 
-          <Text className="text-[10px] text-[#80775C] mt-1">
+          <Text className="text-[10px] text-[#6B6554] mt-1">
             {gostou}{' '}
             gostaram da textura
           </Text>
 
-          <Text className="text-[10px] text-[#80775C]">
+          <Text className="text-[10px] text-[#6B6554]">
             {naoGostou}{' '}
             não gostaram
           </Text>
@@ -339,17 +339,17 @@ export function LineChartEvolucao({
 
   return (
     <View>
-      <Text className="text-[13px] font-bold text-[#554B41] mb-1">
+      <Text className="text-[13px] font-bold text-[#212134] mb-1">
         Evolução Temporal
       </Text>
 
-      <Text className="text-[10px] text-[#80775C] mb-4">
+      <Text className="text-[10px] text-[#6B6554] mb-4">
         Tentativas vs Aceitações ao longo do tempo
       </Text>
 
       {data.length === 0 ? (
         <View className="h-20 items-center justify-center">
-          <Text className="text-[11px] text-[#A3987B]">
+          <Text className="text-[11px] text-[#9A9279]">
             Nenhum dado temporal disponível.
           </Text>
         </View>
@@ -357,23 +357,23 @@ export function LineChartEvolucao({
         <View>
           <View className="flex-row justify-center items-center gap-4 mb-2">
             <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full bg-[#A3987B] mr-1" />
+              <View className="w-2 h-2 rounded-full bg-[#9A9279] mr-1" />
 
-              <Text className="text-[9px] text-[#554B41]">
+              <Text className="text-[9px] text-[#212134]">
                 Tentativas
               </Text>
             </View>
 
             <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full bg-[#4D9B43] mr-1" />
+              <View className="w-2 h-2 rounded-full bg-[#528F33] mr-1" />
 
-              <Text className="text-[9px] text-[#554B41]">
+              <Text className="text-[9px] text-[#212134]">
                 Aceitações
               </Text>
             </View>
           </View>
 
-          <View className="flex-row items-end justify-between h-20 border-b border-l border-[#DDD3B9] px-2 pb-1">
+          <View className="flex-row items-end justify-between h-20 border-b border-l border-[#DCE7D2] px-2 pb-1">
             {data.map(
               (
                 values,
@@ -406,7 +406,7 @@ export function LineChartEvolucao({
                   >
                     <View className="flex-row items-end h-14 gap-1">
                       <View
-                        className="w-2 bg-[#A3987B] rounded-t-sm"
+                        className="w-2 bg-[#9A9279] rounded-t-sm"
                         style={{
                           height:
                             `${attemptsHeight}%`,
@@ -414,7 +414,7 @@ export function LineChartEvolucao({
                       />
 
                       <View
-                        className="w-2 bg-[#4D9B43] rounded-t-sm"
+                        className="w-2 bg-[#528F33] rounded-t-sm"
                         style={{
                           height:
                             `${acceptedHeight}%`,
@@ -422,7 +422,7 @@ export function LineChartEvolucao({
                       />
                     </View>
 
-                    <Text className="text-[8px] text-[#80775C] mt-1">
+                    <Text className="text-[8px] text-[#6B6554] mt-1">
                       {
                         values.label
                       }
@@ -486,7 +486,7 @@ export function ProgressReacoes({
           aceitacoes
         ),
       color:
-        '#4D9B43',
+        '#528F33',
     },
     {
       label:
@@ -516,17 +516,17 @@ export function ProgressReacoes({
 
   return (
     <View>
-      <Text className="text-[13px] font-bold text-[#554B41] mb-1">
+      <Text className="text-[13px] font-bold text-[#212134] mb-1">
         Distribuição das Reações
       </Text>
 
-      <Text className="text-[10px] text-[#80775C] mb-4">
+      <Text className="text-[10px] text-[#6B6554] mb-4">
         Distribuição das respostas alimentares no período
       </Text>
 
       {tentativas === 0 ? (
-        <View className="h-16 w-full rounded-[10px] bg-[#E5DCC4] items-center justify-center">
-          <Text className="text-[11px] text-[#80775C]">
+        <View className="h-16 w-full rounded-[10px] bg-[#F3F7EE] items-center justify-center">
+          <Text className="text-[11px] text-[#6B6554]">
             Nenhum registro disponível no período.
           </Text>
         </View>
@@ -540,13 +540,13 @@ export function ProgressReacoes({
                 }
               >
                 <View className="flex-row justify-between items-center mb-1">
-                  <Text className="text-[10px] font-medium text-[#554B41]">
+                  <Text className="text-[10px] font-medium text-[#212134]">
                     {
                       item.label
                     }
                   </Text>
 
-                  <Text className="text-[10px] font-bold text-[#554B41]">
+                  <Text className="text-[10px] font-bold text-[#212134]">
                     {
                       item.valor
                     }{' '}
@@ -558,7 +558,7 @@ export function ProgressReacoes({
                   </Text>
                 </View>
 
-                <View className="h-2 bg-[#E5DCC4] rounded-full overflow-hidden">
+                <View className="h-2 bg-[#F3F7EE] rounded-full overflow-hidden">
                   <View
                     className="h-full rounded-full"
                     style={{

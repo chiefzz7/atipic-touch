@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 export default function useTitle(title) {
-    useEffect(() => {
-        document.title = title;
-    }, [title]);
+  useEffect(() => {
+    if (typeof document !== 'undefined') document.title = title;
+  }, [title]);
 }

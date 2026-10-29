@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "web",
-    "slug": "web",
+    "name": "AtipicTouch",
+    "slug": "atipictouch-web",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFCEF"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,15 +20,30 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFCEF"
       }
     },
     "web": {
       "bundler": "metro",
-      "favicon": "./assets/favicon.png"
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "AtipicTouch",
+      "shortName": "AtipicTouch",
+      "description": "Painel clínico AtipicTouch para profissionais de saúde.",
+      "themeColor": "#528F33",
+      "backgroundColor": "#FFFCEF",
+      "lang": "pt-BR"
     },
     "plugins": [
-      "expo-router"
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": true,
+            "default": "development"
+          }
+        }
+      ]
     ]
   }
 }

@@ -7,13 +7,15 @@ import {
   Text,
 } from 'react-native';
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
+import { useSettings } from '../../context/SettingsContext';
 
 export default function AlertsWidget({
   logs = [],
 }) {
+  const { settings } = useSettings();
+  const { limiarRejeicao, amostraMinima } = settings.system;
+
   const insights =
     useMemo(() => {
       if (!logs.length) {
@@ -69,7 +71,7 @@ export default function AlertsWidget({
           stats,
         ]) => {
           if (
-            stats.total < 2
+            stats.total < amostraMinima
           ) {
             return;
           }
@@ -83,7 +85,7 @@ export default function AlertsWidget({
 
           if (
             rejectionRate >=
-            70
+            limiarRejeicao
           ) {
             result.push({
               type: 'danger',
@@ -120,17 +122,17 @@ export default function AlertsWidget({
         0,
         3
       );
-    }, [logs]);
+    }, [logs, limiarRejeicao, amostraMinima]);
 
   return (
-    <View className="flex-1 bg-[#F7F0DC] p-6 rounded-[10px] border border-[#DDD3B9]">
+    <View className="flex-1 bg-white p-6 rounded-[16px] border border-[#DCE7D2] shadow-card">
       <View className="flex-row justify-between items-center mb-5">
-        <Text className="text-[17px] font-bold text-[#554B41]">
+        <Text className="text-[17px] font-bold text-[#212134]">
           Alertas e Insights
         </Text>
 
-        <Text className="text-[12px] font-bold text-[#4D9B43]">
-          Dados reais
+        <Text className="text-[12px] font-bold text-[#528F33]">
+          Limiar: {limiarRejeicao}%
         </Text>
       </View>
 
@@ -140,14 +142,14 @@ export default function AlertsWidget({
           <Feather
             name="check-circle"
             size={28}
-            color="#4D9B43"
+            color="#528F33"
           />
 
-          <Text className="text-[14px] font-bold text-[#554B41] mt-2">
+          <Text className="text-[14px] font-bold text-[#212134] mt-2">
             Nenhum alerta identificado
           </Text>
 
-          <Text className="text-[12px] text-[#80775C] text-center mt-1">
+          <Text className="text-[12px] text-[#6B6554] text-center mt-1">
             Os padrões serão analisados conforme novos registros forem adicionados.
           </Text>
         </View>
@@ -165,10 +167,10 @@ export default function AlertsWidget({
               return (
                 <View
                   key={index}
-                  className={`flex-row items-start p-3.5 rounded-[10px] border ${
+                  className={`flex-row items-start p-3.5 rounded-[14px] border ${
                     isDanger
                       ? 'bg-[#FCEBE8] border-[#E7B8B2]'
-                      : 'bg-[#EDF6E8] border-[#C9E1BD]'
+                      : 'bg-[#EEF5E8] border-[#CFE3C0]'
                   }`}
                 >
                   <Feather
@@ -181,7 +183,7 @@ export default function AlertsWidget({
                     color={
                       isDanger
                         ? '#D9534F'
-                        : '#4D9B43'
+                        : '#528F33'
                     }
                   />
 
@@ -190,7 +192,7 @@ export default function AlertsWidget({
                       className={`text-[14px] font-bold ${
                         isDanger
                           ? 'text-[#9B5547]'
-                          : 'text-[#4D9B43]'
+                          : 'text-[#528F33]'
                       }`}
                     >
                       {item.title}
@@ -200,7 +202,7 @@ export default function AlertsWidget({
                       className={`text-[12px] mt-1 leading-tight ${
                         isDanger
                           ? 'text-[#9B5547]'
-                          : 'text-[#557B4B]'
+                          : 'text-[#3F6E27]'
                       }`}
                     >
                       {

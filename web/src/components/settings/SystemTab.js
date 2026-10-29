@@ -1,229 +1,161 @@
-import React, {
-  useState,
-} from 'react';
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { useSettings, DEFAULT_SETTINGS } from '../../context/SettingsContext';
+import useDraft from '../../hooks/useDraft';
+import { getLogs, KEYS } from '../../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { downloadText } from '../../utils/image';
+import { logsToCsv } from '../../utils/format';
+import { Section, Field, Row, SwitchRow, Segmented, SaveBar, GhostButton } from './ui';
 
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-} from 'react-native';
+const toInt = (v) => (v === '' ? '' : Number(String(v).replace(/\D/g, '')));
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+export default function SystemTab({ notify }) {
+  const { settings, save } = useSettings();
+  const { draft, set, reset, dirty } = useDraft(settings.system);
+  const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-const CustomSwitch = ({
-  label,
-  description,
-  isEnabled,
-  onToggle,
-}) => (
-  <View className="flex-row items-center justify-between py-3 border-b border-[#DDD3B9] last:border-0">
-    <View className="flex-1 pr-4">
-      <Text className="text-[14px] font-bold text-[#554B41]">
-        {label}
-      </Text>
+  const errors = {
+    limiarRejeicao:
+      draft.limiarRejeicao < 1 || draft.limiarRejeicao > 100 || draft.limiarRejeicao === '' ? 'Informe um valor de 1 a 100.' : '',
+    amostraMinima:
+      draft.amostraMinima < 1 || draft.amostraMinima > 100 || draft.amostraMinima === '' ? 'Informe um valor de 1 a 100.' : '',
+    diasOffline: draft.diasOffline < 1 || draft.diasOffline > 90 || draft.diasOffline === '' ? 'Informe de 1 a 90 dias.' : '',
+  };
+  const hasErrors = Object.values(errors).some(Boolean);
 
-      <Text className="text-[12px] text-[#80775C] leading-tight mt-1">
-        {description}
-      </Text>
-    </View>
+  const onSave = async () => {
+    setTouched(true);
+    if (hasErrors) return notify('Corrija os campos destacados.', 'error');
+    setSaving(true);
+    try {
+      await save({ system: draft });
+      notify('Parâmetros atualizados. Já estão valendo no Dashboard.');
+    } catch {
+      notify('Não foi possível salvar. Tente novamente.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
 
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={onToggle}
-      className={`w-12 h-6 rounded-full px-1 justify-center transition-colors ${
-        isEnabled
-          ? 'bg-[#83BF6E]'
-          : 'bg-[#C6BB9A]'
-      }`}
-    >
-      <View
-        className={`w-4 h-4 rounded-full bg-white transition-transform ${
-          isEnabled
-            ? 'translate-x-6'
-            : 'translate-x-0'
-        }`}
-      />
-    </TouchableOpacity>
-  </View>
-);
-
-export default function SystemTab() {
-  const [
-    autoSync,
-    setAutoSync,
-  ] = useState(true);
-
-  const [
-    offlineAlert,
-    setOfflineAlert,
-  ] = useState(true);
-
-  const [
-    lgpdConsent,
-    setLgpdConsent,
-  ] = useState(true);
+  const exportar = async () => {
+    setExporting(true);
+    try {
+      const childRaw = await AsyncStorage.getItem(KEYS.child);
+      if (!childRaw) throw new Error('Selecione um paciente antes de exportar.');
+      const child = JSON.parse(childRaw);
+      const logs = await getLogs(child.id, { force: true });
+      const nome = draft.anonimizar ? 'paciente' : (child.nome || 'paciente').toLowerCase().replace(/\s+/g, '-');
+      downloadText(`atipictouch-${nome}-${new Date().toISOString().slice(0, 10)}.csv`, logsToCsv(logs, child, { anonimizar: draft.anonimizar }));
+      notify(`${logs.length} registros exportados.`);
+    } catch (e) {
+      notify(e.message || 'Falha ao exportar.', 'error');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
-    <View className="flex-col gap-8">
-      <View className="bg-[#E5DCC4] p-6 rounded-[10px] border border-[#C6BB9A]">
-        <View className="flex-row items-center mb-4 border-b border-[#C6BB9A] pb-2">
-          <Feather
-            name="activity"
-            size={18}
-            color="#554B41"
+    <View className="flex-col gap-6">
+      <Section
+        icon="activity"
+        title="Parâmetros de análise sensorial"
+        description="Definem quando o Dashboard emite alertas de rejeição por textura."
+      >
+        <Row>
+          <Field
+            label="Limiar de rejeição crítica"
+            suffix="%"
+            keyboardType="numeric"
+            value={String(draft.limiarRejeicao)}
+            onChangeText={(v) => set({ limiarRejeicao: toInt(v) })}
+            error={touched ? errors.limiarRejeicao : ''}
+            hint="A partir deste valor o sistema gera um alerta vermelho."
           />
-
-          <Text className="text-[15px] font-bold text-[#554B41] ml-2">
-            Parâmetros de Análise Sensorial
-          </Text>
-        </View>
-
-        <Text className="text-[12px] text-[#80775C] mb-4">
-          Defina as porcentagens que acionarão os gatilhos críticos e alertas na tela inicial do Dashboard.
-        </Text>
-
-        <View className="flex-col md:flex-row gap-4 mb-4">
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Limiar de Rejeição Crítica (%)
-            </Text>
-
-            <View className="flex-row items-center bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 focus-within:border-[#D9534F] transition-colors">
-              <TextInput
-                defaultValue="80"
-                keyboardType="numeric"
-                className="flex-1 text-[#554B41] outline-none font-bold"
-              />
-
-              <Text className="text-[#80775C] font-bold">
-                %
-              </Text>
-            </View>
-
-            <Text className="text-[10px] text-[#80775C] mt-1">
-              Acima deste valor, o sistema gera um alerta vermelho.
-            </Text>
-          </View>
-
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Amostragem Mínima (Sessões)
-            </Text>
-
-            <View className="flex-row items-center bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 focus-within:border-[#83BF6E] transition-colors">
-              <TextInput
-                defaultValue="5"
-                keyboardType="numeric"
-                className="flex-1 text-[#554B41] outline-none font-bold"
-              />
-
-              <Text className="text-[#80775C] font-bold">
-                Refeições
-              </Text>
-            </View>
-
-            <Text className="text-[10px] text-[#80775C] mt-1">
-              Nº mínimo de interações para considerar o dado válido.
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View className="bg-[#E5DCC4] p-6 rounded-[10px] border border-[#C6BB9A]">
-        <View className="flex-row items-center mb-4 border-b border-[#C6BB9A] pb-2">
-          <Feather
-            name="wifi-off"
-            size={18}
-            color="#554B41"
+          <Field
+            label="Amostragem mínima"
+            suffix="refeições"
+            keyboardType="numeric"
+            value={String(draft.amostraMinima)}
+            onChangeText={(v) => set({ amostraMinima: toInt(v) })}
+            error={touched ? errors.amostraMinima : ''}
+            hint="Nº mínimo de registros da textura para o dado ser considerado."
           />
+        </Row>
+      </Section>
 
-          <Text className="text-[15px] font-bold text-[#554B41] ml-2">
-            Resiliência e Gateway IoT
-          </Text>
-        </View>
-
-        <View className="flex-col">
-          <CustomSwitch
-            label="Sincronização Automática em Background"
-            description="Permite que o aplicativo dos pais (Gateway) envie os dados armazenados offline assim que detectar conexão Wi-Fi ou 4G/5G."
-            isEnabled={autoSync}
-            onToggle={() =>
-              setAutoSync(
-                !autoSync
-              )
-            }
-          />
-
-          <CustomSwitch
-            label="Notificar Dispositivos Offline"
-            description="Exibe um alerta visual no Dashboard caso a placa Arduino Uno / App do cuidador não sincronize dados há mais de 7 dias."
-            isEnabled={offlineAlert}
-            onToggle={() =>
-              setOfflineAlert(
-                !offlineAlert
-              )
-            }
-          />
-        </View>
-      </View>
-
-      <View className="bg-[#E5DCC4] p-6 rounded-[10px] border border-[#C6BB9A]">
-        <View className="flex-row items-center mb-4 border-b border-[#C6BB9A] pb-2">
-          <Feather
-            name="lock"
-            size={18}
-            color="#554B41"
-          />
-
-          <Text className="text-[15px] font-bold text-[#554B41] ml-2">
-            Segurança e Dados (LGPD)
-          </Text>
-        </View>
-
-        <View className="flex-col">
-          <CustomSwitch
-            label="Anonimizar Dados Sensíveis para Exportação"
-            description="Oculta o nome da criança e do cuidador ao exportar bases de dados em massa (CSV) para pesquisas acadêmicas."
-            isEnabled={lgpdConsent}
-            onToggle={() =>
-              setLgpdConsent(
-                !lgpdConsent
-              )
-            }
-          />
-        </View>
-
-        <View className="mt-4 pt-4 border-t border-[#C6BB9A]">
-          <TouchableOpacity className="flex-row items-center justify-center bg-[#C6BB9A] px-4 py-3 rounded-[10px] hover:bg-[#B9AE8D] transition-colors">
-            <Feather
-              name="download"
-              size={14}
-              color="#554B41"
+      <Section icon="refresh-cw" title="Sincronização e dispositivos" description="Controle a atualização dos dados vindos do aplicativo e do dispositivo IoT.">
+        <SwitchRow
+          label="Atualização automática dos dados"
+          description="Busca novos registros em segundo plano enquanto o painel estiver aberto."
+          value={draft.autoSync}
+          onChange={(v) => set({ autoSync: v })}
+        />
+        {draft.autoSync ? (
+          <View className="py-4 border-b border-[#DCE7D2]">
+            <Text className="text-[12px] font-bold text-[#212134] mb-2">Intervalo</Text>
+            <Segmented
+              value={draft.intervaloSync}
+              onChange={(v) => set({ intervaloSync: v })}
+              options={[
+                { value: 30, label: '30 s' },
+                { value: 60, label: '1 min' },
+                { value: 300, label: '5 min' },
+              ]}
             />
+          </View>
+        ) : null}
+        <SwitchRow
+          label="Avisar quando não houver registros recentes"
+          description="Exibe um alerta no Dashboard se o paciente ficar sem novos registros pelo período abaixo (app ou dispositivo sem sincronizar)."
+          value={draft.alertaOffline}
+          onChange={(v) => set({ alertaOffline: v })}
+          last={!draft.alertaOffline}
+        />
+        {draft.alertaOffline ? (
+          <View className="pt-4 max-w-[260px]">
+            <Field
+              label="Dias sem registros"
+              suffix="dias"
+              keyboardType="numeric"
+              value={String(draft.diasOffline)}
+              onChangeText={(v) => set({ diasOffline: toInt(v) })}
+              error={touched ? errors.diasOffline : ''}
+            />
+          </View>
+        ) : null}
+      </Section>
 
-            <Text className="ml-2 text-[13px] font-bold text-[#554B41]">
-              Fazer Backup do Banco de Dados
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View className="flex-row justify-end mt-2 mb-10">
-        <TouchableOpacity className="bg-[#83BF6E] px-8 py-3.5 rounded-[10px] hover:bg-[#4D9B43] transition-colors flex-row items-center">
-          <Feather
-            name="save"
-            size={16}
-            color="#FFFFFF"
-          />
-
-          <Text className="text-white font-bold text-[15px] ml-2">
-            Atualizar Parâmetros
+      <Section icon="lock" title="Segurança e dados (LGPD)">
+        <SwitchRow
+          label="Anonimizar dados ao exportar"
+          description="Omite o nome do paciente nos arquivos CSV exportados (ideal para pesquisas acadêmicas)."
+          value={draft.anonimizar}
+          onChange={(v) => set({ anonimizar: v })}
+          last
+        />
+        <View className="mt-4 pt-4 border-t border-[#DCE7D2] flex-row items-center justify-between flex-wrap gap-3">
+          <Text className="text-[12px] text-[#6B6554] flex-1 min-w-[220px]">
+            Exporta os registros alimentares do paciente selecionado em CSV.
           </Text>
-        </TouchableOpacity>
+          <GhostButton icon="download" label={exporting ? 'Exportando...' : 'Exportar registros (CSV)'} onPress={exportar} disabled={exporting} />
+        </View>
+      </Section>
+
+      <View className="flex-row justify-start">
+        <GhostButton
+          icon="rotate-ccw"
+          label="Restaurar padrões"
+          onPress={() => {
+            set(DEFAULT_SETTINGS.system);
+            notify('Padrões restaurados. Clique em Salvar para aplicar.');
+          }}
+        />
       </View>
+
+      <SaveBar dirty={dirty} saving={saving} onSave={onSave} onReset={() => { reset(); setTouched(false); }} label="Atualizar parâmetros" />
     </View>
   );
 }

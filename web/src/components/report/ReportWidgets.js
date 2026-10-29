@@ -4,11 +4,10 @@ import {
   View,
   Text,
   TextInput,
+  Image,
 } from 'react-native';
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 
 import {
   calcularIdade,
@@ -65,10 +64,11 @@ export const ReportCard = ({
   flexClass = 'flex-1',
 }) => (
   <View
-    className={`bg-white border border-[#C6BB9A] rounded-[10px] p-5 ${flexClass}`}
+    dataSet={{ printCard: '1' }}
+    className={`bg-white border border-[#DCE7D2] rounded-[16px] p-5 shadow-card ${flexClass}`}
   >
     {title ? (
-      <Text className="text-[15px] font-extrabold text-[#4D9B43] mb-4 uppercase tracking-wide">
+      <Text className="text-[15px] font-extrabold text-[#528F33] mb-4 uppercase tracking-wide">
         {title}
       </Text>
     ) : null}
@@ -92,9 +92,9 @@ export const PatientSummaryWidget = ({
     );
 
   return (
-    <View className="flex-col md:flex-row bg-[#F7F0DC] border border-[#A3C78C] rounded-[10px] mb-4">
-      <View className="flex-1 p-5 border-b md:border-b-0 md:border-r border-[#A3C78C] flex-row items-center">
-        <View className="w-16 h-16 bg-[#C6BB9A] rounded-full items-center justify-center mr-4 border-2 border-white overflow-hidden">
+    <View className="flex-col md:flex-row bg-[#FFFFFF] border border-[#A3C78B] rounded-[10px] mb-4">
+      <View className="md:flex-1 p-5 border-b md:border-b-0 md:border-r border-[#A3C78B] flex-row items-center">
+        <View className="w-16 h-16 bg-[#A3C78B] rounded-full items-center justify-center mr-4 border-2 border-white overflow-hidden">
           <Feather
             name="user"
             size={24}
@@ -103,37 +103,37 @@ export const PatientSummaryWidget = ({
         </View>
 
         <View>
-          <Text className="text-[12px] font-bold text-[#4D9B43] uppercase tracking-wider mb-1">
+          <Text className="text-[12px] font-bold text-[#528F33] uppercase tracking-wider mb-1">
             Dados do paciente
           </Text>
 
-          <Text className="text-[18px] font-extrabold text-[#554B41]">
+          <Text className="text-[18px] font-extrabold text-[#212134]">
             {child?.nome ||
               'Paciente'}
           </Text>
 
-          <Text className="text-[13px] text-[#80775C] mt-0.5">
+          <Text className="text-[13px] text-[#6B6554] mt-0.5">
             Idade: {idade}
           </Text>
         </View>
       </View>
 
-      <View className="flex-1 p-5 flex-row items-start">
+      <View className="md:flex-1 p-5 flex-row items-start">
         <Feather
           name="activity"
           size={20}
-          color="#4D9B43"
+          color="#528F33"
           className="mr-3 mt-1"
         />
 
         <View className="flex-1">
-          <Text className="text-[12px] font-bold text-[#4D9B43] uppercase tracking-wider mb-1">
+          <Text className="text-[12px] font-bold text-[#528F33] uppercase tracking-wider mb-1">
             Evolução Global
           </Text>
 
           {resumo.total >
           0 ? (
-            <Text className="text-[13px] text-[#554B41] leading-relaxed">
+            <Text className="text-[13px] text-[#212134] leading-relaxed">
               Foram registrados{' '}
               {resumo.total}{' '}
               {resumo.total ===
@@ -167,7 +167,7 @@ export const PatientSummaryWidget = ({
               %.
             </Text>
           ) : (
-            <Text className="text-[13px] text-[#554B41] leading-relaxed">
+            <Text className="text-[13px] text-[#212134] leading-relaxed">
               Não existem registros alimentares no período.
             </Text>
           )}
@@ -194,22 +194,22 @@ export const QuickMetricsGrid = ({
         ) => (
           <View
             key={index}
-            className="w-[45%] flex-row items-center bg-[#F7F0DC] p-2 rounded-[10px] border border-[#DDD3B9]"
+            className="w-full md:w-[47%] flex-row items-center bg-[#FFFFFF] p-2 rounded-[10px] border border-[#DCE7D2]"
           >
-            <View className="w-8 h-8 rounded-full bg-[#EDF6E8] items-center justify-center mr-2">
+            <View className="w-8 h-8 rounded-full bg-[#EEF5E8] items-center justify-center mr-2">
               <Feather
                 name={item.icon}
                 size={14}
-                color="#4D9B43"
+                color="#528F33"
               />
             </View>
 
-            <View>
-              <Text className="text-[10px] text-[#80775C] uppercase font-bold">
+            <View className="flex-1">
+              <Text className="text-[10px] text-[#6B6554] uppercase font-bold">
                 {item.label}
               </Text>
 
-              <Text className="text-[15px] font-extrabold text-[#554B41]">
+              <Text className="text-[15px] font-extrabold text-[#212134]">
                 {item.value}
               </Text>
             </View>
@@ -230,20 +230,20 @@ export const SensoryMatrixWidget = ({
 
   return (
     <View className="flex-col w-full">
-      <View className="flex-row border-b border-[#A3C78C] pb-2 mb-2 bg-[#EDF6E8] p-2 rounded-t-[10px]">
-        <Text className="flex-[1.5] text-[11px] font-bold text-[#4D9B43] uppercase">
+      <View className="flex-row border-b border-[#A3C78B] pb-2 mb-2 bg-[#EEF5E8] p-2 rounded-t-[10px]">
+        <Text className="flex-[1.5] text-[11px] font-bold text-[#528F33] uppercase">
           Textura
         </Text>
 
-        <Text className="flex-1 text-[11px] font-bold text-[#4D9B43] uppercase text-center">
+        <Text className="flex-1 text-[11px] font-bold text-[#528F33] uppercase text-center">
           Exposição
         </Text>
 
-        <Text className="flex-1 text-[11px] font-bold text-[#4D9B43] uppercase text-center">
+        <Text className="flex-1 text-[11px] font-bold text-[#528F33] uppercase text-center">
           Aceitação
         </Text>
 
-        <Text className="flex-1 text-[11px] font-bold text-[#4D9B43] uppercase text-center">
+        <Text className="flex-1 text-[11px] font-bold text-[#528F33] uppercase text-center">
           Sucesso
         </Text>
       </View>
@@ -257,28 +257,28 @@ export const SensoryMatrixWidget = ({
           ) => (
             <View
               key={index}
-              className="flex-row border-b border-[#DDD3B9] py-2 px-2 last:border-0 hover:bg-[#F7F0DC] transition-colors"
+              className="flex-row border-b border-[#DCE7D2] py-2 px-2 last:border-0 hover:bg-[#FFFFFF] transition-colors"
             >
-              <Text className="flex-[1.5] text-[12px] font-bold text-[#554B41]">
+              <Text className="flex-[1.5] text-[12px] font-bold text-[#212134]">
                 {row.tex}
               </Text>
 
-              <Text className="flex-1 text-[12px] text-[#80775C] text-center">
+              <Text className="flex-1 text-[12px] text-[#6B6554] text-center">
                 {row.exp}
               </Text>
 
-              <Text className="flex-1 text-[12px] text-[#80775C] text-center">
+              <Text className="flex-1 text-[12px] text-[#6B6554] text-center">
                 {row.aceit}
               </Text>
 
-              <Text className="flex-1 text-[12px] font-bold text-center text-[#4D9B43]">
+              <Text className="flex-1 text-[12px] font-bold text-center text-[#528F33]">
                 {row.taxa}
               </Text>
             </View>
           )
         )
       ) : (
-        <Text className="text-[13px] text-[#80775C] py-4 text-center">
+        <Text className="text-[13px] text-[#6B6554] py-4 text-center">
           Não existem dados sensoriais no período.
         </Text>
       )}
@@ -302,23 +302,23 @@ export const HorizontalBarChart = ({
             key={index}
             className="flex-row items-center justify-between"
           >
-            <View className="flex-row items-center w-20">
+            <View className="flex-row items-center w-28">
               <Text className="text-[14px] mr-2">
                 {getFoodEmoji(
                   item.category
                 )}
               </Text>
 
-              <Text className="text-[12px] font-medium text-[#554B41]">
+              <Text className="text-[12px] font-medium text-[#212134]">
                 {item.name}
               </Text>
             </View>
 
-            <View className="flex-1 mx-3 h-2.5 bg-[#E5DCC4] rounded-full overflow-hidden">
+            <View className="flex-1 mx-3 h-2.5 bg-[#F3F7EE] rounded-full overflow-hidden">
               <View
                 className={`h-full ${
                   positive
-                    ? 'bg-[#4D9B43]'
+                    ? 'bg-[#528F33]'
                     : 'bg-[#D9534F]'
                 }`}
                 style={{
@@ -328,14 +328,14 @@ export const HorizontalBarChart = ({
               />
             </View>
 
-            <Text className="text-[11px] font-bold text-[#80775C] w-8 text-right">
+            <Text className="text-[11px] font-bold text-[#6B6554] w-14 text-right">
               {item.value}
             </Text>
           </View>
         )
       )
     ) : (
-      <Text className="text-[13px] text-[#80775C] text-center py-4">
+      <Text className="text-[13px] text-[#6B6554] text-center py-4">
         Não existem dados suficientes no período.
       </Text>
     )}
@@ -352,7 +352,7 @@ export const BehavioralFactorsWidget = ({
 
   if (!factors.length) {
     return (
-      <Text className="text-[13px] text-[#80775C] text-center py-4">
+      <Text className="text-[13px] text-[#6B6554] text-center py-4">
         Não existem dados comportamentais suficientes para gerar indicadores.
       </Text>
     );
@@ -372,7 +372,7 @@ export const BehavioralFactorsWidget = ({
               : factor.color ===
                 'yellow'
               ? 'bg-[#C29424]'
-              : 'bg-[#4D9B43]';
+              : 'bg-[#528F33]';
 
           return (
             <View
@@ -383,7 +383,7 @@ export const BehavioralFactorsWidget = ({
                 className={`w-2 h-2 rounded-full mt-1.5 mr-2 ${dotClass}`}
               />
 
-              <Text className="text-[13px] text-[#554B41] flex-1">
+              <Text className="text-[13px] text-[#212134] flex-1">
                 {
                   factor.text
                 }
@@ -410,8 +410,8 @@ export const RepertoireWidget = ({
 
   return (
     <View className="flex-col lg:flex-row gap-4 mt-2">
-      <View className="flex-1 bg-[#F7F0DC] p-4 rounded-[10px] border border-[#DDD3B9]">
-        <Text className="text-[11px] font-bold text-[#554B41] uppercase mb-3">
+      <View className="flex-1 bg-[#FFFFFF] p-4 rounded-[10px] border border-[#DCE7D2]">
+        <Text className="text-[11px] font-bold text-[#212134] uppercase mb-3">
           Conforto
         </Text>
 
@@ -424,9 +424,9 @@ export const RepertoireWidget = ({
                   key={
                     food.name
                   }
-                  className="bg-[#EDF6E8] px-3 py-1.5 rounded-[8px] border border-[#A3C78C]"
+                  className="bg-[#EEF5E8] px-3 py-1.5 rounded-[8px] border border-[#A3C78B]"
                 >
-                  <Text className="text-[11px] font-bold text-[#4D9B43]">
+                  <Text className="text-[11px] font-bold text-[#528F33]">
                     {getFoodEmoji(
                       food.category
                     )}{' '}
@@ -436,15 +436,15 @@ export const RepertoireWidget = ({
               )
             )
           ) : (
-            <Text className="text-[11px] text-[#80775C]">
+            <Text className="text-[11px] text-[#6B6554]">
               Nenhum alimento com aceitação total.
             </Text>
           )}
         </View>
       </View>
 
-      <View className="flex-1 bg-[#F7F0DC] p-4 rounded-[10px] border border-[#DDD3B9]">
-        <Text className="text-[11px] font-bold text-[#554B41] uppercase mb-3">
+      <View className="flex-1 bg-[#FFFFFF] p-4 rounded-[10px] border border-[#DCE7D2]">
+        <Text className="text-[11px] font-bold text-[#212134] uppercase mb-3">
           Alimentos registrados
         </Text>
 
@@ -457,9 +457,9 @@ export const RepertoireWidget = ({
                   key={
                     food.name
                   }
-                  className="bg-[#FFFCEF] px-3 py-1.5 rounded-[8px] border border-[#C6BB9A]"
+                  className="bg-[#FFFCEF] px-3 py-1.5 rounded-[8px] border border-[#A3C78B]"
                 >
-                  <Text className="text-[11px] font-bold text-[#554B41]">
+                  <Text className="text-[11px] font-bold text-[#212134]">
                     {getFoodEmoji(
                       food.category
                     )}{' '}
@@ -469,7 +469,7 @@ export const RepertoireWidget = ({
               )
             )
           ) : (
-            <Text className="text-[11px] text-[#80775C]">
+            <Text className="text-[11px] text-[#6B6554]">
               Nenhum alimento registrado.
             </Text>
           )}
@@ -502,7 +502,7 @@ export const RepertoireWidget = ({
               )
             )
           ) : (
-            <Text className="text-[11px] text-[#80775C]">
+            <Text className="text-[11px] text-[#6B6554]">
               Nenhum alimento rejeitado em todas as exposições.
             </Text>
           )}
@@ -512,62 +512,101 @@ export const RepertoireWidget = ({
   );
 };
 
-export const EditableNotesWidget =
-  () => (
-    <View className="flex-1">
-      <View className="flex-row items-center mb-3">
-        <Feather
-          name="edit-3"
-          size={16}
-          color="#4D9B43"
-        />
-
-        <Text className="text-[12px] font-bold text-[#4D9B43] uppercase ml-2">
-          Parecer Clínico e Conduta
-        </Text>
+export const EditableNotesWidget = ({ value, onChangeText, status }) => (
+  <View className="flex-1">
+    <View className="flex-row items-center justify-between mb-3 print-hide">
+      <View className="flex-row items-center">
+        <Feather name="edit-3" size={16} color="#528F33" />
+        <Text className="text-[12px] font-bold text-[#528F33] uppercase ml-2">Parecer clínico e conduta</Text>
       </View>
-
-      <TextInput
-        multiline
-        numberOfLines={6}
-        placeholder="Digite suas observações e o plano terapêutico aqui..."
-        placeholderTextColor="#A3987B"
-        className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] p-4 text-[13px] text-[#554B41] min-h-[140px] outline-none focus:border-[#83BF6E] transition-colors"
-        textAlignVertical="top"
-      />
+      <Text className="text-[11px] text-[#9A9279]">
+        {status === 'saving' ? 'Salvando...' : status === 'saved' ? 'Salvo automaticamente' : ''}
+      </Text>
     </View>
-  );
 
-export const SignatureWidget = ({
-  professional,
-}) => {
-  const nome =
-    professional?.nome ||
-    professional?.name ||
-    'Profissional não identificado';
+    <Text className="hidden print-only text-[12px] font-bold text-[#528F33] uppercase mb-2">Parecer clínico e conduta</Text>
+
+    <TextInput
+      multiline
+      numberOfLines={6}
+      value={value}
+      onChangeText={onChangeText}
+      accessibilityLabel="Parecer clínico e conduta"
+      placeholder="Digite suas observações e o plano terapêutico. O texto é salvo automaticamente para este paciente e período."
+      placeholderTextColor="#9A9279"
+      className="bg-[#FFFCEF] border border-[#DCE7D2] rounded-[12px] p-4 text-[13px] leading-relaxed text-[#212134] min-h-[150px] outline-none focus:border-[#528F33] transition-colors"
+      textAlignVertical="top"
+    />
+  </View>
+);
+
+export const SignatureWidget = ({ professional, profile, assinatura }) => {
+  const nome = profile?.nome || professional?.nome || professional?.name || 'Profissional não identificado';
 
   return (
-    <>
-      <Feather
-        name="check-circle"
-        size={32}
-        color="#4D9B43"
-        className="mb-3"
-      />
+    <View className="items-center w-full">
+      {assinatura ? (
+        <Image source={{ uri: assinatura }} resizeMode="contain" style={{ width: 180, height: 64, marginBottom: 4 }} />
+      ) : (
+        <Feather name="check-circle" size={30} color="#528F33" className="mb-3" />
+      )}
 
-      <Text className="text-[14px] font-bold text-[#554B41] text-center">
-        {nome}
-      </Text>
-
-      <Text className="text-[12px] text-[#80775C] mb-3 text-center">
-        Profissional responsável
-      </Text>
-
-      <View className="bg-[#FFFCEF] px-3 py-1.5 rounded-[8px] border border-[#A3C78C]">
-        <Text className="text-[10px] font-bold text-[#4D9B43]">
-          AtipicTouch
-        </Text>
+      <View className={`items-center ${assinatura ? 'border-t border-[#212134] pt-1 w-44' : ''}`}>
+        <Text className="text-[14px] font-bold text-[#212134] text-center">{nome}</Text>
+        {profile?.especialidade ? <Text className="text-[12px] text-[#6B6554] text-center">{profile.especialidade}</Text> : null}
+        {profile?.registro ? <Text className="text-[12px] font-bold text-[#528F33] text-center mt-0.5">{profile.registro}</Text> : null}
       </View>
-    </>
+
+      {!assinatura ? (
+        <Text className="text-[11px] text-[#9A9279] mt-2 text-center print-hide">
+          Envie sua assinatura em Configurações para exibi-la aqui.
+        </Text>
+      ) : null}
+    </View>
+  );
+};
+
+/** Cabeçalho exibido apenas na impressão / PDF. */
+export const PrintHeader = ({ clinic, profile, periodo, geradoEm }) => (
+  <View className="hidden print-only flex-row items-center justify-between border-b-2 border-[#528F33] pb-3 mb-5">
+    <View className="flex-row items-center">
+      <View className="w-11 h-11 bg-[#528F33] rounded-[12px] items-center justify-center mr-3">
+        <Text className="text-white font-extrabold">AT</Text>
+      </View>
+      <View>
+        <Text className="text-[16px] font-extrabold text-[#212134]">{clinic?.nome || 'Relatório clínico'}</Text>
+        {clinic?.endereco ? <Text className="text-[11px] text-[#6B6554]">{clinic.endereco}</Text> : null}
+        {profile?.telefone || profile?.email ? (
+          <Text className="text-[11px] text-[#6B6554]">{[profile.telefone, profile.email].filter(Boolean).join(' · ')}</Text>
+        ) : null}
+      </View>
+    </View>
+    <View className="items-end">
+      <Text className="text-[13px] font-bold text-[#212134]">Relatório clínico alimentar</Text>
+      <Text className="text-[11px] text-[#6B6554]">Período: {periodo}</Text>
+      <Text className="text-[11px] text-[#6B6554]">Emitido em {geradoEm}</Text>
+    </View>
+  </View>
+);
+
+/** Rodapé de autenticidade (hash e QR Code), conforme Configurações > Documentos. */
+export const AuthFooter = ({ hash, qr, clinic }) => {
+  if (!hash && !qr) return null;
+  return (
+    <View className="flex-row items-center justify-between bg-white border border-[#DCE7D2] rounded-[16px] p-4 mt-1">
+      <View className="flex-1 pr-4">
+        <View className="flex-row items-center mb-1">
+          <Feather name="shield" size={14} color="#528F33" />
+          <Text className="ml-2 text-[11px] font-bold text-[#528F33] uppercase">Autenticidade do documento</Text>
+        </View>
+        {hash ? (
+          <Text selectable className="text-[11px] text-[#6B6554]" style={{ fontFamily: 'monospace' }}>
+            SHA-256: {hash.match(/.{1,16}/g).join(' ')}
+          </Text>
+        ) : null}
+        {clinic?.nome ? <Text className="text-[11px] text-[#9A9279] mt-1">{clinic.nome}{clinic.endereco ? ` · ${clinic.endereco}` : ''}</Text> : null}
+      </View>
+      {qr ? <Image source={{ uri: qr }} style={{ width: 84, height: 84 }} accessibilityLabel="QR Code de validação" /> : null}
+    </View>
   );
 };

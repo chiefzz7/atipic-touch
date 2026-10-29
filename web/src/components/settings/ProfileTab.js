@@ -1,154 +1,132 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { View, Text, Image } from 'react-native';
+import { useSettings } from '../../context/SettingsContext';
+import useDraft from '../../hooks/useDraft';
+import { pickFile, fileToResizedDataURL } from '../../utils/image';
+import { isValidEmail, maskPhone, initials } from '../../utils/format';
+import { Section, Field, Row, SaveBar, GhostButton } from './ui';
 
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+export default function ProfileTab({ notify }) {
+  const { settings, save } = useSettings();
+  const { draft, set, reset, dirty } = useDraft({ profile: settings.profile, clinic: settings.clinic });
+  const [saving, setSaving] = useState(false);
+  const [touched, setTouched] = useState(false);
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+  const { profile, clinic } = draft;
+  const setProfile = (patch) => set({ profile: { ...profile, ...patch } });
+  const setClinic = (patch) => set({ clinic: { ...clinic, ...patch } });
 
-export default function ProfileTab() {
+  const errors = {
+    nome: !profile.nome.trim() ? 'Informe seu nome.' : '',
+    email: !isValidEmail(profile.email) ? 'E-mail inválido.' : '',
+  };
+  const hasErrors = Boolean(errors.nome || errors.email);
+
+  const trocarFoto = async () => {
+    try {
+      const file = await pickFile();
+      if (!file) return;
+      setProfile({ foto: await fileToResizedDataURL(file, { maxSize: 320 }) });
+    } catch (e) {
+      notify(e.message, 'error');
+    }
+  };
+
+  const onSave = async () => {
+    setTouched(true);
+    if (hasErrors) return notify('Corrija os campos destacados.', 'error');
+    setSaving(true);
+    try {
+      await save({ profile, clinic });
+      notify('Perfil atualizado com sucesso.');
+    } catch {
+      notify('Não foi possível salvar. Tente novamente.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <View className="flex-col gap-8">
-      <View className="flex-row items-center">
-        <View className="relative">
-          <View className="w-24 h-24 rounded-full bg-[#EDF6E8] border border-[#A3C78C] items-center justify-center overflow-hidden">
-            <Feather
-              name="user"
-              size={40}
-              color="#4D9B43"
-            />
-          </View>
-
-          <TouchableOpacity className="absolute bottom-0 right-0 bg-[#4D9B43] w-8 h-8 rounded-full items-center justify-center border-2 border-[#FFFCEF]">
-            <Feather
-              name="camera"
-              size={14}
-              color="#FFFFFF"
-            />
-          </TouchableOpacity>
+    <View className="flex-col gap-6">
+      <View className="flex-row items-center bg-white p-6 rounded-[16px] border border-[#DCE7D2] shadow-card">
+        <View className="w-24 h-24 rounded-full bg-[#EEF5E8] border-2 border-[#A3C78B] items-center justify-center overflow-hidden">
+          {profile.foto ? (
+            <Image source={{ uri: profile.foto }} style={{ width: 96, height: 96 }} />
+          ) : (
+            <Text className="text-[30px] font-extrabold text-[#528F33]">{initials(profile.nome)}</Text>
+          )}
         </View>
 
-        <View className="ml-5">
-          <Text className="text-[20px] font-extrabold text-[#554B41]">
-            Dra. Camila Nogueira
+        <View className="ml-5 flex-1">
+          <Text className="text-[20px] font-extrabold text-[#212134]">{profile.nome || 'Seu nome'}</Text>
+          <Text className="text-[14px] text-[#6B6554]">
+            {profile.especialidade || 'Profissional de saúde'}
+            {profile.registro ? ` · ${profile.registro}` : ''}
           </Text>
-
-          <Text className="text-[14px] text-[#80775C]">
-            Nutricionista Materno-Infantil
-          </Text>
-
-          <TouchableOpacity className="mt-2">
-            <Text className="text-[13px] font-bold text-[#4D9B43]">
-              Alterar foto de perfil
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View className="bg-[#E5DCC4] p-6 rounded-[10px] border border-[#C6BB9A]">
-        <Text className="text-[15px] font-bold text-[#554B41] mb-4 border-b border-[#C6BB9A] pb-2">
-          Dados Profissionais
-        </Text>
-
-        <View className="flex-col md:flex-row gap-4 mb-4">
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Nome Completo
-            </Text>
-
-            <TextInput
-              defaultValue="Camila Nogueira"
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
-            />
-          </View>
-
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              E-mail Profissional
-            </Text>
-
-            <TextInput
-              defaultValue="contato@clinicacamila.com.br"
-              keyboardType="email-address"
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
-            />
-          </View>
-        </View>
-
-        <View className="flex-col md:flex-row gap-4">
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Registro (CRN / CRP / CREFITO)
-            </Text>
-
-            <TextInput
-              defaultValue="CRN-3 45892"
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
-            />
-          </View>
-
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Telefone / WhatsApp
-            </Text>
-
-            <TextInput
-              defaultValue="(11) 98765-4321"
-              keyboardType="phone-pad"
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
-            />
+          <View className="flex-row gap-2 mt-3">
+            <GhostButton icon="camera" label={profile.foto ? 'Trocar foto' : 'Adicionar foto'} onPress={trocarFoto} />
+            {profile.foto ? <GhostButton icon="trash-2" label="Remover" danger onPress={() => setProfile({ foto: null })} /> : null}
           </View>
         </View>
       </View>
 
-      <View className="bg-[#E5DCC4] p-6 rounded-[10px] border border-[#C6BB9A]">
-        <Text className="text-[15px] font-bold text-[#554B41] mb-4 border-b border-[#C6BB9A] pb-2">
-          Informações da Clínica (Rodapé dos Laudos)
-        </Text>
-
-        <View className="flex-col gap-4">
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Nome da Clínica ou Consultório
-            </Text>
-
-            <TextInput
-              defaultValue="Clínica Crescer - Desenvolvimento Infantil"
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
-            />
-          </View>
-
-          <View className="flex-1">
-            <Text className="text-[12px] font-bold text-[#554B41] mb-2 uppercase">
-              Endereço Completo
-            </Text>
-
-            <TextInput
-              defaultValue="Av. Paulista, 1000 - Conj. 45 - São Paulo, SP"
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] h-[48px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
-            />
-          </View>
-        </View>
-      </View>
-
-      <View className="flex-row justify-end mt-4">
-        <TouchableOpacity className="bg-[#83BF6E] px-8 py-3.5 rounded-[10px] hover:bg-[#4D9B43] transition-colors flex-row items-center">
-          <Feather
-            name="save"
-            size={16}
-            color="#FFFFFF"
+      <Section icon="briefcase" title="Dados profissionais" description="Aparecem na assinatura dos relatórios clínicos.">
+        <Row>
+          <Field
+            label="Nome completo"
+            value={profile.nome}
+            onChangeText={(v) => setProfile({ nome: v })}
+            error={touched ? errors.nome : ''}
           />
+          <Field
+            label="E-mail profissional"
+            value={profile.email}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            onChangeText={(v) => setProfile({ email: v })}
+            error={touched ? errors.email : ''}
+          />
+        </Row>
+        <Row>
+          <Field
+            label="Registro (CRN / CRP / CREFITO)"
+            placeholder="Ex.: CRN-3 00000"
+            value={profile.registro}
+            onChangeText={(v) => setProfile({ registro: v })}
+          />
+          <Field
+            label="Especialidade"
+            placeholder="Ex.: Nutricionista materno-infantil"
+            value={profile.especialidade}
+            onChangeText={(v) => setProfile({ especialidade: v })}
+          />
+        </Row>
+        <Row>
+          <Field
+            label="Telefone / WhatsApp"
+            placeholder="(00) 00000-0000"
+            keyboardType="phone-pad"
+            value={profile.telefone}
+            onChangeText={(v) => setProfile({ telefone: maskPhone(v) })}
+          />
+          <View className="flex-1" />
+        </Row>
+      </Section>
 
-          <Text className="text-white font-bold text-[15px] ml-2">
-            Salvar Alterações
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <Section icon="map-pin" title="Clínica (cabeçalho e rodapé dos laudos)" description="Usado nos relatórios impressos e exportados em PDF.">
+        <Row>
+          <Field
+            label="Nome da clínica ou consultório"
+            value={clinic.nome}
+            onChangeText={(v) => setClinic({ nome: v })}
+          />
+        </Row>
+        <Row>
+          <Field label="Endereço completo" value={clinic.endereco} onChangeText={(v) => setClinic({ endereco: v })} />
+        </Row>
+      </Section>
+
+      <SaveBar dirty={dirty} saving={saving} onSave={onSave} onReset={() => { reset(); setTouched(false); }} />
     </View>
   );
 }

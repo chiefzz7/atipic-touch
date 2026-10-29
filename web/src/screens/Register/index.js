@@ -151,17 +151,17 @@ export default function RegisterScreen() {
       >
         <View className="w-full max-w-[1100px] mx-auto flex-1 flex-col md:flex-row items-center justify-center gap-8 lg:gap-16 px-6 py-8 md:py-12">
           <View className="flex-1 w-full max-w-[460px] items-center justify-center">
-            <View className="bg-[#E5DCC4] rounded-[10px] w-full p-6 md:p-8 border border-[#C6BB9A]">
+            <View className="bg-[#F3F7EE] rounded-[10px] w-full p-6 md:p-8 border border-[#A3C78B]">
               <View className="items-center mb-5">
-                <Text className="text-2xl md:text-3xl font-extrabold text-[#554B41] text-center tracking-tight mb-1">
+                <Text className="text-2xl md:text-3xl font-extrabold text-[#212134] text-center tracking-tight mb-1">
                   AtipicTouch
                 </Text>
 
-                <Text className="text-[14px] md:text-[15px] text-[#4D9B43] font-semibold text-center mb-1">
+                <Text className="text-[14px] md:text-[15px] text-[#528F33] font-semibold text-center mb-1">
                   Faça o seu cadastro!
                 </Text>
 
-                <Text className="text-[12px] md:text-[13px] text-[#80775C] text-center">
+                <Text className="text-[12px] md:text-[13px] text-[#6B6554] text-center">
                   Crie sua conta para acessar o painel do especialista
                 </Text>
               </View>
@@ -242,10 +242,10 @@ export default function RegisterScreen() {
                 asChild
               >
                 <TouchableOpacity className="mt-1">
-                  <Text className="text-center text-xs md:text-sm text-[#80775C]">
+                  <Text className="text-center text-xs md:text-sm text-[#6B6554]">
                     Já tem uma conta?{' '}
 
-                    <Text className="text-[#4D9B43] font-bold">
+                    <Text className="text-[#528F33] font-bold">
                       Faça login aqui
                     </Text>
                   </Text>

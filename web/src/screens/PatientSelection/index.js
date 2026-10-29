@@ -176,11 +176,11 @@ export default function PatientSelectionScreen() {
         >
           <View className="max-w-[800px] w-full self-center">
             <View className="mb-10">
-              <Text className="text-[32px] font-extrabold text-[#554B41] mb-2">
+              <Text className="text-[32px] font-extrabold text-[#212134] mb-2">
                 Selecione a mãe/paciente
               </Text>
 
-              <Text className="text-[16px] text-[#80775C]">
+              <Text className="text-[16px] text-[#6B6554]">
                 Escolha uma mãe para visualizar suas crianças
               </Text>
             </View>
@@ -197,10 +197,10 @@ export default function PatientSelectionScreen() {
               <View className="items-center py-10">
                 <ActivityIndicator
                   size="large"
-                  color="#4D9B43"
+                  color="#528F33"
                 />
 
-                <Text className="text-[#80775C] mt-3">
+                <Text className="text-[#6B6554] mt-3">
                   Carregando pacientes...
                 </Text>
               </View>
@@ -219,8 +219,8 @@ export default function PatientSelectionScreen() {
             !error &&
             filteredPatients.length ===
               0 ? (
-              <View className="bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] p-8">
-                <Text className="text-[#80775C] text-center">
+              <View className="bg-[#FFFFFF] border border-[#DCE7D2] rounded-[10px] p-8">
+                <Text className="text-[#6B6554] text-center">
                   Nenhum paciente encontrado.
                 </Text>
               </View>

@@ -14,22 +14,25 @@ export default function Input({
   autoCapitalize,
   value,
   onChangeText,
+  ...rest
 }) {
   return (
     <View className="w-full mb-4">
-      <Text className="text-[11px] font-bold text-[#554B41] mb-2 uppercase tracking-wide">
+      <Text className="text-[11px] font-bold text-[#212134] mb-2 uppercase tracking-wide">
         {label}
       </Text>
 
       <TextInput
         placeholder={placeholder}
-        placeholderTextColor="#A3987B"
+        placeholderTextColor="#9A9279"
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
         value={value}
         onChangeText={onChangeText}
-        className="w-full h-[52px] bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] px-4 text-[#554B41] outline-none focus:border-[#83BF6E] transition-colors"
+        accessibilityLabel={label}
+        {...rest}
+        className="w-full h-[50px] bg-[#FFFCEF] border border-[#DCE7D2] rounded-[12px] px-4 text-[#212134] outline-none focus:border-[#528F33] transition-colors"
       />
     </View>
   );

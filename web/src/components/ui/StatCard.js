@@ -5,9 +5,7 @@ import {
   Text,
 } from 'react-native';
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 
 export default function StatCard({
   title,
@@ -25,9 +23,9 @@ export default function StatCard({
     trend === 'up';
 
   return (
-    <View className="flex-1 min-w-[220px] bg-[#F7F0DC] p-5 rounded-[10px] border border-[#DDD3B9]">
+    <View className="flex-1 min-w-[220px] bg-white p-5 rounded-[14px] border border-[#DCE7D2] shadow-card">
       <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-[13px] font-bold text-[#80775C]">
+        <Text className="text-[13px] font-bold text-[#6B6554]">
           {title}
         </Text>
 
@@ -46,7 +44,7 @@ export default function StatCard({
         </View>
       </View>
 
-      <Text className="text-[28px] font-extrabold text-[#554B41]">
+      <Text className="text-[28px] font-extrabold text-[#212134]">
         {value}
       </Text>
 
@@ -61,7 +59,7 @@ export default function StatCard({
             size={14}
             color={
               isPositive
-                ? '#4D9B43'
+                ? '#528F33'
                 : '#D9534F'
             }
           />
@@ -69,7 +67,7 @@ export default function StatCard({
           <Text
             className={`text-[12px] font-medium ml-1 ${
               isPositive
-                ? 'text-[#4D9B43]'
+                ? 'text-[#528F33]'
                 : 'text-[#D9534F]'
             }`}
           >

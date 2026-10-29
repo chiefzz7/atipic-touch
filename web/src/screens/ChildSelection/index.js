@@ -243,15 +243,15 @@ export default function ChildSelectionScreen() {
           }
         >
           <View className="w-full max-w-[600px] self-center">
-            <Text className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#554B41] text-center mb-2 md:mb-4 tracking-tight">
+            <Text className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#212134] text-center mb-2 md:mb-4 tracking-tight">
               Selecione a criança
             </Text>
 
             {responsavel ? (
-              <Text className="text-[14px] md:text-[16px] text-[#80775C] text-center mb-8 md:mb-12">
+              <Text className="text-[14px] md:text-[16px] text-[#6B6554] text-center mb-8 md:mb-12">
                 Crianças de{' '}
 
-                <Text className="font-bold text-[#554B41]">
+                <Text className="font-bold text-[#212134]">
                   {
                     responsavel.nome
                   }
@@ -263,10 +263,10 @@ export default function ChildSelectionScreen() {
               <View className="items-center py-10">
                 <ActivityIndicator
                   size="large"
-                  color="#4D9B43"
+                  color="#528F33"
                 />
 
-                <Text className="text-[#80775C] mt-3">
+                <Text className="text-[#6B6554] mt-3">
                   Carregando crianças...
                 </Text>
               </View>
@@ -285,8 +285,8 @@ export default function ChildSelectionScreen() {
             !error &&
             childrenList.length ===
               0 ? (
-              <View className="bg-[#F7F0DC] border border-[#DDD3B9] rounded-[10px] p-8">
-                <Text className="text-[#80775C] text-center">
+              <View className="bg-[#FFFFFF] border border-[#DCE7D2] rounded-[10px] p-8">
+                <Text className="text-[#6B6554] text-center">
                   Nenhuma criança encontrada.
                 </Text>
               </View>

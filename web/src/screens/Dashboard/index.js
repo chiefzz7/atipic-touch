@@ -1,541 +1,197 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
-
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
-
-import {
-  Feather,
-} from '@expo/vector-icons';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+import { useRouter } from 'expo-router';
 
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import StatCard from '../../components/ui/StatCard';
 import AlertsWidget from '../../components/dashboard/AlertsWidget';
 import CombosWidget from '../../components/dashboard/CombosWidget';
-import LogsTableWidget from '../../components/dashboard/LogsTableWidget';
-
-import {
-  BarChartCor,
-  RadarChartTextura,
-  LineChartEvolucao,
-  ProgressReacoes,
-} from '../../components/dashboard/ChartWidgets';
-
+import PeriodModal from '../../components/common/PeriodModal';
 import Footer from '../../components/ui/Footer';
-import usePeriodFilter from '../../hooks/usePeriodFilter';
 
-const API_URL =
-  'https://atipic-touch-devlop.onrender.com';
+import usePeriodFilter from '../../hooks/usePeriodFilter';
+import useReportData from '../../hooks/useReportData';
+import { useSettings } from '../../context/SettingsContext';
+
+// Código pesado carregado sob demanda: melhora o tempo até a primeira tela.
+const LogsTableWidget = lazy(() => import('../../components/dashboard/LogsTableWidget'));
+const ChartsSection = lazy(() => import('../../components/dashboard/ChartsSection'));
+
+const Fallback = ({ h = 160 }) => (
+  <View style={{ height: h }} className="items-center justify-center">
+    <ActivityIndicator color="#528F33" />
+  </View>
+);
+
+const Banner = ({ tone, icon, children, action }) => {
+  const tones = {
+    danger: ['bg-[#FCEBE8] border-[#E7B8B2]', '#D9534F', 'text-[#9B5547]'],
+    warn: ['bg-[#FFF6DD] border-[#E9D69B]', '#C29424', 'text-[#6B5516]'],
+  }[tone];
+  return (
+    <View className={`flex-row items-center border rounded-[12px] p-4 mb-5 ${tones[0]}`}>
+      <Feather name={icon} size={18} color={tones[1]} />
+      <Text className={`flex-1 ml-3 text-[13px] font-medium ${tones[2]}`}>{children}</Text>
+      {action}
+    </View>
+  );
+};
 
 export default function DashboardScreen() {
-  const [
-    selectedChild,
-    setSelectedChild,
-  ] = useState(null);
+  const router = useRouter();
+  const { settings } = useSettings();
+  const { logs, selectedChild, loading, refreshing, error, lastSync, atualizar } = useReportData();
+  const [showPeriodModal, setShowPeriodModal] = useState(false);
 
-  const [
-    logs,
-    setLogs,
-  ] = useState([]);
+  const { periodType, logsFiltrados, setSelectedDate, formatPeriod, selecionarPeriodo } = usePeriodFilter(logs);
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(true);
+  const latestTimestamp = useMemo(() => {
+    let latest = 0;
+    for (const log of logs) {
+      const t = log.timestamp ? new Date(log.timestamp).getTime() : 0;
+      if (t > latest) latest = t;
+    }
+    return latest;
+  }, [logs]);
 
-  const [
-    showPeriodModal,
-    setShowPeriodModal,
-  ] = useState(false);
-
-  const {
-    periodType,
-    logsFiltrados,
-    setSelectedDate,
-    formatPeriod,
-    selecionarPeriodo,
-  } =
-    usePeriodFilter(
-      logs
-    );
-
+  // Ao carregar, posiciona o filtro no mês do registro mais recente.
   useEffect(() => {
-    carregarDados();
-  }, []);
+    if (latestTimestamp) setSelectedDate(new Date(latestTimestamp));
+  }, [latestTimestamp, setSelectedDate]);
 
-  const carregarDados =
-    async () => {
-      try {
-        const childStorage =
-          await AsyncStorage.getItem(
-            '@atipictouch:selected_child'
-          );
-
-        const token =
-          await AsyncStorage.getItem(
-            '@atipictouch:token'
-          );
-
-        if (
-          !childStorage ||
-          !token
-        ) {
-          return;
-        }
-
-        const child =
-          JSON.parse(
-            childStorage
-          );
-
-        setSelectedChild(
-          child
-        );
-
-        const response =
-          await fetch(
-            `${API_URL}/api/feeding-logs/crianca/${child.id}`,
-            {
-              headers: {
-                Accept:
-                  'application/json',
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
-
-        if (!response.ok) {
-          throw new Error(
-            `Erro ao buscar logs: ${response.status}`
-          );
-        }
-
-        const data =
-          await response.json();
-
-        setLogs(data);
-
-        if (
-          data.length >
-          0
-        ) {
-          const latestLog =
-            [...data]
-              .filter(
-                (log) =>
-                  log.timestamp
-              )
-              .sort(
-                (
-                  a,
-                  b
-                ) =>
-                  new Date(
-                    b.timestamp
-                  ) -
-                  new Date(
-                    a.timestamp
-                  )
-              )[0];
-
-          if (
-            latestLog
-          ) {
-            setSelectedDate(
-              new Date(
-                latestLog.timestamp
-              )
-            );
-          }
-        }
-      } catch (error) {
-        console.error(
-          'Erro ao carregar dados do dashboard:',
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
+  const { tentativas, aceitacoes, rejeicoes, neutros, taxaAceitacao } = useMemo(() => {
+    let aceitos = 0;
+    let rejeitados = 0;
+    let neutro = 0;
+    for (const log of logsFiltrados) {
+      if (log.reacao === 1) aceitos += 1;
+      else if (log.reacao === 2) rejeitados += 1;
+      else if (log.reacao === 3) neutro += 1;
+    }
+    const total = logsFiltrados.length;
+    return {
+      tentativas: total,
+      aceitacoes: aceitos,
+      rejeicoes: rejeitados,
+      neutros: neutro,
+      taxaAceitacao: total > 0 ? ((aceitos / total) * 100).toFixed(1) : '0.0',
     };
+  }, [logsFiltrados]);
 
-  const selecionarPeriodoDashboard =
-    (type) => {
-      selecionarPeriodo(
-        type
-      );
+  const diasSemRegistro = latestTimestamp ? Math.floor((Date.now() - latestTimestamp) / 86400000) : null;
+  const mostrarAvisoOffline =
+    settings.system.alertaOffline &&
+    !loading &&
+    !error &&
+    diasSemRegistro !== null &&
+    diasSemRegistro >= settings.system.diasOffline;
 
-      setShowPeriodModal(
-        false
-      );
-    };
+  const selecionar = (type) => {
+    selecionarPeriodo(type);
+    setShowPeriodModal(false);
+  };
 
-  const tentativas =
-    logsFiltrados.length;
-
-  const aceitacoes =
-    logsFiltrados.filter(
-      (log) =>
-        log.reacao === 1
-    ).length;
-
-  const rejeicoes =
-    logsFiltrados.filter(
-      (log) =>
-        log.reacao === 2
-    ).length;
-
-  const neutros =
-    logsFiltrados.filter(
-      (log) =>
-        log.reacao === 3
-    ).length;
-
-  const taxaAceitacao =
-    tentativas > 0
-      ? (
-          (
-            aceitacoes /
-            tentativas
-          ) *
-          100
-        ).toFixed(1)
-      : '0.0';
-
-  const renderPeriodOption =
-    (
-      type,
-      label,
-      icon
-    ) => {
-      const active =
-        periodType ===
-        type;
-
-      return (
-        <TouchableOpacity
-          onPress={() =>
-            selecionarPeriodoDashboard(
-              type
-            )
-          }
-          className={`flex-row items-center justify-between p-4 rounded-[10px] border mb-3 ${
-            active
-              ? 'bg-[#EDF6E8] border-[#83BF6E]'
-              : 'bg-[#F7F0DC] border-[#DDD3B9]'
-          }`}
-        >
-          <View className="flex-row items-center">
-            <Feather
-              name={icon}
-              size={18}
-              color="#4D9B43"
-            />
-
-            <Text className="ml-3 text-[14px] font-bold text-[#554B41]">
-              {label}
-            </Text>
-          </View>
-
-          {active ? (
-            <Feather
-              name="check"
-              size={18}
-              color="#4D9B43"
-            />
-          ) : null}
-        </TouchableOpacity>
-      );
-    };
+  const value = (n) => (loading ? '...' : n);
 
   return (
     <DashboardLayout>
-      <ScrollView
-        className="flex-1 bg-[#FFFCEF] p-6"
-        showsVerticalScrollIndicator={
-          false
-        }
-      >
-        <View className="flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <ScrollView className="flex-1 bg-[#FFFCEF] px-5 py-6 lg:px-8 lg:py-8" showsVerticalScrollIndicator={false}>
+        <View className="flex-col md:flex-row justify-between items-start md:items-center mb-7 gap-4">
           <View>
-            <Text className="text-[32px] font-extrabold text-[#554B41]">
-              Dashboard Clínico
-            </Text>
-
-            <Text className="text-[15px] text-[#80775C] font-medium mt-1">
+            <Text className="text-[30px] font-extrabold text-[#212134] tracking-tight">Dashboard clínico</Text>
+            <Text className="text-[15px] text-[#6B6554] font-medium mt-1">
               Resumo do paciente{' '}
-
-              <Text className="font-bold text-[#554B41]">
-                {selectedChild?.nome ||
-                  'Carregando...'}
-              </Text>
+              <Text className="font-bold text-[#212134]">{selectedChild?.nome || '...'}</Text>
+              {lastSync ? (
+                <Text className="text-[12px] text-[#9A9279]">
+                  {'  ·  '}atualizado às {lastSync.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              ) : null}
             </Text>
           </View>
 
-          <View className="flex-row gap-3">
+          <View className="flex-row gap-3 flex-wrap">
             <TouchableOpacity
-              onPress={() =>
-                setShowPeriodModal(
-                  true
-                )
-              }
-              className="flex-row items-center bg-[#F7F0DC] border border-[#DDD3B9] px-4 py-2.5 rounded-[10px]"
+              onPress={atualizar}
+              disabled={refreshing}
+              accessibilityLabel="Atualizar dados"
+              className="w-11 h-11 items-center justify-center bg-white border border-[#DCE7D2] rounded-[12px] hover:bg-[#F3F7EE]"
             >
-              <Feather
-                name="calendar"
-                size={16}
-                color="#554B41"
-              />
-
-              <Text className="ml-2 text-[14px] font-bold text-[#554B41]">
-                {formatPeriod()}
-              </Text>
-
-              <Feather
-                name="chevron-down"
-                size={14}
-                color="#80775C"
-                style={{
-                  marginLeft:
-                    8,
-                }}
-              />
+              {refreshing ? <ActivityIndicator size="small" color="#528F33" /> : <Feather name="refresh-cw" size={16} color="#212134" />}
             </TouchableOpacity>
 
-            <TouchableOpacity className="flex-row items-center bg-[#83BF6E] px-4 py-2.5 rounded-[10px] hover:bg-[#4D9B43] transition-colors">
-              <Feather
-                name="file-text"
-                size={16}
-                color="#FFFFFF"
-              />
+            <TouchableOpacity
+              onPress={() => setShowPeriodModal(true)}
+              className="flex-row items-center bg-white border border-[#DCE7D2] px-4 h-11 rounded-[12px] hover:bg-[#F3F7EE]"
+            >
+              <Feather name="calendar" size={16} color="#212134" />
+              <Text className="ml-2 text-[14px] font-bold text-[#212134]">{formatPeriod()}</Text>
+              <Feather name="chevron-down" size={14} color="#6B6554" style={{ marginLeft: 8 }} />
+            </TouchableOpacity>
 
-              <Text className="ml-2 text-[14px] font-bold text-white">
-                Gerar Relatório
-              </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/reports')}
+              className="flex-row items-center bg-[#528F33] px-5 h-11 rounded-[12px] hover:bg-[#467A2B] transition-colors"
+            >
+              <Feather name="file-text" size={16} color="#FFFFFF" />
+              <Text className="ml-2 text-[14px] font-bold text-white">Gerar relatório</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <Modal
-          visible={
-            showPeriodModal
-          }
-          transparent
-          animationType="fade"
-          onRequestClose={() =>
-            setShowPeriodModal(
-              false
-            )
-          }
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            onPress={() =>
-              setShowPeriodModal(
-                false
-              )
+        <PeriodModal
+          visible={showPeriodModal}
+          periodType={periodType}
+          onSelect={selecionar}
+          onClose={() => setShowPeriodModal(false)}
+        />
+
+        {error ? (
+          <Banner
+            tone="danger"
+            icon="alert-circle"
+            action={
+              <TouchableOpacity onPress={atualizar}>
+                <Text className="text-[13px] font-bold text-[#9B5547]">Tentar novamente</Text>
+              </TouchableOpacity>
             }
-            className="flex-1 bg-black/30 items-center justify-center p-6"
           >
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => {}}
-              className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] w-full max-w-[420px] p-6"
-            >
-              <View className="flex-row justify-between items-center mb-5">
-                <Text className="text-[18px] font-bold text-[#554B41]">
-                  Selecionar período
-                </Text>
+            {error}
+          </Banner>
+        ) : null}
 
-                <TouchableOpacity
-                  onPress={() =>
-                    setShowPeriodModal(
-                      false
-                    )
-                  }
-                >
-                  <Feather
-                    name="x"
-                    size={20}
-                    color="#80775C"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {renderPeriodOption(
-                'day',
-                'Dia',
-                'calendar'
-              )}
-
-              {renderPeriodOption(
-                'week',
-                'Semana',
-                'calendar'
-              )}
-
-              {renderPeriodOption(
-                'month',
-                'Mês',
-                'calendar'
-              )}
-
-              {renderPeriodOption(
-                'all',
-                'Todos os registros',
-                'list'
-              )}
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </Modal>
+        {mostrarAvisoOffline ? (
+          <Banner tone="warn" icon="wifi-off">
+            Sem novos registros há {diasSemRegistro} dias. Verifique se o aplicativo ou o dispositivo do cuidador está sincronizando.
+          </Banner>
+        ) : null}
 
         <View className="flex-row flex-wrap gap-4 mb-6">
-          <StatCard
-            title="Tentativas"
-            value={
-              loading
-                ? '...'
-                : tentativas
-            }
-            icon="layers"
-            color="#4D9B43"
-          />
-
-          <StatCard
-            title="Aceitações"
-            value={
-              loading
-                ? '...'
-                : aceitacoes
-            }
-            icon="check-circle"
-            color="#4D9B43"
-          />
-
-          <StatCard
-            title="Rejeições"
-            value={
-              loading
-                ? '...'
-                : rejeicoes
-            }
-            icon="x-circle"
-            color="#D9534F"
-          />
-
-          <StatCard
-            title="Neutros"
-            value={
-              loading
-                ? '...'
-                : neutros
-            }
-            icon="minus-circle"
-            color="#C29424"
-          />
+          <StatCard title="Tentativas" value={value(tentativas)} icon="layers" color="#528F33" />
+          <StatCard title="Aceitações" value={value(aceitacoes)} icon="check-circle" color="#528F33" />
+          <StatCard title="Rejeições" value={value(rejeicoes)} icon="x-circle" color="#D9534F" />
+          <StatCard title="Neutros" value={value(neutros)} icon="minus-circle" color="#C29424" />
         </View>
 
-        <View className="flex-col lg:flex-row gap-6 mb-10">
-          <AlertsWidget
-            logs={
-              logsFiltrados
-            }
-          />
-
-          <CombosWidget
-            logs={
-              logsFiltrados
-            }
-          />
+        <View className="flex-col lg:flex-row gap-5 mb-10">
+          <AlertsWidget logs={logsFiltrados} />
+          <CombosWidget logs={logsFiltrados} />
         </View>
 
-        <View className="mb-10">
-          <Text className="text-[20px] font-bold text-[#554B41] mb-4">
-            Análise Sensorial e Consumo
-          </Text>
+        <Suspense fallback={<Fallback h={380} />}>
+          <ChartsSection
+            logs={logsFiltrados}
+            taxaAceitacao={taxaAceitacao}
+            aceitacoes={aceitacoes}
+            tentativas={tentativas}
+            loading={loading}
+          />
+        </Suspense>
 
-          <View className="flex-col lg:flex-row gap-4 mb-6">
-            <View className="flex-1 bg-[#F7F0DC] p-5 rounded-[10px] border border-[#DDD3B9] min-h-[180px]">
-              <LineChartEvolucao
-                logs={
-                  logsFiltrados
-                }
-              />
-            </View>
-
-            <View className="flex-1 bg-[#F7F0DC] p-5 rounded-[10px] border border-[#DDD3B9] min-h-[180px]">
-              <BarChartCor
-                logs={
-                  logsFiltrados
-                }
-              />
-            </View>
-
-            <View className="flex-1 bg-[#F7F0DC] p-5 rounded-[10px] border border-[#DDD3B9] min-h-[180px]">
-              <RadarChartTextura
-                logs={
-                  logsFiltrados
-                }
-              />
-            </View>
-          </View>
-
-          <View className="flex-col lg:flex-row gap-4">
-            <View className="flex-[2] bg-[#F7F0DC] p-6 rounded-[10px] border border-[#DDD3B9]">
-              <ProgressReacoes
-                logs={
-                  logsFiltrados
-                }
-              />
-            </View>
-
-            <View className="flex-[1] bg-[#F7F0DC] p-6 rounded-[10px] border border-[#DDD3B9] justify-center">
-              <Text className="text-[13px] font-bold text-[#554B41] mb-4">
-                Taxa Geral de Aceitação
-              </Text>
-
-              <View className="flex-row items-center justify-between">
-                <View className="items-center justify-center relative">
-                  <Feather
-                    name="pie-chart"
-                    size={64}
-                    color="#C6BB9A"
-                  />
-                </View>
-
-                <View className="ml-4 flex-1">
-                  <Text className="text-[24px] font-extrabold text-[#4D9B43]">
-                    {loading
-                      ? '...'
-                      : `${taxaAceitacao}%`}
-                  </Text>
-
-                  <Text className="text-[11px] text-[#80775C]">
-                    {aceitacoes}{' '}
-                    refeições aceitas de{' '}
-                    {tentativas}{' '}
-                    tentativas.
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <LogsTableWidget
-          logs={
-            logsFiltrados
-          }
-        />
+        <Suspense fallback={<Fallback h={300} />}>
+          <LogsTableWidget logs={logsFiltrados} />
+        </Suspense>
 
         <Footer />
       </ScrollView>

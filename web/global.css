@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------- Base ---------- */
+html, body { background: #FFFCEF; -webkit-font-smoothing: antialiased; }
+[role=button]:focus-visible, [role=tab]:focus-visible, [role=switch]:focus-visible, a:focus-visible { outline: 2px solid #528F33; outline-offset: 2px; }
+::selection { background: #A3C78B; color: #212134; }
+
+/* ---------- Impressão / PDF ---------- */
+.print-only { display: none !important; }
+
+@page { size: A4; margin: 14mm; }
+
+@media print {
+  .print-only { display: flex !important; }
+  .print-hide { display: none !important; }
+  html, body, #root, #root * { overflow: visible !important; }
+  html, body, #root, #root > div, #root > div > div { height: auto !important; min-height: 0 !important; }
+  body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  [data-print-card] { flex: none !important; width: 100% !important; break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; }
+  .bg-\[\#FFFCEF\] { background-color: #fff !important; }
+}

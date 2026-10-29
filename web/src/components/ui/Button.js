@@ -1,23 +1,20 @@
 import React from 'react';
+import { TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 
-import {
-  TouchableOpacity,
-  Text,
-} from 'react-native';
-
-export default function Button({
-  title,
-  onPress,
-}) {
+export default function Button({ title, onPress, disabled, loading }) {
+  const off = disabled || loading;
   return (
     <TouchableOpacity
       onPress={onPress}
+      disabled={off}
       activeOpacity={0.85}
-      className="w-full h-[54px] bg-[#83BF6E] rounded-[10px] justify-center items-center mb-5 hover:bg-[#4D9B43] transition-colors"
+      accessibilityRole="button"
+      className={`w-full h-[52px] bg-[#528F33] rounded-[12px] flex-row justify-center items-center mb-5 transition-colors ${
+        off ? 'opacity-60' : 'hover:bg-[#467A2B]'
+      }`}
     >
-      <Text className="text-white font-bold text-[16px]">
-        {title}
-      </Text>
+      {loading ? <ActivityIndicator size="small" color="#fff" style={{ marginRight: 8 }} /> : null}
+      <Text className="text-white font-bold text-[15px]">{title}</Text>
     </TouchableOpacity>
   );
 }

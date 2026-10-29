@@ -13,9 +13,7 @@ import {
   Platform,
 } from 'react-native';
 
-import {
-  Feather,
-} from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 
 export default function LogsTableWidget({
   logs = [],
@@ -43,9 +41,9 @@ export default function LogsTableWidget({
             label:
               'Gostou',
             backgroundClass:
-              'bg-[#EDF6E8]',
+              'bg-[#EEF5E8]',
             textClass:
-              'text-[#4D9B43]',
+              'text-[#528F33]',
           };
 
         case 2:
@@ -63,7 +61,7 @@ export default function LogsTableWidget({
             label:
               'Neutro',
             backgroundClass:
-              'bg-[#F8F0D9]',
+              'bg-[#F3F7EE]',
             textClass:
               'text-[#C29424]',
           };
@@ -73,9 +71,9 @@ export default function LogsTableWidget({
             label:
               'Desconhecida',
             backgroundClass:
-              'bg-[#E5DCC4]',
+              'bg-[#F3F7EE]',
             textClass:
-              'text-[#80775C]',
+              'text-[#6B6554]',
           };
       }
     };
@@ -354,14 +352,14 @@ export default function LogsTableWidget({
     };
 
   return (
-    <View className="bg-[#F7F0DC] p-6 rounded-[10px] border border-[#DDD3B9] mb-10">
+    <View className="bg-white p-6 rounded-[16px] border border-[#DCE7D2] shadow-card mb-10">
       <View className="flex-row justify-between items-center mb-6">
         <View>
-          <Text className="text-[20px] font-bold text-[#554B41]">
+          <Text className="text-[20px] font-bold text-[#212134]">
             Registros de Interação
           </Text>
 
-          <Text className="text-[12px] text-[#80775C] mt-1">
+          <Text className="text-[12px] text-[#6B6554] mt-1">
             Eventos alimentares registrados pelo sistema
           </Text>
         </View>
@@ -371,7 +369,7 @@ export default function LogsTableWidget({
             exportarCSV
           }
           activeOpacity={0.85}
-          className="flex-row items-center bg-[#83BF6E] px-4 py-2.5 rounded-[10px] hover:bg-[#4D9B43] transition-colors"
+          className="flex-row items-center bg-[#528F33] px-4 py-2.5 rounded-[10px] hover:bg-[#467A2B] transition-colors"
         >
           <Feather
             name="download"
@@ -385,12 +383,12 @@ export default function LogsTableWidget({
         </TouchableOpacity>
       </View>
 
-      <View className="flex-col md:flex-row gap-3 mb-6 bg-[#E5DCC4] p-3 rounded-[10px] border border-[#DDD3B9]">
-        <View className="flex-row items-center bg-[#FFFCEF] border border-[#DDD3B9] px-3 py-2.5 rounded-[10px] flex-1">
+      <View className="flex-col md:flex-row gap-3 mb-6 bg-[#F3F7EE] p-3 rounded-[10px] border border-[#DCE7D2]">
+        <View className="flex-row items-center bg-[#FFFCEF] border border-[#DCE7D2] px-3 py-2.5 rounded-[10px] flex-1">
           <Feather
             name="search"
             size={16}
-            color="#80775C"
+            color="#6B6554"
           />
 
           <TextInput
@@ -399,8 +397,8 @@ export default function LogsTableWidget({
               setSearch
             }
             placeholder="Pesquisar por alimento, cor ou textura..."
-            className="ml-2 flex-1 text-[13px] text-[#554B41] outline-none bg-transparent"
-            placeholderTextColor="#A3987B"
+            className="ml-2 flex-1 text-[13px] text-[#212134] outline-none bg-transparent"
+            placeholderTextColor="#9A9279"
           />
         </View>
 
@@ -410,15 +408,15 @@ export default function LogsTableWidget({
               true
             )
           }
-          className="flex-row items-center bg-[#FFFCEF] border border-[#DDD3B9] px-3 py-2.5 rounded-[10px]"
+          className="flex-row items-center bg-[#FFFCEF] border border-[#DCE7D2] px-3 py-2.5 rounded-[10px]"
         >
           <Feather
             name="filter"
             size={14}
-            color="#80775C"
+            color="#6B6554"
           />
 
-          <Text className="ml-2 text-[13px] text-[#554B41] mr-2">
+          <Text className="ml-2 text-[13px] text-[#212134] mr-2">
             {
               getReactionFilterLabel()
             }
@@ -427,7 +425,7 @@ export default function LogsTableWidget({
           <Feather
             name="chevron-down"
             size={14}
-            color="#A3987B"
+            color="#9A9279"
           />
         </TouchableOpacity>
       </View>
@@ -456,10 +454,10 @@ export default function LogsTableWidget({
           <TouchableOpacity
             activeOpacity={1}
             onPress={() => {}}
-            className="bg-[#FFFCEF] border border-[#DDD3B9] rounded-[10px] w-full max-w-[420px] p-6"
+            className="bg-[#FFFCEF] border border-[#DCE7D2] rounded-[10px] w-full max-w-[420px] p-6"
           >
             <View className="flex-row justify-between items-center mb-5">
-              <Text className="text-[18px] font-bold text-[#554B41]">
+              <Text className="text-[18px] font-bold text-[#212134]">
                 Filtrar por reação
               </Text>
 
@@ -473,7 +471,7 @@ export default function LogsTableWidget({
                 <Feather
                   name="x"
                   size={20}
-                  color="#80775C"
+                  color="#6B6554"
                 />
               </TouchableOpacity>
             </View>
@@ -487,11 +485,11 @@ export default function LogsTableWidget({
               className={`flex-row items-center justify-between p-4 rounded-[10px] border mb-3 ${
                 reactionFilter ===
                 'all'
-                  ? 'bg-[#EDF6E8] border-[#83BF6E]'
-                  : 'bg-[#F7F0DC] border-[#DDD3B9]'
+                  ? 'bg-[#EEF5E8] border-[#528F33]'
+                  : 'bg-[#FFFFFF] border-[#DCE7D2]'
               }`}
             >
-              <Text className="text-[14px] font-bold text-[#554B41]">
+              <Text className="text-[14px] font-bold text-[#212134]">
                 Todas as Reações
               </Text>
 
@@ -500,7 +498,7 @@ export default function LogsTableWidget({
                 <Feather
                   name="check"
                   size={18}
-                  color="#4D9B43"
+                  color="#528F33"
                 />
               ) : null}
             </TouchableOpacity>
@@ -514,11 +512,11 @@ export default function LogsTableWidget({
               className={`flex-row items-center justify-between p-4 rounded-[10px] border mb-3 ${
                 reactionFilter ===
                 1
-                  ? 'bg-[#EDF6E8] border-[#83BF6E]'
-                  : 'bg-[#F7F0DC] border-[#DDD3B9]'
+                  ? 'bg-[#EEF5E8] border-[#528F33]'
+                  : 'bg-[#FFFFFF] border-[#DCE7D2]'
               }`}
             >
-              <Text className="text-[14px] font-bold text-[#554B41]">
+              <Text className="text-[14px] font-bold text-[#212134]">
                 Gostou
               </Text>
 
@@ -527,7 +525,7 @@ export default function LogsTableWidget({
                 <Feather
                   name="check"
                   size={18}
-                  color="#4D9B43"
+                  color="#528F33"
                 />
               ) : null}
             </TouchableOpacity>
@@ -542,10 +540,10 @@ export default function LogsTableWidget({
                 reactionFilter ===
                 2
                   ? 'bg-[#FCEBE8] border-[#E7B8B2]'
-                  : 'bg-[#F7F0DC] border-[#DDD3B9]'
+                  : 'bg-[#FFFFFF] border-[#DCE7D2]'
               }`}
             >
-              <Text className="text-[14px] font-bold text-[#554B41]">
+              <Text className="text-[14px] font-bold text-[#212134]">
                 Não gostou
               </Text>
 
@@ -568,11 +566,11 @@ export default function LogsTableWidget({
               className={`flex-row items-center justify-between p-4 rounded-[10px] border ${
                 reactionFilter ===
                 3
-                  ? 'bg-[#F8F0D9] border-[#DFC77B]'
-                  : 'bg-[#F7F0DC] border-[#DDD3B9]'
+                  ? 'bg-[#F3F7EE] border-[#DFC77B]'
+                  : 'bg-[#FFFFFF] border-[#DCE7D2]'
               }`}
             >
-              <Text className="text-[14px] font-bold text-[#554B41]">
+              <Text className="text-[14px] font-bold text-[#212134]">
                 Neutro
               </Text>
 
@@ -589,7 +587,7 @@ export default function LogsTableWidget({
         </TouchableOpacity>
       </Modal>
 
-      <View className="hidden md:flex flex-row border-b border-[#DDD3B9] pb-3 mb-2 px-2 bg-[#E5DCC4] rounded-t-[10px] pt-3">
+      <View className="hidden md:flex flex-row border-b border-[#DCE7D2] pb-3 mb-2 px-2 bg-[#F3F7EE] rounded-t-[10px] pt-3">
         {[
           [
             'Data/Hora',
@@ -618,14 +616,14 @@ export default function LogsTableWidget({
           ]) => (
             <Text
               key={label}
-              className={`${flexClass} text-[12px] font-bold text-[#80775C] uppercase`}
+              className={`${flexClass} text-[12px] font-bold text-[#6B6554] uppercase`}
             >
               {label}
             </Text>
           )
         )}
 
-        <Text className="flex-[1.5] text-[12px] font-bold text-[#80775C] uppercase text-center">
+        <Text className="flex-[1.5] text-[12px] font-bold text-[#6B6554] uppercase text-center">
           Reação
         </Text>
       </View>
@@ -641,14 +639,14 @@ export default function LogsTableWidget({
             return (
               <View
                 key={log.id}
-                className="flex-col md:flex-row border border-[#DDD3B9] md:border-t-0 md:border-x-0 p-4 md:py-3 md:px-2 rounded-[10px] md:rounded-none bg-[#FFFCEF] hover:bg-[#FAF7E9] transition-colors"
+                className="flex-col md:flex-row border border-[#DCE7D2] md:border-t-0 md:border-x-0 p-4 md:py-3 md:px-2 rounded-[10px] md:rounded-none bg-[#FFFCEF] hover:bg-[#FFFCEF] transition-colors"
               >
                 <View className="flex-[1.5] flex-row md:flex-col justify-between items-center md:items-start mb-2 md:mb-0">
-                  <Text className="md:hidden text-[11px] font-bold text-[#A3987B] uppercase">
+                  <Text className="md:hidden text-[11px] font-bold text-[#9A9279] uppercase">
                     Data/Hora
                   </Text>
 
-                  <Text className="text-[14px] text-[#80775C] md:mt-1">
+                  <Text className="text-[14px] text-[#6B6554] md:mt-1">
                     {formatDate(
                       log.timestamp
                     )}
@@ -656,11 +654,11 @@ export default function LogsTableWidget({
                 </View>
 
                 <View className="flex-1 flex-row md:flex-col justify-between items-center md:items-start mb-2 md:mb-0">
-                  <Text className="md:hidden text-[11px] font-bold text-[#A3987B] uppercase">
+                  <Text className="md:hidden text-[11px] font-bold text-[#9A9279] uppercase">
                     Alimento
                   </Text>
 
-                  <Text className="text-[14px] font-bold text-[#554B41] md:mt-1">
+                  <Text className="text-[14px] font-bold text-[#212134] md:mt-1">
                     {log.alimento
                       ?.nome ||
                       `Alimento #${log.alimentoId}`}
@@ -691,11 +689,11 @@ export default function LogsTableWidget({
                       }
                       className="flex-1 flex-row md:flex-col justify-between items-center md:items-start mb-2 md:mb-0"
                     >
-                      <Text className="md:hidden text-[11px] font-bold text-[#A3987B] uppercase">
+                      <Text className="md:hidden text-[11px] font-bold text-[#9A9279] uppercase">
                         {label}
                       </Text>
 
-                      <Text className="text-[14px] text-[#80775C] md:mt-1">
+                      <Text className="text-[14px] text-[#6B6554] md:mt-1">
                         {getFeedback(
                           log,
                           attribute
@@ -705,8 +703,8 @@ export default function LogsTableWidget({
                   )
                 )}
 
-                <View className="flex-[1.5] flex-row md:flex-col justify-between items-center border-t border-[#DDD3B9] md:border-0 pt-3 md:pt-0">
-                  <Text className="md:hidden text-[11px] font-bold text-[#A3987B] uppercase">
+                <View className="flex-[1.5] flex-row md:flex-col justify-between items-center border-t border-[#DCE7D2] md:border-0 pt-3 md:pt-0">
+                  <Text className="md:hidden text-[11px] font-bold text-[#9A9279] uppercase">
                     Reação
                   </Text>
 
@@ -733,10 +731,10 @@ export default function LogsTableWidget({
             <Feather
               name="inbox"
               size={32}
-              color="#A3987B"
+              color="#9A9279"
             />
 
-            <Text className="text-[14px] text-[#80775C] mt-3">
+            <Text className="text-[14px] text-[#6B6554] mt-3">
               Nenhum registro encontrado.
             </Text>
           </View>
@@ -744,7 +742,7 @@ export default function LogsTableWidget({
       </View>
 
       <View className="mt-4 items-end">
-        <Text className="text-[11px] text-[#A3987B]">
+        <Text className="text-[11px] text-[#9A9279]">
           Exibindo{' '}
           {
             logsFiltrados.length

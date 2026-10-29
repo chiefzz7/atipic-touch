@@ -108,7 +108,7 @@ export default function CombosWidget({
               'Aceitação';
 
             let statusColor =
-              '#4D9B43';
+              '#528F33';
 
             if (
               rejection >
@@ -146,18 +146,18 @@ export default function CombosWidget({
     }, [logs]);
 
   return (
-    <View className="flex-1 bg-[#F7F0DC] p-6 rounded-[10px] border border-[#DDD3B9]">
-      <Text className="text-[17px] font-bold text-[#554B41] mb-1">
+    <View className="flex-1 bg-white p-6 rounded-[16px] border border-[#DCE7D2] shadow-card">
+      <Text className="text-[17px] font-bold text-[#212134] mb-1">
         Gatilhos Críticos (Combos)
       </Text>
 
-      <Text className="text-[12px] text-[#80775C] mb-5">
+      <Text className="text-[12px] text-[#6B6554] mb-5">
         Padrões sensoriais capturados pelos registros.
       </Text>
 
       {combos.length === 0 ? (
         <View className="py-5">
-          <Text className="text-[13px] text-[#80775C] text-center">
+          <Text className="text-[13px] text-[#6B6554] text-center">
             Ainda não existem dados suficientes para identificar combinações.
           </Text>
         </View>
@@ -170,7 +170,7 @@ export default function CombosWidget({
             ) => (
               <View
                 key={index}
-                className="flex-row justify-between items-center border-b border-[#DDD3B9] pb-3"
+                className="flex-row justify-between items-center border-b border-[#DCE7D2] pb-3"
               >
                 <View className="flex-row items-center gap-2 flex-1">
                   <View
@@ -182,11 +182,11 @@ export default function CombosWidget({
                   />
 
                   <View className="flex-1">
-                    <Text className="text-[14px] font-medium text-[#554B41]">
+                    <Text className="text-[14px] font-medium text-[#212134]">
                       {combo.name}
                     </Text>
 
-                    <Text className="text-[9px] text-[#80775C] mt-0.5">
+                    <Text className="text-[9px] text-[#6B6554] mt-0.5">
                       {
                         combo.total
                       }{' '}

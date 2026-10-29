@@ -21,10 +21,13 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import GoogleButton from '../../components/ui/GoogleButton';
 import Footer from '../../components/ui/Footer';
+import { useSettings } from '../../context/SettingsContext';
 
 export default function LoginScreen() {
   const router =
     useRouter();
+
+  const { reload } = useSettings();
 
   const [
     email,
@@ -113,6 +116,8 @@ export default function LoginScreen() {
           data.perfil
         );
 
+        await reload();
+
         router.replace(
           '/patients'
         );
@@ -146,11 +151,11 @@ export default function LoginScreen() {
       >
         <View className="w-full max-w-[1100px] mx-auto flex-1 flex-col md:flex-row items-center justify-center gap-8 lg:gap-16 px-6 py-8 md:py-12">
           <View className="flex-1 w-full max-w-[460px] items-center md:items-start justify-center">
-            <Text className="text-3xl md:text-4xl lg:text-[42px] font-extrabold text-[#554B41] mb-3 text-center md:text-left tracking-tight">
+            <Text className="text-3xl md:text-4xl lg:text-[42px] font-extrabold text-[#212134] mb-3 text-center md:text-left tracking-tight">
               AtipicTouch
             </Text>
 
-            <Text className="text-[14px] md:text-[15px] text-[#80775C] text-center md:text-left leading-relaxed mb-6">
+            <Text className="text-[14px] md:text-[15px] text-[#6B6554] text-center md:text-left leading-relaxed mb-6">
               Sistema IoT para auxílio de mães de crianças não verbais com seletividade alimentar
             </Text>
 
@@ -164,12 +169,12 @@ export default function LoginScreen() {
           </View>
 
           <View className="flex-1 w-full max-w-[440px] items-center justify-center">
-            <View className="bg-[#E5DCC4] rounded-[10px] w-full p-6 md:p-8 border border-[#C6BB9A]">
-              <Text className="text-2xl md:text-[26px] font-bold text-[#554B41] text-center mb-1.5">
+            <View className="bg-[#F3F7EE] rounded-[10px] w-full p-6 md:p-8 border border-[#A3C78B]">
+              <Text className="text-2xl md:text-[26px] font-bold text-[#212134] text-center mb-1.5">
                 Bem-vindo(a) de volta!
               </Text>
 
-              <Text className="text-[13px] md:text-[14px] text-[#80775C] text-center mb-6">
+              <Text className="text-[13px] md:text-[14px] text-[#6B6554] text-center mb-6">
                 Faça login para acessar o painel do especialista
               </Text>
 
@@ -192,6 +197,9 @@ export default function LoginScreen() {
                 onChangeText={
                   setSenha
                 }
+                onSubmitEditing={
+                  handleLogin
+                }
               />
 
               <View className="w-full mt-2">
@@ -201,6 +209,7 @@ export default function LoginScreen() {
                       ? 'Autenticando...'
                       : 'Entrar'
                   }
+                  loading={loading}
                   onPress={
                     handleLogin
                   }
@@ -211,7 +220,7 @@ export default function LoginScreen() {
               </View>
 
               <TouchableOpacity className="mb-5">
-                <Text className="text-center text-xs md:text-sm text-[#554B41] font-medium hover:text-[#4D9B43] transition-colors">
+                <Text className="text-center text-xs md:text-sm text-[#212134] font-medium hover:text-[#528F33] transition-colors">
                   Esqueceu sua senha?
                 </Text>
               </TouchableOpacity>
@@ -223,10 +232,10 @@ export default function LoginScreen() {
                 asChild
               >
                 <TouchableOpacity className="mt-2">
-                  <Text className="text-center text-xs md:text-sm text-[#80775C]">
+                  <Text className="text-center text-xs md:text-sm text-[#6B6554]">
                     Não tem uma conta?{' '}
 
-                    <Text className="text-[#4D9B43] font-bold">
+                    <Text className="text-[#528F33] font-bold">
                       Clique aqui para criar uma
                     </Text>
                   </Text>
