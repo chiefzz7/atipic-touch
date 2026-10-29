@@ -2,9 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
-// Slideshow lento com fade e leve zoom. Troca sozinho a cada `interval` ms;
+// Slideshow com fade. Cada foto fica `holdMs` parada e faz a transição em `fadeMs`;
 // os botões e os pontos reiniciam o tempo.
-export default function Slideshow({ photos, interval = 7000 }) {
+export default function Slideshow({ photos, holdMs = 1000, fadeMs = 700 }) {
+  const interval = holdMs + fadeMs;
   const [index, setIndex] = useState(0);
   const n = photos.length;
 
@@ -27,15 +28,13 @@ export default function Slideshow({ photos, interval = 7000 }) {
         return (
           <View
             key={i}
-            className="transition-opacity duration-[1600ms]"
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: active ? 1 : 0, pointerEvents: 'none' }}
+            style={{ transitionProperty: 'opacity', transitionDuration: `${fadeMs}ms`, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: active ? 1 : 0, pointerEvents: 'none' }}
           >
             <Image
               source={p.src}
               accessibilityLabel={p.alt}
               resizeMode={portrait ? 'contain' : 'cover'}
-              className="transition-transform duration-[9000ms] ease-linear"
-              style={{ width: '100%', height: '100%', transform: [{ scale: active ? 1.06 : 1 }] }}
+              style={{ width: '100%', height: '100%' }}
             />
           </View>
         );

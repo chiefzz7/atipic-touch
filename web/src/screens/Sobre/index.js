@@ -88,7 +88,6 @@ function VideoFrame({ src, title }) {
     title,
     allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
     allowFullScreen: true,
-    loading: 'lazy',
     style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 },
   });
 }
@@ -125,7 +124,7 @@ export default function SobreScreen() {
   }, []);
 
   const rowHeight = width >= 960 ? 230 : width >= 600 ? 190 : 150;
-  const embedYoutube = `https://www.youtube-nocookie.com/embed/${LINKS.youtubeId}?rel=0`;
+  const embedYoutube = `https://www.youtube-nocookie.com/embed/${LINKS.youtubeId}?autoplay=1&mute=1&loop=1&playlist=${LINKS.youtubeId}&playsinline=1&rel=0`;
 
   return (
     <View className="bg-[#FFFCEF]" style={{ height: '100vh' }}>
@@ -190,7 +189,7 @@ export default function SobreScreen() {
               </View>
 
               <View style={{ flex: wide ? 1 : undefined, width: '100%' }}>
-                <Slideshow photos={FOTOS_EQUIPE} interval={7000} />
+                <Slideshow photos={FOTOS_EQUIPE} holdMs={1000} fadeMs={700} />
                 <Text className="mt-3 text-[13px] text-[#6B6554] text-center">A equipe em ação, durante a feira</Text>
               </View>
             </View>

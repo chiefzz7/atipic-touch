@@ -87,6 +87,10 @@ export const FOTOS_EQUIPE = [
   { src: require('../../assets/equipe/equipe-08.jpg'), w: 960, h: 1280, alt: 'Integrante testando o dispositivo' },
   { src: require('../../assets/equipe/equipe-09.jpg'), w: 1280, h: 960, alt: 'Montagem do dispositivo e da eletrônica' },
   { src: require('../../assets/equipe/equipe-10.jpg'), w: 1280, h: 960, alt: 'Programação durante a montagem' },
+  { src: require('../../assets/equipe/equipe-11.jpg'), w: 1600, h: 1200, alt: 'Mesa do projeto com o piano, notebook e materiais de montagem' },
+  { src: require('../../assets/equipe/equipe-12.jpg'), w: 1600, h: 1200, alt: 'Integrante ao lado do dispositivo sobre a mesa do estande' },
+  { src: require('../../assets/equipe/equipe-13.jpg'), w: 1600, h: 1200, alt: 'Estande do Atipic Touch com banner, monitor e dispositivo' },
+  { src: require('../../assets/equipe/equipe-14.jpg'), w: 1200, h: 1600, alt: 'Integrante montando o dispositivo no estande' },
 ];
 
 // Acompanhe como foi: bastidores do desenvolvimento (final da página).
