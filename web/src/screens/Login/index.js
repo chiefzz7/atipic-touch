@@ -59,7 +59,7 @@ export default function LoginScreen() {
       try {
         const response =
           await fetch(
-            'http://localhost:8000/api/auth/login',
+            'https://atipic-touch-devlop.onrender.com/api/auth/login',
             {
               method:
                 'POST',

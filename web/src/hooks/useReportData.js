@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://atipic-touch-devlop.onrender.com';
 
 export default function useReportData() {
   const [logs, setLogs] = useState([]);

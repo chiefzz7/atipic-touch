@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Atipic Touch - Preview",
+    "name": "Atipic Touch",
     "slug": "mobile",
     "scheme": "atipictouch",
     "version": "1.0.0",
@@ -29,7 +29,7 @@
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.atipictouch.mobile.preview"
+      "package": "com.atipictouch.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"

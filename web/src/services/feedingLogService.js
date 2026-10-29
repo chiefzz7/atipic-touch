@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://atipic-touch-devlop.onrender.com';
 
 const TOKEN_KEY = '@atipictouch:token';
 

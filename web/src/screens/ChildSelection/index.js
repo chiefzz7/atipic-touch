@@ -20,7 +20,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import ChildCard from '../../components/ui/ChildCard';
 
 const API_URL =
-  'http://localhost:8000';
+  'https://atipic-touch-devlop.onrender.com';
 
 export default function ChildSelectionScreen() {
   const router =

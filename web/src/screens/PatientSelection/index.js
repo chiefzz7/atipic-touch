@@ -23,7 +23,7 @@ import SearchInput from '../../components/ui/SearchInput';
 import Footer from '../../components/ui/Footer';
 
 const API_URL =
-  'http://localhost:8000';
+  'https://atipic-touch-devlop.onrender.com';
 
 export default function PatientSelectionScreen() {
   const router =

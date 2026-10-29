@@ -34,7 +34,7 @@ import Footer from '../../components/ui/Footer';
 import usePeriodFilter from '../../hooks/usePeriodFilter';
 
 const API_URL =
-  'http://localhost:8000';
+  'https://atipic-touch-devlop.onrender.com';
 
 export default function DashboardScreen() {
   const [

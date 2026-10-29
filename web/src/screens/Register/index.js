@@ -86,7 +86,7 @@ export default function RegisterScreen() {
       try {
         const response =
           await fetch(
-            'http://localhost:8000/api/users/profissionais',
+            'https://atipic-touch-devlop.onrender.com/api/users/profissionais',
             {
               method:
                 'POST',
