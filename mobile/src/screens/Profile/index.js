@@ -782,6 +782,8 @@ export default function ProfileScreen() {
         }
       />
 
+      <Text></Text>
+
       <BottomNavigation
         active="profile"
       />

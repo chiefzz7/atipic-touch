@@ -85,6 +85,44 @@ const SENSORY_ASPECTS = [
   },
 ];
 
+// Opções de características (mesmos valores do cadastro de alimento)
+const CHARACTERISTIC_OPTIONS = {
+  cor: [
+    "Vermelho", "Laranja", "Amarelo", "Verde", "Azul", "Roxo",
+    "Rosa", "Marrom", "Branco", "Preto", "Bege",
+  ],
+  sabor: [
+    "Doce", "Salgado", "Azedo", "Amargo", "Umami", "Picante", "Neutro",
+  ],
+  cheiro: [
+    "Agradável", "Suave", "Forte", "Doce", "Temperado", "Neutro", "Desagradável",
+  ],
+  textura: [
+    "Macio", "Crocante", "Cremoso", "Mastigável", "Fibroso", "Granulado",
+    "Pegajoso", "Líquido", "Pastoso", "Seco", "Duro",
+  ],
+  temperatura: [
+    "Quente", "Temperatura ambiente", "Frio",
+  ],
+};
+
+const FEEDBACK_CHOICES = [
+  {
+    gostou: true,
+    label: "Gostou",
+    icon: "happy-outline",
+    color: "#4D9B43",
+    background: "#EDF6E8",
+  },
+  {
+    gostou: false,
+    label: "Não gostou",
+    icon: "sad-outline",
+    color: "#D9534F",
+    background: "#FCEBE8",
+  },
+];
+
 function getReactionValue(
   emotion
 ) {
@@ -243,6 +281,17 @@ export default function InteractionModal({
     setCaptureMessage,
   ] = useState("");
 
+  // Ajustes de características válidos somente para esta refeição
+  const [
+    mealCharacteristics,
+    setMealCharacteristics,
+  ] = useState({});
+
+  const [
+    editingAspect,
+    setEditingAspect,
+  ] = useState(null);
+
   // ========================================
   // Abrir modal / resetar interação
   // ========================================
@@ -287,6 +336,10 @@ export default function InteractionModal({
     setCaptureMessage(
       ""
     );
+
+    setMealCharacteristics({});
+
+    setEditingAspect(null);
   }, [
     visible,
     initialEmotion,
@@ -612,6 +665,112 @@ export default function InteractionModal({
   }
 
   // ========================================
+  // Corrigir feedback sensorial manualmente
+  // (caso a criança aperte o botão errado)
+  // ========================================
+
+  function handleSetFeedback(
+    atributo,
+    gostou
+  ) {
+    setSensoryFeedbacks(
+      (previous) => {
+        const current =
+          previous.find(
+            (feedback) =>
+              feedback.atributo ===
+              atributo
+          );
+
+        const others =
+          previous.filter(
+            (feedback) =>
+              feedback.atributo !==
+              atributo
+          );
+
+        // Tocar de novo na mesma opção remove o feedback
+        if (
+          current &&
+          current.gostou ===
+            gostou
+        ) {
+          return others;
+        }
+
+        return [
+          ...others,
+          {
+            atributo,
+            gostou,
+          },
+        ];
+      }
+    );
+
+    const aspect =
+      SENSORY_ASPECTS.find(
+        (item) =>
+          item.key ===
+          atributo
+      );
+
+    setCaptureMessage(
+      `${aspect?.label || atributo}: corrigido manualmente.`
+    );
+  }
+
+  // ========================================
+  // Ajustar característica SÓ nesta refeição
+  // (não altera o cadastro do alimento)
+  // ========================================
+
+  function handleSelectCharacteristic(
+    key,
+    value
+  ) {
+    setMealCharacteristics(
+      (previous) => {
+        const next = {
+          ...previous,
+        };
+
+        if (
+          selectedFood?.[key] ===
+          value
+        ) {
+          delete next[key];
+        } else {
+          next[key] = value;
+        }
+
+        return next;
+      }
+    );
+  }
+
+  function handleResetCharacteristic(
+    key
+  ) {
+    setMealCharacteristics(
+      (previous) => {
+        const next = {
+          ...previous,
+        };
+
+        delete next[key];
+
+        return next;
+      }
+    );
+  }
+
+  const changedCharacteristicsCount =
+    Object.keys(
+      mealCharacteristics
+    ).length;
+
+  // ========================================
   // Confirmar
   // ========================================
 
@@ -646,6 +805,8 @@ export default function InteractionModal({
 
         feedbacks:
           sensoryFeedbacks,
+
+        mealCharacteristics,
       });
 
       onClose?.();
@@ -970,6 +1131,15 @@ export default function InteractionModal({
                           0.8
                         }
                         onPress={() => {
+                          if (
+                            selectedFood?.id !==
+                            food.id
+                          ) {
+                            setMealCharacteristics({});
+
+                            setEditingAspect(null);
+                          }
+
                           setSelectedFood(
                             food
                           );
@@ -1045,7 +1215,7 @@ export default function InteractionModal({
           </View>
 
           {/* =================================
-              Feedbacks sensoriais
+              Feedbacks sensoriais + características
               ================================= */}
 
           <View className="bg-white border border-[#EFE7D0] shadow-sm rounded-[16px] px-4 py-5 mt-4">
@@ -1053,41 +1223,59 @@ export default function InteractionModal({
               Feedback sensorial
             </Text>
 
-            <Text className="text-[#80775C] text-[13px] mt-1">
-              Os dados abaixo são atualizados pelos botões físicos.
+            <Text className="text-[#80775C] text-[13px] mt-1 leading-5">
+              Preenchido pelos botões físicos. Se a criança apertou errado, toque abaixo para corrigir.
             </Text>
 
             <View className="mt-4">
-              {SENSORY_ASPECTS.map(
-                (
-                  aspect
-                ) => {
-                  const feedback =
-                    sensoryFeedbacks.find(
-                      (
-                        item
-                      ) =>
-                        item.atributo ===
-                        aspect.key
-                    );
-
-                  const foodValue =
-                    selectedFood?.[
+              {SENSORY_ASPECTS.map((aspect) => {
+                const feedback =
+                  sensoryFeedbacks.find(
+                    (item) =>
+                      item.atributo ===
                       aspect.key
-                    ];
+                  );
 
-                  return (
-                    <View
-                      key={
-                        aspect.key
-                      }
-                      className="min-h-[72px] bg-white border border-[#E7DFC6] rounded-[16px] px-3 py-3 mb-3 flex-row items-center"
-                    >
+                const originalValue =
+                  selectedFood?.[
+                    aspect.key
+                  ];
+
+                const editedValue =
+                  mealCharacteristics[
+                    aspect.key
+                  ];
+
+                const currentValue =
+                  editedValue ||
+                  originalValue;
+
+                const isEdited =
+                  Boolean(editedValue);
+
+                const isEditing =
+                  editingAspect ===
+                  aspect.key;
+
+                const options =
+                  CHARACTERISTIC_OPTIONS[
+                    aspect.key
+                  ] || [];
+
+                return (
+                  <View
+                    key={aspect.key}
+                    className="bg-white border rounded-[16px] px-3 py-3 mb-3"
+                    style={{
+                      borderColor: isEdited
+                        ? "#C29424"
+                        : "#E7DFC6",
+                    }}
+                  >
+                    <View className="flex-row items-center">
                       <View className="w-[42px] h-[42px] rounded-full bg-[#EFEAD6] items-center justify-center">
                         <Ionicons
-                          name={
-                            aspect.icon
-                          }
+                          name={aspect.icon}
                           size={21}
                           color="#554B41"
                         />
@@ -1095,73 +1283,202 @@ export default function InteractionModal({
 
                       <View className="flex-1 ml-3">
                         <Text className="text-[#554B41] text-[15px] font-bold">
-                          {
-                            aspect.label
-                          }
+                          {aspect.label}
                         </Text>
 
-                        <Text
-                          numberOfLines={
-                            1
-                          }
-                          className="text-[#80775C] text-[12px] mt-1"
-                        >
-                          {foodValue ||
-                            "Selecione um alimento"}
-                        </Text>
-                      </View>
-
-                      {feedback ? (
-                        <View className="items-end ml-2">
-                          <View
-                            className="rounded-full px-3 py-1"
+                        <View className="flex-row items-center mt-1">
+                          <Text
+                            numberOfLines={1}
+                            className="text-[#80775C] text-[12px]"
                             style={{
-                              backgroundColor:
-                                feedback.gostou
-                                  ? "#EDF6E8"
-                                  : "#FCEBE8",
+                              flexShrink: 1,
                             }}
                           >
-                            <Text
-                              className="text-[11px] font-bold"
-                              style={{
-                                color:
-                                  feedback.gostou
-                                    ? "#4D9B43"
-                                    : "#D9534F",
-                              }}
-                            >
-                              {feedback.gostou
-                                ? "Gostou"
-                                : "Não gostou"}
-                            </Text>
-                          </View>
+                            {currentValue ||
+                              "Selecione um alimento"}
+                          </Text>
 
-                          <TouchableOpacity
-                            activeOpacity={
-                              0.8
+                          {isEdited ? (
+                            <View className="ml-2 bg-[#F8F0D9] rounded-full px-2 py-0.5">
+                              <Text className="text-[#8A6A12] text-[10px] font-bold">
+                                só nesta refeição
+                              </Text>
+                            </View>
+                          ) : null}
+                        </View>
+                      </View>
+
+                      {selectedFood ? (
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          onPress={() =>
+                            setEditingAspect(
+                              isEditing
+                                ? null
+                                : aspect.key
+                            )
+                          }
+                          accessibilityRole="button"
+                          accessibilityLabel={`Editar ${aspect.label} nesta refeição`}
+                          className="flex-row items-center bg-[#F4EEDA] rounded-full px-3 py-1.5 ml-2"
+                        >
+                          <Ionicons
+                            name={
+                              isEditing
+                                ? "chevron-up"
+                                : "create-outline"
                             }
+                            size={14}
+                            color="#554B41"
+                          />
+
+                          <Text className="text-[#554B41] text-[11px] font-bold ml-1">
+                            {isEditing
+                              ? "Fechar"
+                              : "Editar"}
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
+
+                    {isEditing ? (
+                      <View className="mt-3 bg-[#FBF8EE] border border-[#E7DFC6] rounded-[14px] px-3 py-3">
+                        <Text className="text-[#80775C] text-[12px] leading-5">
+                          Altera apenas esta refeição. O cadastro do alimento não é modificado.
+                        </Text>
+
+                        <View className="flex-row flex-wrap mt-2">
+                          {options.map((option) => {
+                            const selected =
+                              currentValue ===
+                              option;
+
+                            return (
+                              <TouchableOpacity
+                                key={option}
+                                activeOpacity={0.8}
+                                onPress={() =>
+                                  handleSelectCharacteristic(
+                                    aspect.key,
+                                    option
+                                  )
+                                }
+                                accessibilityRole="button"
+                                accessibilityState={{
+                                  selected,
+                                }}
+                                className="rounded-full border px-3 py-1.5 mr-2 mb-2"
+                                style={{
+                                  borderColor: selected
+                                    ? "#438C3B"
+                                    : "#E7DFC6",
+                                  backgroundColor: selected
+                                    ? "#EDF6E8"
+                                    : "#FFFFFF",
+                                }}
+                              >
+                                <Text
+                                  className="text-[13px] font-medium"
+                                  style={{
+                                    color: selected
+                                      ? "#2F6B28"
+                                      : "#554B41",
+                                  }}
+                                >
+                                  {option}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+
+                        {isEdited ? (
+                          <TouchableOpacity
+                            activeOpacity={0.8}
                             onPress={() =>
-                              removeFeedback(
+                              handleResetCharacteristic(
                                 aspect.key
                               )
                             }
-                            className="mt-2"
+                            className="mt-1 self-start"
                           >
-                            <Text className="text-[#9B5547] text-[11px] font-medium">
-                              remover
+                            <Text className="text-[#9B5547] text-[12px] font-bold">
+                              {`Restaurar original${
+                                originalValue
+                                  ? ` (${originalValue})`
+                                  : ""
+                              }`}
                             </Text>
                           </TouchableOpacity>
-                        </View>
-                      ) : (
-                        <Text className="text-[#A3987B] text-[11px] ml-2">
-                          Não informado
-                        </Text>
+                        ) : null}
+                      </View>
+                    ) : null}
+
+                    <View className="flex-row mt-3">
+                      {FEEDBACK_CHOICES.map(
+                        (choice, index) => {
+                          const selected =
+                            feedback?.gostou ===
+                            choice.gostou;
+
+                          return (
+                            <TouchableOpacity
+                              key={choice.label}
+                              activeOpacity={0.8}
+                              onPress={() =>
+                                handleSetFeedback(
+                                  aspect.key,
+                                  choice.gostou
+                                )
+                              }
+                              accessibilityRole="button"
+                              accessibilityState={{
+                                selected,
+                              }}
+                              className={`flex-1 h-[44px] rounded-[14px] border flex-row items-center justify-center ${
+                                index === 0
+                                  ? "mr-2"
+                                  : ""
+                              }`}
+                              style={{
+                                borderColor: selected
+                                  ? choice.color
+                                  : "#E7DFC6",
+                                backgroundColor: selected
+                                  ? choice.background
+                                  : "#FFFFFF",
+                              }}
+                            >
+                              <Ionicons
+                                name={choice.icon}
+                                size={20}
+                                color={choice.color}
+                              />
+
+                              <Text
+                                className="text-[13px] font-bold ml-2"
+                                style={{
+                                  color: selected
+                                    ? choice.color
+                                    : "#554B41",
+                                }}
+                              >
+                                {choice.label}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        }
                       )}
                     </View>
-                  );
-                }
-              )}
+
+                    <Text className="text-[#A3987B] text-[11px] mt-2">
+                      {feedback
+                        ? "Toque novamente na opção escolhida para remover."
+                        : "Não informado."}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           </View>
 
@@ -1221,6 +1538,23 @@ export default function InteractionModal({
                 </Text>
               </Text>
             </View>
+
+            {changedCharacteristicsCount > 0 ? (
+              <View className="flex-row items-center mt-2">
+                <Ionicons
+                  name="create-outline"
+                  size={20}
+                  color="#806A42"
+                />
+
+                <Text className="flex-1 text-[#554B41] text-[14px] ml-2">
+                  Características ajustadas nesta refeição:{" "}
+                  <Text className="font-bold">
+                    {changedCharacteristicsCount}
+                  </Text>
+                </Text>
+              </View>
+            ) : null}
 
             <View className="flex-row items-center mt-2">
               <Ionicons

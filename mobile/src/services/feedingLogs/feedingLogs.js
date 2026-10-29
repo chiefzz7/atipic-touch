@@ -13,6 +13,7 @@ export async function createFeedingLog({
   reacao,
   origem = "MANUAL",
   feedbacks = [],
+  caracteristicasAlimento = null,
 }) {
   console.log("========== CRIAR FEEDING LOG ==========");
   console.log("CRIANÇA ID:", criancaId);
@@ -20,6 +21,7 @@ export async function createFeedingLog({
   console.log("REAÇÃO:", reacao);
   console.log("ORIGEM:", origem);
   console.log("FEEDBACKS:", feedbacks);
+  console.log("CARACTERÍSTICAS DA REFEIÇÃO:", caracteristicasAlimento);
 
   if (!criancaId) {
     throw new Error("O ID da criança é obrigatório.");
@@ -48,6 +50,15 @@ export async function createFeedingLog({
     origem,
     feedbacks,
   };
+
+  // Ajustes feitos pela mãe valem somente para esta refeição
+  // (não alteram o cadastro do alimento). Só é enviado se houver edição.
+  if (
+    caracteristicasAlimento &&
+    Object.keys(caracteristicasAlimento).length > 0
+  ) {
+    payload.caracteristicasAlimento = caracteristicasAlimento;
+  }
 
   console.log("PAYLOAD:", payload);
 

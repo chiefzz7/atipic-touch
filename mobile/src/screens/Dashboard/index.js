@@ -272,6 +272,7 @@ export default function DashboardScreen() {
     reaction,
     food,
     feedbacks,
+    mealCharacteristics,
   }) {
     if (
       !child?.id
@@ -338,6 +339,14 @@ export default function DashboardScreen() {
           )
             ? feedbacks
             : [],
+
+        caracteristicasAlimento:
+          mealCharacteristics &&
+          Object.keys(
+            mealCharacteristics
+          ).length > 0
+            ? mealCharacteristics
+            : null,
       });
 
     console.log(

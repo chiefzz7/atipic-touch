@@ -1,4 +1,7 @@
-import React from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   SafeAreaView,
@@ -20,9 +23,49 @@ import {
 
 import ScreenContainer from "../../components/ScreenContainer";
 
+import {
+  getCurrentUser,
+} from "../../services/users/users";
+
 export default function ChildIntroductionScreen() {
   const router =
     useRouter();
+
+  const [
+    userName,
+    setUserName,
+  ] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadUserName() {
+      try {
+        const user =
+          await getCurrentUser();
+
+        const firstName =
+          String(user?.nome || "")
+            .trim()
+            .split(" ")[0];
+
+        if (active) {
+          setUserName(firstName);
+        }
+      } catch (error) {
+        console.warn(
+          "Não foi possível carregar o nome do usuário:",
+          error
+        );
+      }
+    }
+
+    loadUserName();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const {
     width,
@@ -195,7 +238,9 @@ export default function ChildIntroductionScreen() {
                   : "text-[22px]"
               }`}
             >
-              Tudo certo, Maria.
+              {userName
+                ? `Tudo certo, ${userName}.`
+                : "Tudo certo."}
             </Text>
 
             <Text
